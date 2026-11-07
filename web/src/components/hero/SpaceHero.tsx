@@ -353,19 +353,60 @@ export default function SpaceHero({ earthSites, marsTargets, moonAnalogs }: { ea
       const { w, h } = st;
       sctx.setTransform(st.dpr, 0, 0, st.dpr, 0, 0);
       sctx.clearRect(0, 0, w, h);
-      if (st.nebula) sctx.drawImage(st.nebula, -30 + st.px * DEPTH.nebula, -30 + st.py * DEPTH.nebula, w + 60, h + 60);
+      // day theme: sunrise. The nebula and stars fade back and the Sun rises at the right edge,
+      // the side the planets are lit from (PlanetRenderer's SUN vector points right, up and forward).
+      const day = document.documentElement.dataset.theme === 'light';
+      if (st.nebula) {
+        sctx.globalAlpha = day ? 0.35 : 1;
+        sctx.drawImage(st.nebula, -30 + st.px * DEPTH.nebula, -30 + st.py * DEPTH.nebula, w + 60, h + 60);
+        sctx.globalAlpha = 1;
+      }
 
       for (const s of st.stars) {
-        const tw = reduced ? 1 : 0.72 + 0.28 * Math.sin(time * 0.001 * s.tw + s.ph);
-        sctx.globalAlpha = s.a * tw;
+        const tw = reduced ? 1 : 0.62 + 0.38 * Math.sin(time * 0.001 * s.tw + s.ph);
+        // at sunrise only the stars high in the still-dark sky stay visible
+        sctx.globalAlpha = s.a * tw * (day ? Math.max(0, 0.75 - s.y) : 1);
         const x = s.x * w + st.px * DEPTH.stars * s.d, y = s.y * h + st.py * DEPTH.stars * s.d;
         const size = s.s * 4;
         sctx.drawImage(sprites[s.c], x - size / 2, y - size / 2, size, size);
       }
       sctx.globalAlpha = 1;
 
+      if (day) {
+        const sx = w + 30 + st.px * DEPTH.stars, sy = h * 0.18 + st.py * DEPTH.stars;
+        const R = Math.hypot(w, h);
+        const pulse = reduced ? 1 : 1 + 0.05 * Math.sin(time * 0.0011);
+        sctx.save();
+        sctx.translate(sx, sy);
+        sctx.rotate(reduced ? 0 : time * 0.00002);
+        for (let i = 0; i < 16; i++) {
+          const a = (i / 16) * Math.PI * 2;
+          const spread = i % 2 ? 0.03 : 0.055;
+          const len = R * (i % 3 ? 0.55 : 0.8);
+          const g = sctx.createRadialGradient(0, 0, 0, 0, 0, len);
+          g.addColorStop(0, `rgba(255,225,170,${i % 2 ? 0.12 : 0.2})`);
+          g.addColorStop(1, 'rgba(255,225,170,0)');
+          sctx.fillStyle = g;
+          sctx.beginPath();
+          sctx.moveTo(0, 0);
+          sctx.arc(0, 0, len, a - spread, a + spread);
+          sctx.closePath();
+          sctx.fill();
+        }
+        sctx.restore();
+        const core = sctx.createRadialGradient(sx, sy, 0, sx, sy, 230 * pulse);
+        core.addColorStop(0, 'rgba(255,253,242,1)');
+        core.addColorStop(0.22, 'rgba(255,238,195,0.95)');
+        core.addColorStop(0.5, 'rgba(255,196,120,0.4)');
+        core.addColorStop(1, 'rgba(255,170,100,0)');
+        sctx.fillStyle = core;
+        sctx.beginPath();
+        sctx.arc(sx, sy, 230 * pulse, 0, Math.PI * 2);
+        sctx.fill();
+      }
+
       // occasional, faint shooting star
-      if (!reduced) {
+      if (!reduced && !day) {
         if (!st.meteor && time > st.nextMeteor) {
           const fromLeft = Math.random() < 0.5;
           st.meteor = { x: fromLeft ? w * (0.1 + Math.random() * 0.4) : w * (0.5 + Math.random() * 0.4), y: h * Math.random() * 0.3, vx: (fromLeft ? 1 : -1) * 0.55, vy: 0.22, life: 0 };

@@ -1137,6 +1137,14 @@ html[data-theme='light'] {
   --hover-row: rgba(20, 32, 51, 0.035);
   color-scheme: light;
 }
+/* Hero at day: the planets at sunrise. Deep blue space overhead, the Sun's glare rising from the
+   right, where the planets are lit from; text stays on the darker side. */
+html[data-theme='light'] .space-bg {
+  background:
+    radial-gradient(55% 75% at 104% 18%, rgba(255, 214, 150, 0.85) 0%, rgba(255, 168, 96, 0.45) 30%, rgba(240, 120, 80, 0.12) 60%, transparent 75%),
+    radial-gradient(90% 60% at 70% 110%, rgba(255, 160, 110, 0.35), transparent 70%),
+    linear-gradient(180deg, #0c1838 0%, #1b3168 40%, #3d4f8c 70%, #8a6f8e 100%);
+}
 html[data-theme='light'] .space-hero,
 html[data-theme='light'] .present {
   --bg: #0b0f17; --surface: #121826; --surface-2: #182033; --border: #243049; --grid: #2a3550;
@@ -1144,13 +1152,15 @@ html[data-theme='light'] .present {
   --text-2: #c3cbdb; --link: #f0a07a; --accent-soft: #f3b896; --fade: rgba(18, 24, 38, 0.96);
   color: var(--text);
 }
+/* Day: a sunlit sky instead of plain white. Pale blue overhead warming toward the Sun (top right),
+   with the animated Sun, rays, flare and golden motes drawn by the starfield canvas. */
 html[data-theme='light'] body {
   background:
-    radial-gradient(1200px 600px at 85% -10%, rgba(224, 112, 63, 0.1), transparent 60%),
-    radial-gradient(900px 500px at -10% 10%, rgba(63, 182, 168, 0.1), transparent 60%),
-    var(--bg);
+    radial-gradient(1400px 900px at 100% -5%, rgba(255, 206, 140, 0.35), transparent 65%),
+    radial-gradient(1000px 700px at -10% 30%, rgba(120, 170, 255, 0.16), transparent 60%),
+    linear-gradient(180deg, #e9f0fb 0%, #f4f1ec 45%, #f7efe4 100%);
+  background-attachment: fixed;
 }
-html[data-theme='light'] .starfield,
 html[data-theme='light'] body::before,
 html[data-theme='light'] body::after { display: none; }
 html[data-theme='light'] .panel, html[data-theme='light'] .tile, html[data-theme='light'] .site-card { box-shadow: 0 1px 3px rgba(20, 32, 51, 0.06); }
@@ -1202,3 +1212,13 @@ html.has-starfield body::before, html.has-starfield body::after { display: none;
 .leaflet-tooltip.pin-label strong { font-size: 0.74rem; font-weight: 600; }
 .leaflet-tooltip.pin-label span { font-size: 0.64rem; color: #aab4c8; }
 .site-photo img.failed { visibility: hidden; }
+
+/* light pages: panels float a little over the sky */
+html[data-theme='light'] .panel, html[data-theme='light'] .tile, html[data-theme='light'] .site-card {
+  background: rgba(255, 255, 255, 0.86); backdrop-filter: blur(6px);
+  box-shadow: 0 2px 14px rgba(120, 90, 40, 0.07), 0 1px 3px rgba(20, 32, 51, 0.05);
+}
+html[data-theme='light'] .topbar { background: rgba(255, 252, 246, 0.82); }
+html[data-theme='light'] .site-footer { background: rgba(240, 232, 220, 0.85); }
+html[data-theme='light'] .twin-label { color: #e7ebf3; --muted: #aab4c8; --text: #e7ebf3; }
+html[data-theme='light'] .twin-label strong, html[data-theme='light'] .twin-label b { color: #fff; }
