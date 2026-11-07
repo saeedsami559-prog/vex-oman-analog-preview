@@ -1222,3 +1222,14 @@ html[data-theme='light'] .topbar { background: rgba(255, 252, 246, 0.82); }
 html[data-theme='light'] .site-footer { background: rgba(240, 232, 220, 0.85); }
 html[data-theme='light'] .twin-label { color: #e7ebf3; --muted: #aab4c8; --text: #e7ebf3; }
 html[data-theme='light'] .twin-label strong, html[data-theme='light'] .twin-label b { color: #fff; }
+
+/* ---- Team VEX logo ---- */
+.brand-mark {
+  flex: none; width: 34px; height: 34px; border-radius: 50%; object-fit: cover; display: block;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 0 14px rgba(224, 112, 63, 0.35);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+.brand:hover .brand-mark { transform: rotate(-8deg) scale(1.06); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2), 0 0 20px rgba(110, 170, 255, 0.45); }
+.vex-logo { flex: none; width: 120px; height: auto; border-radius: 12px; display: block; box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35); }
+@media print { .brand-mark { box-shadow: none; } }
+.slide-logo { width: min(260px, 40vw); height: auto; border-radius: 16px; margin-bottom: 18px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45); }

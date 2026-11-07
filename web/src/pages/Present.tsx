@@ -24,6 +24,7 @@ export default function Present() {
 
   const slides: ReactNode[] = [
     <div className="slide-title" key="s1">
+      <img className="slide-logo" src={`${import.meta.env.BASE_URL}brand/vex-logo.jpg`} alt="Team VEX" />
       <p className="kicker">{t('present.s1Kicker')}</p>
       <h1>{t('app.title')}</h1>
       <p className="slide-sub">{t('home.kicker')}</p>

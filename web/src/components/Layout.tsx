@@ -45,10 +45,7 @@ export default function Layout() {
       </a>
       <header className="topbar">
         <NavLink to="/" className="brand">
-          <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
-            <circle cx="12" cy="16" r="10" fill="#3fb6a8" />
-            <circle cx="22" cy="16" r="8" fill="#e0703f" opacity="0.92" />
-          </svg>
+          <img className="brand-mark" src={`${import.meta.env.BASE_URL}brand/vex-mark.png`} width="34" height="34" alt="" />
           <span>{t('app.title')}</span>
         </NavLink>
         <nav>
@@ -88,7 +85,7 @@ export default function Layout() {
       <footer className="site-footer">
         <div className="footer-inner">
           <div className="footer-brand">
-            <span className="vex-mark" aria-hidden="true">VEX</span>
+            <img className="vex-logo" src={`${import.meta.env.BASE_URL}brand/vex-logo.jpg`} width="120" height="90" alt="Team VEX" loading="lazy" />
             <div>
               <p className="footer-built">{t('home.footerBuilt')}</p>
               <p className="muted small">
