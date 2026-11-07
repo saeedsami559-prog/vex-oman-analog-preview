@@ -1,0 +1,95 @@
+{
+  "bounds": [
+    [
+      20.485765814785385,
+      73.40991505307194
+    ],
+    [
+      22.514234185214615,
+      75.59008494692806
+    ]
+  ],
+  "half_km": 60,
+  "shape": [
+    259,
+    259
+  ],
+  "source": {
+    "dataset": "MGS MOLA DEM global mosaic 463 m (USGS Astrogeology)",
+    "products": [
+      "Mars_MGS_MOLA_DEM_mosaic_global_463m"
+    ],
+    "urls": [
+      "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Mars_MGS_MOLA_DEM_mosaic_global_463m.tif"
+    ],
+    "native_resolution_m": 463
+  },
+  "site": "nili_fossae",
+  "body": "mars",
+  "generated": "2026-11-06T17:17:08+00:00",
+  "elevation_m": {
+    "min": -1955.6,
+    "max": 1649.8,
+    "p2": -1121.2,
+    "p98": 670.0,
+    "cmap": "terrain"
+  },
+  "slope": {
+    "bins_deg": [
+      0,
+      2,
+      5,
+      10,
+      20,
+      30,
+      90
+    ],
+    "colors": [
+      "#1a9850",
+      "#91cf60",
+      "#d9ef8b",
+      "#fee08b",
+      "#fc8d59",
+      "#d73027"
+    ],
+    "share": {
+      "0-2": 0.5191,
+      "2-5": 0.2419,
+      "5-10": 0.1509,
+      "10-20": 0.0819,
+      "20-30": 0.0062,
+      "30-90": 0.0001
+    }
+  },
+  "drainage": {
+    "stream_km2": 200.0,
+    "depression_m": 20.0,
+    "channel_share": 0.0154,
+    "depression_km2": 902.71,
+    "max_upstream_km2": 7540.7,
+    "flat": false
+  },
+  "common": {
+    "res_m": 463.0,
+    "shape": [
+      259,
+      259
+    ],
+    "slope_share": {
+      "0-2": 0.5191,
+      "2-5": 0.2419,
+      "5-10": 0.1509,
+      "10-20": 0.0819,
+      "20-30": 0.0062,
+      "30-90": 0.0001
+    },
+    "drainage": {
+      "stream_km2": 200.0,
+      "depression_m": 20.0,
+      "channel_share": 0.0154,
+      "depression_km2": 902.71,
+      "max_upstream_km2": 7540.7
+    }
+  },
+  "method": "Priority-Flood fill (Barnes et al. 2014) + D8 flow direction (O'Callaghan & Mark 1984)"
+}

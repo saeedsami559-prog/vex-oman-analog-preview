@@ -1,0 +1,154 @@
+# Candidate Earth (Oman) analog sites.
+#
+# This file holds only locations and card texts. Metric values never live here: they come from
+# `python -m analog.compute` (data/processed/metrics/<id>.json) with provenance, or are null with a
+# reason. Datasets and resolutions are recorded per value in that provenance.
+# `bbox_km` is the half-width of the clip window used by the pipeline.
+
+sites:
+  - id: samail_ophiolite
+    name: {en: "Samail Ophiolite (Wadi Tayin)", ar: "أفيوليت سمائل (وادي الطائيين)"}
+    lat: 22.90
+    lon: 58.45
+    bbox_km: 10
+    role: analog
+    intended_targets: [jezero_crater, nili_fossae]
+    card:
+      en:
+        summary: "Earth's best-exposed slab of oceanic mantle. Peridotite reacting with water and CO2 makes serpentine and carbonate veins, the same mineral pair CRISM maps around Jezero and Nili Fossae."
+        similarities:
+          - "Serpentine + Mg-carbonate assemblage formed by water-rock reaction"
+          - "Olivine-rich ultramafic bedrock"
+          - "Arid, sparsely vegetated surface with good spectral exposure"
+        differences:
+          - "Active weathering under today's Earth atmosphere and occasional rain"
+          - "Rock here is much denser and more cohesive than Martian regolith (higher thermal inertia)"
+          - "Tectonic origin (ophiolite obduction) has no direct Martian equivalent"
+      ar:
+        summary: "أفضل مقطع مكشوف لوشاح المحيط على الأرض. تفاعل البيريدوتيت مع الماء وثاني أكسيد الكربون يُكوّن السربنتين وعروق الكربونات، وهو نفس الثنائي المعدني الذي رصده CRISM حول Jezero و Nili Fossae."
+        similarities:
+          - "تجمّع السربنتين وكربونات المغنيسيوم الناتج عن تفاعل الماء مع الصخر"
+          - "صخور فوق مافية غنية بالأوليفين"
+          - "سطح جاف قليل الغطاء النباتي يسمح بقراءة طيفية جيدة"
+        differences:
+          - "تجوية نشطة تحت غلاف الأرض الجوي الحالي وأمطار متقطعة"
+          - "الصخور هنا أكثر كثافة وتماسكاً من تربة المريخ (قصور حراري أعلى)"
+          - "الأصل التكتوني (زحف الأفيوليت) لا يوجد له مقابل مباشر على المريخ"
+
+  - id: umm_as_samim
+    name: {en: "Umm as Samim (salt sabkha)", ar: "أم السميم (سبخة ملحية)"}
+    lat: 21.30
+    lon: 56.00
+    bbox_km: 15
+    role: analog
+    intended_targets: [terra_sirenum_chlorides]
+    card:
+      en:
+        summary: "One of the largest inland sabkhas in Arabia: a flat, salt-crusted basin where evaporating groundwater leaves chloride and sulfate salts - a template for the chloride deposits found in Mars' southern highlands."
+        similarities:
+          - "Chloride-dominated evaporite crust in a closed basin"
+          - "Extremely flat, low-relief surface"
+          - "Hyper-arid setting where salts persist at the surface"
+        differences:
+          - "Shallow groundwater still feeds the sabkha today"
+          - "Mars chloride deposits are billions of years old and partly buried by dust"
+          - "Moist salt crust raises thermal inertia compared with dry Martian deposits"
+      ar:
+        summary: "من أكبر السبخات الداخلية في الجزيرة العربية: حوض مسطح مغطى بقشرة ملحية، تتبخر فيه المياه الجوفية تاركة أملاح الكلوريد والكبريتات، وهو نموذج لرواسب الكلوريد في المرتفعات الجنوبية للمريخ."
+        similarities:
+          - "قشرة تبخرية يغلب عليها الكلوريد داخل حوض مغلق"
+          - "سطح شديد الاستواء قليل التضاريس"
+          - "بيئة شديدة الجفاف تبقى فيها الأملاح على السطح"
+        differences:
+          - "ما زالت المياه الجوفية الضحلة تغذي السبخة حالياً"
+          - "رواسب الكلوريد على المريخ عمرها مليارات السنين ومغطاة جزئياً بالغبار"
+          - "رطوبة القشرة الملحية ترفع القصور الحراري مقارنة برواسب المريخ الجافة"
+
+  - id: sharqiya_sands
+    name: {en: "Sharqiya (Wahiba) Sands", ar: "رمال الشرقية (وهيبة)"}
+    lat: 21.90
+    lon: 58.80
+    bbox_km: 15
+    role: analog
+    intended_targets: [nili_patera_dunes]
+    card:
+      en:
+        summary: "A sand sea of linear and star dunes a short drive from Ibra. Dune spacing, height and loose-sand thermal behaviour can be compared with the dark basaltic dune field of Nili Patera."
+        similarities:
+          - "Wind-built dune forms (linear and barchanoid ridges)"
+          - "Loose, unconsolidated sand with low thermal inertia"
+        differences:
+          - "Quartz-carbonate sand is bright; Nili Patera sand is dark basalt"
+          - "Earth's thicker atmosphere moves sand far more often"
+          - "Vegetation and moisture stabilise parts of the Wahiba dunes"
+      ar:
+        summary: "بحر رملي من الكثبان الطولية والنجمية على مسافة قصيرة من إبراء. يمكن مقارنة تباعد الكثبان وارتفاعها وسلوك الرمل الحراري بحقل الكثبان البازلتية الداكنة في Nili Patera."
+        similarities:
+          - "أشكال كثبان تبنيها الرياح (حافات طولية وهلالية)"
+          - "رمل مفكك غير متماسك بقصور حراري منخفض"
+        differences:
+          - "رمل الكوارتز والكربونات فاتح اللون، بينما رمل Nili Patera بازلت داكن"
+          - "غلاف الأرض الأكثف يحرّك الرمل بشكل أكثر تكراراً بكثير"
+          - "النباتات والرطوبة تثبّت أجزاء من كثبان وهيبة"
+
+  - id: dhofar_amadee18
+    name: {en: "Dhofar desert (AMADEE-18 site)", ar: "صحراء ظفار (موقع AMADEE-18)"}
+    lat: 18.80
+    lon: 55.40
+    bbox_km: 10
+    role: reference
+    intended_targets: []
+    # Groemer et al. 2020 (Astrobiology 20(11):1276-1286, doi:10.1089/ast.2019.2031) list the field
+    # coordinates, but the article was not accessible (paywall), so the point below is approximate.
+    coords_approximate: true
+    coords_note:
+      en: "Approximate location in the Dhofar desert near Marmul; the exact AMADEE-18 field coordinates (Groemer et al. 2020) could not be verified."
+      ar: "موقع تقريبي في صحراء ظفار قرب مرمول؛ لم نتمكن من التحقق من إحداثيات موقع AMADEE-18 الدقيقة (Groemer وآخرون 2020)."
+    card:
+      en:
+        summary: "Host of the Austrian Space Forum's AMADEE-18 Mars analog mission (2018). Because experts already chose it as Mars-like, we use it to check the index: a sound method should give it a high score."
+        similarities:
+          - "Gravel plains, wadis and evaporite patches typical of Mars field-test sites"
+          - "Hyper-arid, nearly vegetation-free surface"
+          - "Already validated by a real analog mission"
+        differences:
+          - "Not tied to one specific Martian landing site"
+          - "Earth-normal gravity, atmosphere and radiation"
+          - "Exact AMADEE-18 coordinates are approximate in this dataset"
+      ar:
+        summary: "استضاف مهمة AMADEE-18 للمنتدى الفضائي النمساوي لمحاكاة المريخ (2018). بما أن الخبراء اختاروه مسبقاً كموقع شبيه بالمريخ، نستخدمه لاختبار المؤشر: المنهجية السليمة يجب أن تمنحه درجة عالية."
+        similarities:
+          - "سهول حصوية وأودية وبقع تبخرية مثل مواقع اختبارات المريخ الميدانية"
+          - "سطح شديد الجفاف يكاد يخلو من النباتات"
+          - "سبق التحقق منه في مهمة محاكاة حقيقية"
+        differences:
+          - "غير مرتبط بموقع هبوط محدد على المريخ"
+          - "جاذبية وغلاف جوي وإشعاع أرضي طبيعي"
+          - "إحداثيات موقع AMADEE-18 تقريبية في هذه البيانات"
+
+  - id: jebel_shams
+    name: {en: "Jebel Shams / Wadi Ghul", ar: "جبل شمس / وادي غول"}
+    lat: 23.24
+    lon: 57.26
+    bbox_km: 10
+    role: analog
+    intended_targets: [moon_south_pole]
+    card:
+      en:
+        summary: "Oman's highest summit and a canyon nearly 1 km deep. We compare only its slopes and relief with the rugged crater rims near the lunar south pole, where Artemis plans to land."
+        similarities:
+          - "Steep slopes and kilometre-scale relief over short distances"
+          - "Rough, blocky terrain relevant to rover traverses and landing hazards"
+        differences:
+          - "Terrain only: limestone geology has nothing in common with lunar anorthosite"
+          - "No permanently shadowed regions or water-ice cold traps"
+          - "Erosion by water carved the canyon; lunar relief comes from impacts"
+      ar:
+        summary: "أعلى قمة في عُمان وأخدود يقارب عمقه كيلومتراً. نقارن انحداراته وتضاريسه فقط مع حواف الفوهات الوعرة قرب القطب الجنوبي للقمر، حيث تخطط Artemis للهبوط."
+        similarities:
+          - "انحدارات حادة وتضاريس بارتفاع كيلومتري خلال مسافات قصيرة"
+          - "أرض وعرة صخرية مهمة لدراسة مسارات العربات ومخاطر الهبوط"
+        differences:
+          - "التضاريس فقط: جيولوجيا الحجر الجيري لا تشبه صخور الأنورثوسيت القمرية"
+          - "لا توجد مناطق مظللة دائماً أو مصائد باردة للجليد"
+          - "الأخدود نحتته المياه، بينما تضاريس القمر ناتجة عن الاصطدامات"

@@ -1,0 +1,10 @@
+# Core (needed for export + tests)
+numpy>=2.1
+pyyaml>=6.0
+pytest>=8.0
+
+# Data download / raster processing (Phase 1-2; install when you have Earthdata access)
+# earthaccess>=0.11
+# rasterio>=1.4
+# xarray>=2024.10
+# netCDF4>=1.7

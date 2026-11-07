@@ -1,0 +1,110 @@
+{
+  "site": "moon_south_pole",
+  "generated": "2026-11-01T12:49:09+00:00",
+  "measured": {
+    "slope_deg": {
+      "value": 20.024484,
+      "provenance": {
+        "dataset": "LRO LOLA polar gridded DEM (LRO-L-LOLA-4-GDR-V1.0)",
+        "version": "V2.1",
+        "products": [
+          "LDEM_875S_20M"
+        ],
+        "urls": [
+          "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/float_img/ldem_875s_20m_float.lbl"
+        ],
+        "acquired": [
+          "2009-07-13/2017-02-02"
+        ],
+        "native_resolution_m": 20,
+        "window_coverage": 1.0,
+        "processing": "Reprojected to a site-centred azimuthal-equidistant grid at native resolution, area-averaged to exactly 463 m, then slope (central differences), RMS roughness (plane-detrended, ~1.4 km windows, median) and relief (max-min in 5 km windows, median)."
+      }
+    },
+    "roughness_m": {
+      "value": 8.270575,
+      "provenance": {
+        "dataset": "LRO LOLA polar gridded DEM (LRO-L-LOLA-4-GDR-V1.0)",
+        "version": "V2.1",
+        "products": [
+          "LDEM_875S_20M"
+        ],
+        "urls": [
+          "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/float_img/ldem_875s_20m_float.lbl"
+        ],
+        "acquired": [
+          "2009-07-13/2017-02-02"
+        ],
+        "native_resolution_m": 20,
+        "window_coverage": 1.0,
+        "processing": "Reprojected to a site-centred azimuthal-equidistant grid at native resolution, area-averaged to exactly 463 m, then slope (central differences), RMS roughness (plane-detrended, ~1.4 km windows, median) and relief (max-min in 5 km windows, median)."
+      }
+    },
+    "relief_m": {
+      "value": 1885.566739,
+      "provenance": {
+        "dataset": "LRO LOLA polar gridded DEM (LRO-L-LOLA-4-GDR-V1.0)",
+        "version": "V2.1",
+        "products": [
+          "LDEM_875S_20M"
+        ],
+        "urls": [
+          "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/float_img/ldem_875s_20m_float.lbl"
+        ],
+        "acquired": [
+          "2009-07-13/2017-02-02"
+        ],
+        "native_resolution_m": 20,
+        "window_coverage": 1.0,
+        "processing": "Reprojected to a site-centred azimuthal-equidistant grid at native resolution, area-averaged to exactly 463 m, then slope (central differences), RMS roughness (plane-detrended, ~1.4 km windows, median) and relief (max-min in 5 km windows, median)."
+      }
+    }
+  },
+  "missing": [
+    {
+      "feature": "serpentine_index",
+      "status": "not_applicable",
+      "reason_code": "not_applicable",
+      "reason_en": "Not compared for this body by design (lunar sites are compared on terrain only).",
+      "reason_ar": "لا يُقارن لهذا الجرم عن قصد (مواقع القمر تُقارن بالتضاريس فقط).",
+      "needed": "Nothing: the Moon is compared on terrain only.",
+      "needed_ar": "لا شيء: القمر يُقارن بالتضاريس فقط."
+    },
+    {
+      "feature": "carbonate_index",
+      "status": "not_applicable",
+      "reason_code": "not_applicable",
+      "reason_en": "Not compared for this body by design (lunar sites are compared on terrain only).",
+      "reason_ar": "لا يُقارن لهذا الجرم عن قصد (مواقع القمر تُقارن بالتضاريس فقط).",
+      "needed": "Nothing: the Moon is compared on terrain only.",
+      "needed_ar": "لا شيء: القمر يُقارن بالتضاريس فقط."
+    },
+    {
+      "feature": "chloride_index",
+      "status": "not_applicable",
+      "reason_code": "not_applicable",
+      "reason_en": "Not compared for this body by design (lunar sites are compared on terrain only).",
+      "reason_ar": "لا يُقارن لهذا الجرم عن قصد (مواقع القمر تُقارن بالتضاريس فقط).",
+      "needed": "Nothing: the Moon is compared on terrain only.",
+      "needed_ar": "لا شيء: القمر يُقارن بالتضاريس فقط."
+    },
+    {
+      "feature": "albedo",
+      "status": "not_applicable",
+      "reason_code": "not_applicable",
+      "reason_en": "Not compared for this body by design (lunar sites are compared on terrain only).",
+      "reason_ar": "لا يُقارن لهذا الجرم عن قصد (مواقع القمر تُقارن بالتضاريس فقط).",
+      "needed": "Nothing: the Moon is compared on terrain only.",
+      "needed_ar": "لا شيء: القمر يُقارن بالتضاريس فقط."
+    },
+    {
+      "feature": "thermal_inertia",
+      "status": "not_applicable",
+      "reason_code": "not_applicable",
+      "reason_en": "Not compared for this body by design (lunar sites are compared on terrain only).",
+      "reason_ar": "لا يُقارن لهذا الجرم عن قصد (مواقع القمر تُقارن بالتضاريس فقط).",
+      "needed": "Nothing: the Moon is compared on terrain only.",
+      "needed_ar": "لا شيء: القمر يُقارن بالتضاريس فقط."
+    }
+  ]
+}

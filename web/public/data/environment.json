@@ -1,0 +1,907 @@
+{
+  "source": {
+    "dataset": "NASA POWER",
+    "provider": "NASA Langley Research Center (LaRC) POWER Project",
+    "api": "POWER Climatology API v2.10.1",
+    "inputs": [
+      "SYN1DEG",
+      "MERRA2",
+      "POWER"
+    ],
+    "period": "25-year Meteorological and Solar Monthly & Annual Climatologies (January 2001 - December 2025)",
+    "time_standard": "LST",
+    "community": "RE",
+    "home": "https://power.larc.nasa.gov/",
+    "raw_files": "data/processed/environment/nasa_power/"
+  },
+  "parameters": {
+    "ALLSKY_SFC_SW_DWN": {
+      "units": "kW-hr/m^2/day",
+      "longname": "All Sky Surface Shortwave Downward Irradiance"
+    },
+    "PRECTOTCORR": {
+      "units": "mm/day",
+      "longname": "Precipitation Corrected"
+    },
+    "RH2M": {
+      "units": "%",
+      "longname": "Relative Humidity at 2 Meters"
+    },
+    "T2M": {
+      "units": "C",
+      "longname": "Temperature at 2 Meters"
+    },
+    "T2M_MAX": {
+      "units": "C",
+      "longname": "Temperature at 2 Meters Maximum"
+    },
+    "T2M_MIN": {
+      "units": "C",
+      "longname": "Temperature at 2 Meters Minimum"
+    },
+    "T2M_RANGE": {
+      "units": "C",
+      "longname": "Temperature at 2 Meters Range"
+    },
+    "WS2M": {
+      "units": "m/s",
+      "longname": "Wind Speed at 2 Meters"
+    }
+  },
+  "months": [
+    "JAN",
+    "FEB",
+    "MAR",
+    "APR",
+    "MAY",
+    "JUN",
+    "JUL",
+    "AUG",
+    "SEP",
+    "OCT",
+    "NOV",
+    "DEC"
+  ],
+  "sites": [
+    {
+      "id": "samail_ophiolite",
+      "scored": true,
+      "lat": 22.9,
+      "lon": 58.45,
+      "cell_elevation_m": 585.13,
+      "monthly": {
+        "T2M": [
+          18.24,
+          20.13,
+          23.76,
+          28.56,
+          32.5,
+          33.85,
+          33.79,
+          32.8,
+          30.77,
+          27.67,
+          23.11,
+          19.59
+        ],
+        "T2M_MAX": [
+          31.07,
+          35.41,
+          38.08,
+          41.28,
+          45.54,
+          45.66,
+          44.95,
+          44.58,
+          42.75,
+          39.59,
+          35.9,
+          32.43
+        ],
+        "T2M_MIN": [
+          7.66,
+          6.33,
+          9.65,
+          15.87,
+          19.18,
+          22.01,
+          22.33,
+          21.52,
+          18.92,
+          16.09,
+          13.49,
+          8.52
+        ],
+        "T2M_RANGE": [
+          11.67,
+          12.91,
+          13.55,
+          13.73,
+          14.26,
+          13.6,
+          12.79,
+          13.01,
+          14.01,
+          12.88,
+          11.42,
+          11.12
+        ],
+        "PRECTOTCORR": [
+          0.42,
+          0.45,
+          0.64,
+          0.44,
+          0.24,
+          0.48,
+          0.4,
+          0.29,
+          0.17,
+          0.18,
+          0.28,
+          0.27
+        ],
+        "ALLSKY_SFC_SW_DWN": [
+          4.8336,
+          5.6285,
+          6.5021,
+          7.151,
+          7.5739,
+          7.2806,
+          6.647,
+          6.6605,
+          6.5002,
+          5.9846,
+          5.034,
+          4.5703
+        ],
+        "RH2M": [
+          58.69,
+          51.63,
+          43.19,
+          34.26,
+          30.74,
+          34.56,
+          38.58,
+          39.56,
+          38.65,
+          37.39,
+          52.97,
+          58.67
+        ],
+        "WS2M": [
+          2.08,
+          2.37,
+          2.26,
+          2.22,
+          2.54,
+          2.72,
+          2.77,
+          2.57,
+          2.48,
+          2.16,
+          1.94,
+          2.02
+        ]
+      },
+      "annual": {
+        "T2M": 27.1,
+        "T2M_MAX": 45.66,
+        "T2M_MIN": 6.33,
+        "T2M_RANGE": 12.91,
+        "PRECTOTCORR": 0.36,
+        "ALLSKY_SFC_SW_DWN": 6.1982,
+        "RH2M": 43.21,
+        "WS2M": 2.34
+      },
+      "derived": {
+        "precip_mm_per_year": 131,
+        "coolest_months": [
+          11,
+          0,
+          1
+        ]
+      },
+      "request_url": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M,T2M_MAX,T2M_MIN,T2M_RANGE,PRECTOTCORR,ALLSKY_SFC_SW_DWN,RH2M,WS2M&community=RE&longitude=58.45&latitude=22.9&format=JSON"
+    },
+    {
+      "id": "umm_as_samim",
+      "scored": true,
+      "lat": 21.3,
+      "lon": 56.0,
+      "cell_elevation_m": 82.6,
+      "monthly": {
+        "T2M": [
+          20.04,
+          22.06,
+          25.98,
+          30.74,
+          34.76,
+          36.99,
+          37.56,
+          36.68,
+          34.05,
+          30.29,
+          25.96,
+          21.88
+        ],
+        "T2M_MAX": [
+          32.8,
+          37.86,
+          40.6,
+          44.99,
+          49.94,
+          49.98,
+          50.29,
+          49.24,
+          47.65,
+          42.79,
+          38.6,
+          35.03
+        ],
+        "T2M_MIN": [
+          7.44,
+          5.85,
+          9.87,
+          15.52,
+          18.57,
+          23.82,
+          26.43,
+          24.68,
+          20.41,
+          17.04,
+          14.04,
+          8.43
+        ],
+        "T2M_RANGE": [
+          13.88,
+          15.4,
+          16.18,
+          16.49,
+          16.7,
+          16.19,
+          14.32,
+          13.96,
+          14.98,
+          15.06,
+          13.49,
+          13.41
+        ],
+        "PRECTOTCORR": [
+          0.14,
+          0.16,
+          0.3,
+          0.35,
+          0.12,
+          0.12,
+          0.2,
+          0.26,
+          0.06,
+          0.07,
+          0.14,
+          0.14
+        ],
+        "ALLSKY_SFC_SW_DWN": [
+          4.9042,
+          5.6971,
+          6.521,
+          7.1678,
+          7.4947,
+          7.3786,
+          6.786,
+          6.7418,
+          6.5774,
+          6.0031,
+          5.0918,
+          4.631
+        ],
+        "RH2M": [
+          47.62,
+          43.07,
+          35.05,
+          28.48,
+          25.7,
+          24.77,
+          27.29,
+          31.14,
+          32.25,
+          31.35,
+          41.94,
+          47.3
+        ],
+        "WS2M": [
+          2.54,
+          2.85,
+          2.94,
+          2.9,
+          3.02,
+          3.32,
+          3.52,
+          3.3,
+          2.86,
+          2.11,
+          2.08,
+          2.28
+        ]
+      },
+      "annual": {
+        "T2M": 29.78,
+        "T2M_MAX": 50.29,
+        "T2M_MIN": 5.85,
+        "T2M_RANGE": 15.0,
+        "PRECTOTCORR": 0.17,
+        "ALLSKY_SFC_SW_DWN": 6.2503,
+        "RH2M": 34.63,
+        "WS2M": 2.81
+      },
+      "derived": {
+        "precip_mm_per_year": 62,
+        "coolest_months": [
+          11,
+          0,
+          1
+        ]
+      },
+      "request_url": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M,T2M_MAX,T2M_MIN,T2M_RANGE,PRECTOTCORR,ALLSKY_SFC_SW_DWN,RH2M,WS2M&community=RE&longitude=56.0&latitude=21.3&format=JSON"
+    },
+    {
+      "id": "sharqiya_sands",
+      "scored": true,
+      "lat": 21.9,
+      "lon": 58.8,
+      "cell_elevation_m": 235.13,
+      "monthly": {
+        "T2M": [
+          19.87,
+          21.63,
+          25.23,
+          29.86,
+          33.15,
+          34.15,
+          33.44,
+          32.29,
+          30.62,
+          28.3,
+          24.64,
+          21.35
+        ],
+        "T2M_MAX": [
+          33.3,
+          36.03,
+          40.64,
+          43.94,
+          50.97,
+          49.8,
+          49.49,
+          48.12,
+          45.58,
+          41.48,
+          37.38,
+          34.62
+        ],
+        "T2M_MIN": [
+          8.57,
+          6.77,
+          10.95,
+          16.37,
+          19.79,
+          23.37,
+          22.25,
+          22.01,
+          19.78,
+          16.33,
+          13.4,
+          9.09
+        ],
+        "T2M_RANGE": [
+          12.82,
+          14.3,
+          15.47,
+          16.32,
+          16.77,
+          16.17,
+          15.48,
+          15.46,
+          15.83,
+          15.32,
+          13.14,
+          12.91
+        ],
+        "PRECTOTCORR": [
+          0.25,
+          0.32,
+          0.47,
+          0.35,
+          0.21,
+          0.43,
+          0.33,
+          0.22,
+          0.13,
+          0.18,
+          0.25,
+          0.19
+        ],
+        "ALLSKY_SFC_SW_DWN": [
+          4.9699,
+          5.7718,
+          6.6454,
+          7.2734,
+          7.5888,
+          7.2648,
+          6.6737,
+          6.7092,
+          6.6281,
+          6.0934,
+          5.1389,
+          4.6798
+        ],
+        "RH2M": [
+          58.04,
+          53.82,
+          47.31,
+          39.75,
+          39.51,
+          42.97,
+          46.27,
+          49.04,
+          50.36,
+          45.31,
+          54.95,
+          57.06
+        ],
+        "WS2M": [
+          1.92,
+          2.25,
+          2.37,
+          2.6,
+          3.24,
+          3.52,
+          3.78,
+          3.53,
+          3.06,
+          2.23,
+          1.97,
+          1.97
+        ]
+      },
+      "annual": {
+        "T2M": 27.9,
+        "T2M_MAX": 50.97,
+        "T2M_MIN": 6.77,
+        "T2M_RANGE": 15.0,
+        "PRECTOTCORR": 0.28,
+        "ALLSKY_SFC_SW_DWN": 6.2873,
+        "RH2M": 48.68,
+        "WS2M": 2.71
+      },
+      "derived": {
+        "precip_mm_per_year": 102,
+        "coolest_months": [
+          11,
+          0,
+          1
+        ]
+      },
+      "request_url": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M,T2M_MAX,T2M_MIN,T2M_RANGE,PRECTOTCORR,ALLSKY_SFC_SW_DWN,RH2M,WS2M&community=RE&longitude=58.8&latitude=21.9&format=JSON"
+    },
+    {
+      "id": "dhofar_amadee18",
+      "scored": true,
+      "lat": 18.8,
+      "lon": 55.4,
+      "cell_elevation_m": 198.54,
+      "monthly": {
+        "T2M": [
+          19.06,
+          20.9,
+          24.32,
+          28.3,
+          31.42,
+          33.43,
+          33.96,
+          33.27,
+          30.72,
+          27.61,
+          24.32,
+          20.67
+        ],
+        "T2M_MAX": [
+          31.89,
+          36.07,
+          39.31,
+          42.25,
+          46.19,
+          46.2,
+          46.62,
+          45.28,
+          44.2,
+          40.46,
+          36.18,
+          32.78
+        ],
+        "T2M_MIN": [
+          6.22,
+          6.25,
+          8.99,
+          14.19,
+          18.18,
+          19.93,
+          23.04,
+          20.57,
+          18.75,
+          16.11,
+          12.18,
+          7.64
+        ],
+        "T2M_RANGE": [
+          13.15,
+          14.38,
+          15.0,
+          15.4,
+          15.24,
+          15.21,
+          14.78,
+          14.8,
+          15.3,
+          14.74,
+          12.92,
+          12.69
+        ],
+        "PRECTOTCORR": [
+          0.2,
+          0.72,
+          2.25,
+          0.48,
+          0.43,
+          0.09,
+          0.13,
+          0.21,
+          0.12,
+          0.08,
+          0.13,
+          0.07
+        ],
+        "ALLSKY_SFC_SW_DWN": [
+          5.3482,
+          6.1699,
+          6.9187,
+          7.3834,
+          7.5418,
+          7.2067,
+          6.7584,
+          6.8638,
+          6.846,
+          6.3629,
+          5.4538,
+          5.0275
+        ],
+        "RH2M": [
+          53.53,
+          51.89,
+          49.62,
+          47.72,
+          47.53,
+          40.78,
+          41.43,
+          43.8,
+          48.94,
+          49.28,
+          53.66,
+          53.41
+        ],
+        "WS2M": [
+          2.71,
+          3.05,
+          3.12,
+          3.08,
+          3.38,
+          3.69,
+          4.5,
+          4.3,
+          3.56,
+          2.73,
+          2.5,
+          2.62
+        ]
+      },
+      "annual": {
+        "T2M": 27.36,
+        "T2M_MAX": 46.62,
+        "T2M_MIN": 6.22,
+        "T2M_RANGE": 14.47,
+        "PRECTOTCORR": 0.41,
+        "ALLSKY_SFC_SW_DWN": 6.4898,
+        "RH2M": 48.44,
+        "WS2M": 3.27
+      },
+      "derived": {
+        "precip_mm_per_year": 150,
+        "coolest_months": [
+          11,
+          0,
+          1
+        ]
+      },
+      "request_url": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M,T2M_MAX,T2M_MIN,T2M_RANGE,PRECTOTCORR,ALLSKY_SFC_SW_DWN,RH2M,WS2M&community=RE&longitude=55.4&latitude=18.8&format=JSON"
+    },
+    {
+      "id": "jebel_shams",
+      "scored": true,
+      "lat": 23.24,
+      "lon": 57.26,
+      "cell_elevation_m": 713.73,
+      "monthly": {
+        "T2M": [
+          17.61,
+          19.8,
+          23.59,
+          28.46,
+          32.63,
+          34.85,
+          35.12,
+          34.22,
+          31.92,
+          28.12,
+          23.03,
+          19.27
+        ],
+        "T2M_MAX": [
+          33.05,
+          35.08,
+          38.87,
+          42.83,
+          47.26,
+          46.82,
+          47.51,
+          46.62,
+          44.38,
+          40.49,
+          36.81,
+          34.29
+        ],
+        "T2M_MIN": [
+          5.24,
+          3.44,
+          6.96,
+          12.83,
+          16.08,
+          21.57,
+          21.56,
+          22.15,
+          19.29,
+          16.16,
+          12.16,
+          5.52
+        ],
+        "T2M_RANGE": [
+          13.83,
+          14.82,
+          15.07,
+          14.98,
+          15.48,
+          15.41,
+          14.25,
+          14.34,
+          14.84,
+          13.9,
+          13.26,
+          13.5
+        ],
+        "PRECTOTCORR": [
+          0.39,
+          0.43,
+          0.73,
+          0.54,
+          0.28,
+          0.41,
+          0.52,
+          0.42,
+          0.22,
+          0.22,
+          0.29,
+          0.26
+        ],
+        "ALLSKY_SFC_SW_DWN": [
+          4.501,
+          5.3294,
+          6.193,
+          6.8184,
+          7.362,
+          7.3008,
+          6.6367,
+          6.5818,
+          6.3055,
+          5.7571,
+          4.7786,
+          4.2478
+        ],
+        "RH2M": [
+          49.31,
+          42.15,
+          33.94,
+          26.18,
+          22.14,
+          23.75,
+          28.42,
+          29.99,
+          27.88,
+          27.21,
+          42.56,
+          48.18
+        ],
+        "WS2M": [
+          1.63,
+          1.87,
+          1.91,
+          1.92,
+          1.96,
+          2.12,
+          2.0,
+          1.76,
+          1.62,
+          1.41,
+          1.33,
+          1.5
+        ]
+      },
+      "annual": {
+        "T2M": 27.42,
+        "T2M_MAX": 47.51,
+        "T2M_MIN": 3.44,
+        "T2M_RANGE": 14.47,
+        "PRECTOTCORR": 0.39,
+        "ALLSKY_SFC_SW_DWN": 5.9858,
+        "RH2M": 33.45,
+        "WS2M": 1.75
+      },
+      "derived": {
+        "precip_mm_per_year": 142,
+        "coolest_months": [
+          11,
+          0,
+          1
+        ]
+      },
+      "request_url": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M,T2M_MAX,T2M_MIN,T2M_RANGE,PRECTOTCORR,ALLSKY_SFC_SW_DWN,RH2M,WS2M&community=RE&longitude=57.26&latitude=23.24&format=JSON"
+    },
+    {
+      "id": "majlis_al_jinn",
+      "scored": false,
+      "lat": 22.881,
+      "lon": 59.105,
+      "cell_elevation_m": 207.14,
+      "monthly": {
+        "T2M": [
+          21.03,
+          21.97,
+          24.57,
+          28.38,
+          31.79,
+          32.41,
+          31.85,
+          30.78,
+          29.97,
+          28.63,
+          25.34,
+          22.42
+        ],
+        "T2M_MAX": [
+          28.44,
+          31.32,
+          32.97,
+          37.7,
+          39.57,
+          40.57,
+          40.75,
+          39.71,
+          37.69,
+          35.37,
+          31.8,
+          29.93
+        ],
+        "T2M_MIN": [
+          15.52,
+          13.35,
+          17.06,
+          20.18,
+          24.91,
+          25.52,
+          25.76,
+          24.9,
+          24.53,
+          22.77,
+          20.61,
+          16.0
+        ],
+        "T2M_RANGE": [
+          4.02,
+          4.86,
+          5.39,
+          5.54,
+          5.93,
+          5.49,
+          5.18,
+          5.18,
+          5.48,
+          4.81,
+          3.93,
+          3.61
+        ],
+        "PRECTOTCORR": [
+          0.4,
+          0.32,
+          0.4,
+          0.3,
+          0.18,
+          0.46,
+          0.15,
+          0.08,
+          0.04,
+          0.13,
+          0.26,
+          0.28
+        ],
+        "ALLSKY_SFC_SW_DWN": [
+          4.4479,
+          5.3189,
+          6.1903,
+          6.7224,
+          7.1976,
+          6.7555,
+          6.1056,
+          6.2873,
+          6.2417,
+          5.682,
+          4.7162,
+          4.2024
+        ],
+        "RH2M": [
+          65.03,
+          62.96,
+          59.61,
+          54.44,
+          51.57,
+          56.8,
+          59.83,
+          60.91,
+          59.28,
+          54.87,
+          61.22,
+          64.38
+        ],
+        "WS2M": [
+          3.2,
+          3.36,
+          3.03,
+          2.78,
+          3.03,
+          3.1,
+          3.05,
+          2.92,
+          2.97,
+          2.69,
+          2.64,
+          2.91
+        ]
+      },
+      "annual": {
+        "T2M": 27.45,
+        "T2M_MAX": 40.75,
+        "T2M_MIN": 13.35,
+        "T2M_RANGE": 4.95,
+        "PRECTOTCORR": 0.25,
+        "ALLSKY_SFC_SW_DWN": 5.8231,
+        "RH2M": 59.23,
+        "WS2M": 2.97
+      },
+      "derived": {
+        "precip_mm_per_year": 91,
+        "coolest_months": [
+          11,
+          0,
+          1
+        ]
+      },
+      "request_url": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M,T2M_MAX,T2M_MIN,T2M_RANGE,PRECTOTCORR,ALLSKY_SFC_SW_DWN,RH2M,WS2M&community=RE&longitude=59.105&latitude=22.881&format=JSON"
+    }
+  ]
+}

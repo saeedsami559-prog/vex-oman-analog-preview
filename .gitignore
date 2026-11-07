@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+*.egg-info/
+
+# Data: raw downloads are large and stay local
+data/raw/*
+!data/raw/.gitkeep
+
+# Web
+web/node_modules/
+web/dist/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+
+.vercel
+.env*

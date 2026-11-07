@@ -1,0 +1,97 @@
+{
+  "bounds": [
+    [
+      21.030203518224383,
+      55.7104228592183
+    ],
+    [
+      21.56979648177562,
+      56.2895771407817
+    ]
+  ],
+  "half_km": 30,
+  "shape": [
+    2000,
+    2000
+  ],
+  "source": {
+    "dataset": "NASADEM_HGT v001 (Microsoft Planetary Computer COG mirror)",
+    "products": [
+      "NASADEM_HGT_n21e056",
+      "NASADEM_HGT_n21e055"
+    ],
+    "urls": [
+      "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n21e056.tif",
+      "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n21e055.tif"
+    ],
+    "native_resolution_m": 30
+  },
+  "site": "umm_as_samim",
+  "body": "earth",
+  "generated": "2026-11-06T17:15:14+00:00",
+  "elevation_m": {
+    "min": 7.3,
+    "max": 220.8,
+    "p2": 59.4,
+    "p98": 117.4,
+    "cmap": "terrain"
+  },
+  "slope": {
+    "bins_deg": [
+      0,
+      2,
+      5,
+      10,
+      20,
+      30,
+      90
+    ],
+    "colors": [
+      "#1a9850",
+      "#91cf60",
+      "#d9ef8b",
+      "#fee08b",
+      "#fc8d59",
+      "#d73027"
+    ],
+    "share": {
+      "0-2": 0.4736,
+      "2-5": 0.3725,
+      "5-10": 0.0974,
+      "10-20": 0.0475,
+      "20-30": 0.0079,
+      "30-90": 0.0011
+    }
+  },
+  "drainage": {
+    "stream_km2": 5.0,
+    "depression_m": 2.0,
+    "channel_share": 0.0101,
+    "depression_km2": 403.75,
+    "max_upstream_km2": 1665.5,
+    "flat": false
+  },
+  "common": {
+    "res_m": 463.0,
+    "shape": [
+      130,
+      130
+    ],
+    "slope_share": {
+      "0-2": 0.9596,
+      "2-5": 0.0398,
+      "5-10": 0.0007,
+      "10-20": 0.0,
+      "20-30": 0.0,
+      "30-90": 0.0
+    },
+    "drainage": {
+      "stream_km2": 200.0,
+      "depression_m": 20.0,
+      "channel_share": 0.0144,
+      "depression_km2": 0.0,
+      "max_upstream_km2": 2052.0
+    }
+  },
+  "method": "Priority-Flood fill (Barnes et al. 2014) + D8 flow direction (O'Callaghan & Mark 1984)"
+}

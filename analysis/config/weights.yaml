@@ -1,0 +1,48 @@
+# Similarity criteria, their features and default weights.
+# The web UI lets users change the weights; Python and TypeScript must stay in sync
+# (see analysis/tests/test_parity.py and web/src/lib/similarity.test.ts).
+
+criteria:
+  terrain:
+    weight: 0.4
+    features: [slope_deg, roughness_m, relief_m]
+  mineralogy:
+    weight: 0.4
+    features: [serpentine_index, carbonate_index, chloride_index]
+  surface:
+    weight: 0.2
+    features: [albedo, thermal_inertia]
+
+# Normalisation ranges are NOT set by hand: export.py uses the min..max of the values measured at
+# all sites (Earth + Mars + Moon pooled), after this scale transform, and writes them into
+# sites.json. Roughness and relief span about two orders of magnitude, hence log10.
+feature_scale:
+  roughness_m: log10
+  relief_m: log10
+
+# Mineral band depths come from different instruments on each body (EMIT surface reflectance on
+# Earth, CRISM I/F on Mars). Their absolute values are not on one scale: every Mars target is below
+# 0.004 while Earth sites reach 0.12, so a pooled range pinned all of Mars at ~0 and made a site
+# with almost no serpentine look the most Mars-like. These features are therefore normalised within
+# each body (min..max of that body's sites) and compared as relative positions.
+body_relative_features: [serpentine_index, carbonate_index, chloride_index]
+
+# Shared absence is not similarity. Because mineral indices are scaled within each body, the site
+# with the weakest signal on Earth and the one with the weakest signal on Mars both sit near 0 and
+# used to count as a perfect match (Umm as Samim vs Terra Sirenum scored 100% on minerals with
+# almost no serpentine or carbonate on either side). A mineral feature is therefore compared only
+# when at least one of the two sites reaches `floor` on its own body's 0..1 scale; otherwise the pair
+# has no shared signal for it and the feature is skipped, which also lowers coverage (confidence).
+signal_floor:
+  floor: 0.2
+  features: [serpentine_index, carbonate_index, chloride_index]
+
+# Terrain is compared after reprojecting every DEM to exactly this ground sample distance, so the
+# resolution penalty below does not apply to terrain (export sets its resolution to this value).
+common_terrain_scale_m: 463
+
+# Confidence: per-criterion resolution factor = max(min_factor, 1 - k * |log2(res_a / res_b)|),
+# using the native resolutions recorded in each value's provenance (mineralogy, surface).
+confidence:
+  resolution_k: 0.1
+  resolution_min_factor: 0.5

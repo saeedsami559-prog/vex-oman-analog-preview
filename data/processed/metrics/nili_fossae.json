@@ -1,0 +1,197 @@
+{
+  "site": "nili_fossae",
+  "generated": "2026-11-01T12:37:33+00:00",
+  "measured": {
+    "slope_deg": {
+      "value": 3.000922,
+      "provenance": {
+        "dataset": "MGS MOLA DEM global mosaic 463 m (USGS Astrogeology, MOLA Team / GSFC)",
+        "version": "edition 2003-03-21",
+        "products": [
+          "Mars_MGS_MOLA_DEM_mosaic_global_463m"
+        ],
+        "urls": [
+          "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Mars_MGS_MOLA_DEM_mosaic_global_463m.tif"
+        ],
+        "acquired": [
+          "1999/2001 (MOLA mapping, per USGS product page)"
+        ],
+        "native_resolution_m": 463,
+        "window_coverage": 1.0,
+        "processing": "Reprojected to a site-centred azimuthal-equidistant grid at native resolution, area-averaged to exactly 463 m, then slope (central differences), RMS roughness (plane-detrended, ~1.4 km windows, median) and relief (max-min in 5 km windows, median)."
+      }
+    },
+    "roughness_m": {
+      "value": 1.871341,
+      "provenance": {
+        "dataset": "MGS MOLA DEM global mosaic 463 m (USGS Astrogeology, MOLA Team / GSFC)",
+        "version": "edition 2003-03-21",
+        "products": [
+          "Mars_MGS_MOLA_DEM_mosaic_global_463m"
+        ],
+        "urls": [
+          "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Mars_MGS_MOLA_DEM_mosaic_global_463m.tif"
+        ],
+        "acquired": [
+          "1999/2001 (MOLA mapping, per USGS product page)"
+        ],
+        "native_resolution_m": 463,
+        "window_coverage": 1.0,
+        "processing": "Reprojected to a site-centred azimuthal-equidistant grid at native resolution, area-averaged to exactly 463 m, then slope (central differences), RMS roughness (plane-detrended, ~1.4 km windows, median) and relief (max-min in 5 km windows, median)."
+      }
+    },
+    "relief_m": {
+      "value": 275.824947,
+      "provenance": {
+        "dataset": "MGS MOLA DEM global mosaic 463 m (USGS Astrogeology, MOLA Team / GSFC)",
+        "version": "edition 2003-03-21",
+        "products": [
+          "Mars_MGS_MOLA_DEM_mosaic_global_463m"
+        ],
+        "urls": [
+          "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Mars_MGS_MOLA_DEM_mosaic_global_463m.tif"
+        ],
+        "acquired": [
+          "1999/2001 (MOLA mapping, per USGS product page)"
+        ],
+        "native_resolution_m": 463,
+        "window_coverage": 1.0,
+        "processing": "Reprojected to a site-centred azimuthal-equidistant grid at native resolution, area-averaged to exactly 463 m, then slope (central differences), RMS roughness (plane-detrended, ~1.4 km windows, median) and relief (max-min in 5 km windows, median)."
+      }
+    },
+    "albedo": {
+      "value": 0.123411,
+      "provenance": {
+        "dataset": "MGS TES Lambert albedo global mosaic (Christensen et al. 2001, JGR 106:23823), USGS Astrogeology",
+        "version": "edition 2001",
+        "products": [
+          "GLOBAL_ALBEDO_8PPD"
+        ],
+        "urls": [
+          "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Mars_MGS_TES_Albedo_mosaic_global_7410m.tif"
+        ],
+        "acquired": [
+          "not stated in the product label or USGS record"
+        ],
+        "native_resolution_m": 7410,
+        "processing": "Bilinear reprojection to a 1 km site grid, median of valid pixels."
+      }
+    },
+    "thermal_inertia": {
+      "value": 301.66037,
+      "provenance": {
+        "dataset": "Mars Odyssey THEMIS quantitative thermal inertia mosaic, USGS Astrogeology (Fergason et al. 2006, JGR 111:E12004; Edwards et al. 2011, JGR 116:E10009)",
+        "version": "2014-05-30",
+        "products": [
+          "THEMIS_TI_Mosaic_Quant_00N060E_100mpp"
+        ],
+        "urls": [
+          "https://asc-astropedia.s3.us-west-2.amazonaws.com/Mars/Odyssey/THEMIS-Global-Thermal-Inertia-Mosaic/Quantitative-32-Bit/THEMIS_TI_Mosaic_Quant_00N060E_100mpp.cub"
+        ],
+        "acquired": [
+          "not stated per pixel; mosaic of THEMIS nighttime band 9 images"
+        ],
+        "native_resolution_m": 100,
+        "window_coverage": 1.0,
+        "processing": "Nearest-neighbour reprojection to a 100 m site grid, median of valid pixels (absolute accuracy ~20 %)."
+      }
+    },
+    "serpentine_index": {
+      "value": 0.003202,
+      "provenance": {
+        "dataset": "MRO CRISM map-projected targeted reduced data record (MTRDR), I/F corrected, PDS Geosciences Node",
+        "version": "MRO-M-CRISM-5-RDR-MPTARGETED-V1.0",
+        "products": [
+          "frt00004f75_07_if166j_mtr3",
+          "frt000064d9_07_if166j_mtr3",
+          "frt00007bc8_07_if166j_mtr3",
+          "frt0000805f_07_if166j_mtr3",
+          "frt00021c5a_07_if166j_mtr3"
+        ],
+        "urls": [
+          "https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/mtrdr/2007/2007_083/frt00004f75/frt00004f75_07_if166j_mtr3.img",
+          "https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/mtrdr/2007/2007_172/frt000064d9/frt000064d9_07_if166j_mtr3.img",
+          "https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/mtrdr/2007/2007_260/frt00007bc8/frt00007bc8_07_if166j_mtr3.img",
+          "https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/mtrdr/2007/2007_277/frt0000805f/frt0000805f_07_if166j_mtr3.img",
+          "https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/mtrdr/2011/2011_341/frt00021c5a/frt00021c5a_07_if166j_mtr3.img"
+        ],
+        "acquired": [
+          "2007-03-24",
+          "2007-06-21",
+          "2007-09-17",
+          "2007-10-04",
+          "2011-12-07"
+        ],
+        "native_resolution_m": 18,
+        "window_coverage": 0.2573,
+        "wavelengths_um": [
+          2.2517,
+          2.2715,
+          2.3178,
+          2.331,
+          2.3773,
+          2.3972,
+          2.4303,
+          2.5031,
+          2.5625
+        ],
+        "valid_pixels": 714945,
+        "processing": "Needed bands read by HTTP range from each I/F cube, nearest-neighbour reprojection to an 18 m site grid, observations mosaicked in product-ID order (first valid pixel wins); mean band depth over valid pixels (see metrics/mineralogy.py)."
+      }
+    },
+    "carbonate_index": {
+      "value": 4.7e-05,
+      "provenance": {
+        "dataset": "MRO CRISM map-projected targeted reduced data record (MTRDR), I/F corrected, PDS Geosciences Node",
+        "version": "MRO-M-CRISM-5-RDR-MPTARGETED-V1.0",
+        "products": [
+          "frt00004f75_07_if166j_mtr3",
+          "frt000064d9_07_if166j_mtr3",
+          "frt00007bc8_07_if166j_mtr3",
+          "frt0000805f_07_if166j_mtr3",
+          "frt00021c5a_07_if166j_mtr3"
+        ],
+        "urls": [
+          "https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/mtrdr/2007/2007_083/frt00004f75/frt00004f75_07_if166j_mtr3.img",
+          "https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/mtrdr/2007/2007_172/frt000064d9/frt000064d9_07_if166j_mtr3.img",
+          "https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/mtrdr/2007/2007_260/frt00007bc8/frt00007bc8_07_if166j_mtr3.img",
+          "https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/mtrdr/2007/2007_277/frt0000805f/frt0000805f_07_if166j_mtr3.img",
+          "https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/mtrdr/2011/2011_341/frt00021c5a/frt00021c5a_07_if166j_mtr3.img"
+        ],
+        "acquired": [
+          "2007-03-24",
+          "2007-06-21",
+          "2007-09-17",
+          "2007-10-04",
+          "2011-12-07"
+        ],
+        "native_resolution_m": 18,
+        "window_coverage": 0.2573,
+        "wavelengths_um": [
+          2.2517,
+          2.2715,
+          2.3178,
+          2.331,
+          2.3773,
+          2.3972,
+          2.4303,
+          2.5031,
+          2.5625
+        ],
+        "valid_pixels": 714945,
+        "processing": "Needed bands read by HTTP range from each I/F cube, nearest-neighbour reprojection to an 18 m site grid, observations mosaicked in product-ID order (first valid pixel wins); mean band depth over valid pixels (see metrics/mineralogy.py)."
+      }
+    }
+  },
+  "missing": [
+    {
+      "feature": "chloride_index",
+      "status": "unavailable",
+      "reason_code": "calibration_missing",
+      "reason_en": "MRO CRISM MTRDR I/F: turning the data into this metric needs a calibration constant for which we have no cited source (chlorides have no diagnostic absorption between 0.4 and 2.5 µm).",
+      "reason_ar": "MRO CRISM MTRDR I/F: تحويل البيانات إلى هذا المقياس يحتاج ثابت معايرة ليس لدينا مصدر موثّق له (لا يملك الكلوريد امتصاصاً مميزاً بين 0.4 و2.5 ميكرومتر).",
+      "needed": "A published, cited chloride detection method that can be applied identically to Earth and Mars data (VSWIR brightness/slope thresholds or a thermal-infrared emissivity method).",
+      "needed_ar": "طريقة منشورة وموثّقة لرصد الكلوريد يمكن تطبيقها بالطريقة نفسها على بيانات الأرض والمريخ."
+    }
+  ]
+}

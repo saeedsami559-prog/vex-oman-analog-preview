@@ -1,0 +1,21 @@
+[project]
+name = "analog"
+version = "0.1.0"
+description = "Oman Analog Explorer - metrics and similarity index"
+requires-python = ">=3.11"
+dependencies = ["numpy>=2.1", "pyyaml>=6.0"]
+
+[project.optional-dependencies]
+download = ["earthaccess>=0.11", "rasterio>=1.4", "xarray>=2024.10", "netCDF4>=1.7"]
+dev = ["pytest>=8.0"]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

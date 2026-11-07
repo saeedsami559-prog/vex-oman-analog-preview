@@ -1,0 +1,68 @@
+# Planetary target sites (Mars primary, Moon secondary - terrain only).
+# Longitudes are planetocentric, east-positive, in -180..180.
+# Locations and card texts only; metric values come from the pipeline (see earth_sites.yaml header).
+
+sites:
+  - id: jezero_crater
+    body: mars
+    name: {en: "Jezero Crater", ar: "فوهة Jezero"}
+    lat: 18.44
+    lon: 77.45
+    bbox_km: 10
+    card:
+      en:
+        summary: "Ancient lake basin and delta explored by NASA's Perseverance rover since 2021. Orbital spectra show olivine, Mg-carbonate and serpentine on the crater floor and rim."
+      ar:
+        summary: "حوض بحيرة قديمة ودلتا تستكشفه عربة Perseverance التابعة لـ NASA منذ 2021. تُظهر الأطياف المدارية الأوليفين وكربونات المغنيسيوم والسربنتين في أرضية الفوهة وحافتها."
+
+  - id: nili_fossae
+    body: mars
+    name: {en: "Nili Fossae", ar: "Nili Fossae"}
+    lat: 21.50
+    lon: 74.50
+    bbox_km: 15
+    card:
+      en:
+        summary: "Troughs west of Jezero holding the strongest serpentine and carbonate signatures on Mars - often called the best Martian counterpart to an ophiolite."
+      ar:
+        summary: "أخاديد غرب Jezero تحتوي أقوى بصمات السربنتين والكربونات على المريخ، وغالباً ما تُعد أقرب مقابل مريخي للأفيوليت."
+
+  - id: terra_sirenum_chlorides
+    body: mars
+    name: {en: "Terra Sirenum chloride deposits", ar: "رواسب الكلوريد في Terra Sirenum"}
+    # Osterloo et al. (2010) chloride deposit FID 66 "TS_27.25S_180.46" (118 km2), from the point list
+    # in Leask & Ehlmann (2021), CaltechDATA doi:10.22002/D1.2176. Rule fixed before computing:
+    # largest Terra Sirenum deposit whose centre lies inside a CRISM MTRDR footprint.
+    # Window half-width ~ sqrt(area)/2 so the window sits on the deposit itself.
+    lat: -27.28
+    lon: -179.544
+    bbox_km: 5
+    card:
+      en:
+        summary: "Bright, flat patches in low-lying basins of the southern highlands, interpreted as chloride salts left by evaporating ponds or groundwater."
+      ar:
+        summary: "بقع فاتحة مسطحة في أحواض منخفضة بالمرتفعات الجنوبية، تُفسَّر على أنها أملاح كلوريد خلّفها تبخر برك أو مياه جوفية."
+
+  - id: nili_patera_dunes
+    body: mars
+    name: {en: "Nili Patera dune field", ar: "حقل كثبان Nili Patera"}
+    lat: 8.80
+    lon: 67.30
+    bbox_km: 10
+    card:
+      en:
+        summary: "Active dark basaltic dunes inside the Syrtis Major caldera; HiRISE has measured them migrating, making it a key site for Martian wind processes."
+      ar:
+        summary: "كثبان بازلتية داكنة نشطة داخل كالديرا Syrtis Major، رصد HiRISE حركتها، مما يجعلها موقعاً أساسياً لدراسة عمليات الرياح على المريخ."
+
+  - id: moon_south_pole
+    body: moon
+    name: {en: "Lunar south pole (Shackleton rim)", ar: "القطب الجنوبي للقمر (حافة Shackleton)"}
+    lat: -89.50
+    lon: 130.00
+    bbox_km: 10
+    card:
+      en:
+        summary: "Crater rims and ridges near Shackleton, inside the Artemis candidate landing regions. Compared on terrain only: slopes and relief that drive landing and rover safety."
+      ar:
+        summary: "حواف فوهات وتلال قرب Shackleton ضمن مناطق الهبوط المرشحة لـ Artemis. تُقارن بالتضاريس فقط: الانحدار والتضاريس التي تحدد سلامة الهبوط والتنقل."

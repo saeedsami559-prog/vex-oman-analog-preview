@@ -1,0 +1,374 @@
+{
+  "site": "sharqiya_sands",
+  "generated": "2026-11-06T08:11:06+00:00",
+  "measured": {
+    "slope_deg": {
+      "value": 1.739708,
+      "provenance": {
+        "dataset": "NASADEM_HGT (NASA SRTM reprocessing), Microsoft Planetary Computer COG mirror",
+        "version": "001",
+        "products": [
+          "NASADEM_HGT_n22e058",
+          "NASADEM_HGT_n21e058"
+        ],
+        "urls": [
+          "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n22e058.tif",
+          "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n21e058.tif"
+        ],
+        "acquired": [
+          "2000-02-20"
+        ],
+        "native_resolution_m": 30,
+        "window_coverage": 1.0,
+        "processing": "Reprojected to a site-centred azimuthal-equidistant grid at native resolution, area-averaged to exactly 463 m, then slope (central differences), RMS roughness (plane-detrended, ~1.4 km windows, median) and relief (max-min in 5 km windows, median)."
+      }
+    },
+    "roughness_m": {
+      "value": 7.643687,
+      "provenance": {
+        "dataset": "NASADEM_HGT (NASA SRTM reprocessing), Microsoft Planetary Computer COG mirror",
+        "version": "001",
+        "products": [
+          "NASADEM_HGT_n22e058",
+          "NASADEM_HGT_n21e058"
+        ],
+        "urls": [
+          "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n22e058.tif",
+          "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n21e058.tif"
+        ],
+        "acquired": [
+          "2000-02-20"
+        ],
+        "native_resolution_m": 30,
+        "window_coverage": 1.0,
+        "processing": "Reprojected to a site-centred azimuthal-equidistant grid at native resolution, area-averaged to exactly 463 m, then slope (central differences), RMS roughness (plane-detrended, ~1.4 km windows, median) and relief (max-min in 5 km windows, median)."
+      }
+    },
+    "relief_m": {
+      "value": 67.575042,
+      "provenance": {
+        "dataset": "NASADEM_HGT (NASA SRTM reprocessing), Microsoft Planetary Computer COG mirror",
+        "version": "001",
+        "products": [
+          "NASADEM_HGT_n22e058",
+          "NASADEM_HGT_n21e058"
+        ],
+        "urls": [
+          "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n22e058.tif",
+          "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n21e058.tif"
+        ],
+        "acquired": [
+          "2000-02-20"
+        ],
+        "native_resolution_m": 30,
+        "window_coverage": 1.0,
+        "processing": "Reprojected to a site-centred azimuthal-equidistant grid at native resolution, area-averaged to exactly 463 m, then slope (central differences), RMS roughness (plane-detrended, ~1.4 km windows, median) and relief (max-min in 5 km windows, median)."
+      }
+    },
+    "albedo": {
+      "value": 0.331704,
+      "provenance": {
+        "dataset": "MODIS MCD43A4 Nadir BRDF-Adjusted Reflectance (Terra+Aqua), Planetary Computer COGs",
+        "version": "061",
+        "products": [
+          "MCD43A4.A2023028.h23v06.061.2023037033848",
+          "MCD43A4.A2023059.h23v06.061.2023070145238",
+          "MCD43A4.A2023087.h23v06.061.2023097005851",
+          "MCD43A4.A2023118.h23v06.061.2023129004938",
+          "MCD43A4.A2023148.h23v06.061.2023157042227",
+          "MCD43A4.A2023179.h23v06.061.2023192025907",
+          "MCD43A4.A2023209.h23v06.061.2023220022755",
+          "MCD43A4.A2023240.h23v06.061.2023251182459",
+          "MCD43A4.A2023271.h23v06.061.2023280054956",
+          "MCD43A4.A2023301.h23v06.061.2023310031355",
+          "MCD43A4.A2023332.h23v06.061.2023341185730",
+          "MCD43A4.A2023362.h23v06.061.2024006050943"
+        ],
+        "urls": [
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023028/MCD43A4.A2023028.h23v06.061.2023037033848_Nadir_Reflectance_Band1.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023028/MCD43A4.A2023028.h23v06.061.2023037033848_Nadir_Reflectance_Band2.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023028/MCD43A4.A2023028.h23v06.061.2023037033848_Nadir_Reflectance_Band3.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023028/MCD43A4.A2023028.h23v06.061.2023037033848_Nadir_Reflectance_Band4.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023028/MCD43A4.A2023028.h23v06.061.2023037033848_Nadir_Reflectance_Band5.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023028/MCD43A4.A2023028.h23v06.061.2023037033848_Nadir_Reflectance_Band7.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023059/MCD43A4.A2023059.h23v06.061.2023070145238_Nadir_Reflectance_Band1.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023059/MCD43A4.A2023059.h23v06.061.2023070145238_Nadir_Reflectance_Band2.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023059/MCD43A4.A2023059.h23v06.061.2023070145238_Nadir_Reflectance_Band3.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023059/MCD43A4.A2023059.h23v06.061.2023070145238_Nadir_Reflectance_Band4.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023059/MCD43A4.A2023059.h23v06.061.2023070145238_Nadir_Reflectance_Band5.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023059/MCD43A4.A2023059.h23v06.061.2023070145238_Nadir_Reflectance_Band7.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023087/MCD43A4.A2023087.h23v06.061.2023097005851_Nadir_Reflectance_Band1.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023087/MCD43A4.A2023087.h23v06.061.2023097005851_Nadir_Reflectance_Band2.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023087/MCD43A4.A2023087.h23v06.061.2023097005851_Nadir_Reflectance_Band3.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023087/MCD43A4.A2023087.h23v06.061.2023097005851_Nadir_Reflectance_Band4.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023087/MCD43A4.A2023087.h23v06.061.2023097005851_Nadir_Reflectance_Band5.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023087/MCD43A4.A2023087.h23v06.061.2023097005851_Nadir_Reflectance_Band7.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023118/MCD43A4.A2023118.h23v06.061.2023129004938_Nadir_Reflectance_Band1.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023118/MCD43A4.A2023118.h23v06.061.2023129004938_Nadir_Reflectance_Band2.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023118/MCD43A4.A2023118.h23v06.061.2023129004938_Nadir_Reflectance_Band3.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023118/MCD43A4.A2023118.h23v06.061.2023129004938_Nadir_Reflectance_Band4.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023118/MCD43A4.A2023118.h23v06.061.2023129004938_Nadir_Reflectance_Band5.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023118/MCD43A4.A2023118.h23v06.061.2023129004938_Nadir_Reflectance_Band7.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023148/MCD43A4.A2023148.h23v06.061.2023157042227_Nadir_Reflectance_Band1.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023148/MCD43A4.A2023148.h23v06.061.2023157042227_Nadir_Reflectance_Band2.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023148/MCD43A4.A2023148.h23v06.061.2023157042227_Nadir_Reflectance_Band3.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023148/MCD43A4.A2023148.h23v06.061.2023157042227_Nadir_Reflectance_Band4.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023148/MCD43A4.A2023148.h23v06.061.2023157042227_Nadir_Reflectance_Band5.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023148/MCD43A4.A2023148.h23v06.061.2023157042227_Nadir_Reflectance_Band7.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023179/MCD43A4.A2023179.h23v06.061.2023192025907_Nadir_Reflectance_Band1.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023179/MCD43A4.A2023179.h23v06.061.2023192025907_Nadir_Reflectance_Band2.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023179/MCD43A4.A2023179.h23v06.061.2023192025907_Nadir_Reflectance_Band3.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023179/MCD43A4.A2023179.h23v06.061.2023192025907_Nadir_Reflectance_Band4.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023179/MCD43A4.A2023179.h23v06.061.2023192025907_Nadir_Reflectance_Band5.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023179/MCD43A4.A2023179.h23v06.061.2023192025907_Nadir_Reflectance_Band7.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023209/MCD43A4.A2023209.h23v06.061.2023220022755_Nadir_Reflectance_Band1.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023209/MCD43A4.A2023209.h23v06.061.2023220022755_Nadir_Reflectance_Band2.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023209/MCD43A4.A2023209.h23v06.061.2023220022755_Nadir_Reflectance_Band3.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023209/MCD43A4.A2023209.h23v06.061.2023220022755_Nadir_Reflectance_Band4.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023209/MCD43A4.A2023209.h23v06.061.2023220022755_Nadir_Reflectance_Band5.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023209/MCD43A4.A2023209.h23v06.061.2023220022755_Nadir_Reflectance_Band7.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023240/MCD43A4.A2023240.h23v06.061.2023251182459_Nadir_Reflectance_Band1.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023240/MCD43A4.A2023240.h23v06.061.2023251182459_Nadir_Reflectance_Band2.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023240/MCD43A4.A2023240.h23v06.061.2023251182459_Nadir_Reflectance_Band3.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023240/MCD43A4.A2023240.h23v06.061.2023251182459_Nadir_Reflectance_Band4.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023240/MCD43A4.A2023240.h23v06.061.2023251182459_Nadir_Reflectance_Band5.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023240/MCD43A4.A2023240.h23v06.061.2023251182459_Nadir_Reflectance_Band7.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023271/MCD43A4.A2023271.h23v06.061.2023280054956_Nadir_Reflectance_Band1.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023271/MCD43A4.A2023271.h23v06.061.2023280054956_Nadir_Reflectance_Band2.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023271/MCD43A4.A2023271.h23v06.061.2023280054956_Nadir_Reflectance_Band3.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023271/MCD43A4.A2023271.h23v06.061.2023280054956_Nadir_Reflectance_Band4.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023271/MCD43A4.A2023271.h23v06.061.2023280054956_Nadir_Reflectance_Band5.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023271/MCD43A4.A2023271.h23v06.061.2023280054956_Nadir_Reflectance_Band7.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023301/MCD43A4.A2023301.h23v06.061.2023310031355_Nadir_Reflectance_Band1.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023301/MCD43A4.A2023301.h23v06.061.2023310031355_Nadir_Reflectance_Band2.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023301/MCD43A4.A2023301.h23v06.061.2023310031355_Nadir_Reflectance_Band3.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023301/MCD43A4.A2023301.h23v06.061.2023310031355_Nadir_Reflectance_Band4.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023301/MCD43A4.A2023301.h23v06.061.2023310031355_Nadir_Reflectance_Band5.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023301/MCD43A4.A2023301.h23v06.061.2023310031355_Nadir_Reflectance_Band7.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023332/MCD43A4.A2023332.h23v06.061.2023341185730_Nadir_Reflectance_Band1.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023332/MCD43A4.A2023332.h23v06.061.2023341185730_Nadir_Reflectance_Band2.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023332/MCD43A4.A2023332.h23v06.061.2023341185730_Nadir_Reflectance_Band3.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023332/MCD43A4.A2023332.h23v06.061.2023341185730_Nadir_Reflectance_Band4.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023332/MCD43A4.A2023332.h23v06.061.2023341185730_Nadir_Reflectance_Band5.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023332/MCD43A4.A2023332.h23v06.061.2023341185730_Nadir_Reflectance_Band7.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023362/MCD43A4.A2023362.h23v06.061.2024006050943_Nadir_Reflectance_Band1.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023362/MCD43A4.A2023362.h23v06.061.2024006050943_Nadir_Reflectance_Band2.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023362/MCD43A4.A2023362.h23v06.061.2024006050943_Nadir_Reflectance_Band3.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023362/MCD43A4.A2023362.h23v06.061.2024006050943_Nadir_Reflectance_Band4.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023362/MCD43A4.A2023362.h23v06.061.2024006050943_Nadir_Reflectance_Band5.tif",
+          "https://modiseuwest.blob.core.windows.net/modis-061-cogs/MCD43A4/23/06/2023362/MCD43A4.A2023362.h23v06.061.2024006050943_Nadir_Reflectance_Band7.tif"
+        ],
+        "acquired": [
+          "2023-01-20/2023-02-04",
+          "2023-02-20/2023-03-07",
+          "2023-03-20/2023-04-04",
+          "2023-04-20/2023-05-05",
+          "2023-05-20/2023-06-04",
+          "2023-06-20/2023-07-05",
+          "2023-07-20/2023-08-04",
+          "2023-08-20/2023-09-04",
+          "2023-09-20/2023-10-05",
+          "2023-10-20/2023-11-04",
+          "2023-11-20/2023-12-05",
+          "2023-12-20/2024-01-04"
+        ],
+        "native_resolution_m": 500,
+        "monthly_values": [
+          0.3278,
+          0.3292,
+          0.3351,
+          0.3342,
+          0.3363,
+          0.3364,
+          0.338,
+          0.3391,
+          0.3262,
+          0.3229,
+          0.3167,
+          0.3182
+        ],
+        "processing": "Liang (2001, Remote Sens. Environ. 76:213-238) narrow-to-broadband shortwave conversion of NBAR bands 1-5 and 7; median over the window per composite, then median of the 12 monthly composites of 2023. NBAR is nadir reflectance, not true albedo: MCD43A3 albedo needs an Earthdata Login and HDF4 support."
+      }
+    },
+    "serpentine_index": {
+      "value": 0.096857,
+      "provenance": {
+        "dataset": "NASA EMIT L2A estimated surface reflectance, LP DAAC (CMR C2408750690-LPCLOUD)",
+        "version": "001",
+        "products": [
+          "EMIT_L2A_RFL_001_20231018T101708_2329107_031",
+          "EMIT_L2A_RFL_001_20230426T073646_2311605_029",
+          "EMIT_L2A_RFL_001_20230303T050110_2306203_009"
+        ],
+        "urls": [
+          "https://data.lpdaac.earthdatacloud.nasa.gov/lp-prod-protected/EMITL2ARFL.001/EMIT_L2A_RFL_001_20231018T101708_2329107_031/EMIT_L2A_RFL_001_20231018T101708_2329107_031.nc",
+          "https://data.lpdaac.earthdatacloud.nasa.gov/lp-prod-protected/EMITL2ARFL.001/EMIT_L2A_RFL_001_20230426T073646_2311605_029/EMIT_L2A_RFL_001_20230426T073646_2311605_029.nc",
+          "https://data.lpdaac.earthdatacloud.nasa.gov/lp-prod-protected/EMITL2ARFL.001/EMIT_L2A_RFL_001_20230303T050110_2306203_009/EMIT_L2A_RFL_001_20230303T050110_2306203_009.nc"
+        ],
+        "acquired": [
+          "2023-10-18",
+          "2023-04-26",
+          "2023-03-03"
+        ],
+        "native_resolution_m": 60,
+        "scenes": [
+          {
+            "granule": "EMIT_L2A_RFL_001_20231018T101708_2329107_031",
+            "clear_pixels": 217373,
+            "window_pixels": 218295,
+            "wavelengths_um": [
+              2.2489,
+              2.2711,
+              2.3229,
+              2.3303,
+              2.3821,
+              2.3969,
+              2.4264,
+              2.4929
+            ],
+            "serpentine_index": 0.098907,
+            "carbonate_index": 0.001304
+          },
+          {
+            "granule": "EMIT_L2A_RFL_001_20230426T073646_2311605_029",
+            "clear_pixels": 180806,
+            "window_pixels": 215491,
+            "wavelengths_um": [
+              2.2489,
+              2.2711,
+              2.3229,
+              2.3303,
+              2.3821,
+              2.3969,
+              2.4264,
+              2.4929
+            ],
+            "serpentine_index": 0.092502,
+            "carbonate_index": 0.000196
+          },
+          {
+            "granule": "EMIT_L2A_RFL_001_20230303T050110_2306203_009",
+            "clear_pixels": 153331,
+            "window_pixels": 216430,
+            "wavelengths_um": [
+              2.2489,
+              2.2711,
+              2.3229,
+              2.3303,
+              2.3821,
+              2.3969,
+              2.4264,
+              2.4929
+            ],
+            "serpentine_index": 0.099085,
+            "carbonate_index": 0.052517
+          }
+        ],
+        "skipped_scenes": [],
+        "selection": "5 candidates whose footprint contains the window (lowest scene cloud cover); kept the 3 with most clear pixels (mask Aggregate Flag == 0).",
+        "valid_pixels": 551510,
+        "processing": "Window pixels selected by EMIT per-pixel lat/lon (sensor geometry, no resampling), cloud/water pixels removed with the L2A mask, good wavelengths only; mean band depth over all clear pixels of the selected scenes (see metrics/mineralogy.py)."
+      }
+    },
+    "carbonate_index": {
+      "value": 0.015179,
+      "provenance": {
+        "dataset": "NASA EMIT L2A estimated surface reflectance, LP DAAC (CMR C2408750690-LPCLOUD)",
+        "version": "001",
+        "products": [
+          "EMIT_L2A_RFL_001_20231018T101708_2329107_031",
+          "EMIT_L2A_RFL_001_20230426T073646_2311605_029",
+          "EMIT_L2A_RFL_001_20230303T050110_2306203_009"
+        ],
+        "urls": [
+          "https://data.lpdaac.earthdatacloud.nasa.gov/lp-prod-protected/EMITL2ARFL.001/EMIT_L2A_RFL_001_20231018T101708_2329107_031/EMIT_L2A_RFL_001_20231018T101708_2329107_031.nc",
+          "https://data.lpdaac.earthdatacloud.nasa.gov/lp-prod-protected/EMITL2ARFL.001/EMIT_L2A_RFL_001_20230426T073646_2311605_029/EMIT_L2A_RFL_001_20230426T073646_2311605_029.nc",
+          "https://data.lpdaac.earthdatacloud.nasa.gov/lp-prod-protected/EMITL2ARFL.001/EMIT_L2A_RFL_001_20230303T050110_2306203_009/EMIT_L2A_RFL_001_20230303T050110_2306203_009.nc"
+        ],
+        "acquired": [
+          "2023-10-18",
+          "2023-04-26",
+          "2023-03-03"
+        ],
+        "native_resolution_m": 60,
+        "scenes": [
+          {
+            "granule": "EMIT_L2A_RFL_001_20231018T101708_2329107_031",
+            "clear_pixels": 217373,
+            "window_pixels": 218295,
+            "wavelengths_um": [
+              2.2489,
+              2.2711,
+              2.3229,
+              2.3303,
+              2.3821,
+              2.3969,
+              2.4264,
+              2.4929
+            ],
+            "serpentine_index": 0.098907,
+            "carbonate_index": 0.001304
+          },
+          {
+            "granule": "EMIT_L2A_RFL_001_20230426T073646_2311605_029",
+            "clear_pixels": 180806,
+            "window_pixels": 215491,
+            "wavelengths_um": [
+              2.2489,
+              2.2711,
+              2.3229,
+              2.3303,
+              2.3821,
+              2.3969,
+              2.4264,
+              2.4929
+            ],
+            "serpentine_index": 0.092502,
+            "carbonate_index": 0.000196
+          },
+          {
+            "granule": "EMIT_L2A_RFL_001_20230303T050110_2306203_009",
+            "clear_pixels": 153331,
+            "window_pixels": 216430,
+            "wavelengths_um": [
+              2.2489,
+              2.2711,
+              2.3229,
+              2.3303,
+              2.3821,
+              2.3969,
+              2.4264,
+              2.4929
+            ],
+            "serpentine_index": 0.099085,
+            "carbonate_index": 0.052517
+          }
+        ],
+        "skipped_scenes": [],
+        "selection": "5 candidates whose footprint contains the window (lowest scene cloud cover); kept the 3 with most clear pixels (mask Aggregate Flag == 0).",
+        "valid_pixels": 551510,
+        "processing": "Window pixels selected by EMIT per-pixel lat/lon (sensor geometry, no resampling), cloud/water pixels removed with the L2A mask, good wavelengths only; mean band depth over all clear pixels of the selected scenes (see metrics/mineralogy.py)."
+      }
+    }
+  },
+  "missing": [
+    {
+      "feature": "thermal_inertia",
+      "status": "unavailable",
+      "reason_code": "calibration_missing",
+      "reason_en": "MODIS MOD11A1/MYD11A1 day/night land-surface temperature: turning the data into this metric needs a calibration constant for which we have no cited source (only apparent thermal inertia (ATI) can be derived, which is not comparable with Mars thermal inertia).",
+      "reason_ar": "MODIS MOD11A1/MYD11A1 day/night land-surface temperature: تحويل البيانات إلى هذا المقياس يحتاج ثابت معايرة ليس لدينا مصدر موثّق له (يمكن حساب القصور الحراري الظاهري فقط، وهو غير قابل للمقارنة مع القصور الحراري للمريخ).",
+      "needed": "A cited calibration from apparent thermal inertia to thermal inertia (J m-2 K-1 s-1/2) for arid surfaces, or a surface energy-balance model with cited parameters fitted to MODIS LST.",
+      "needed_ar": "معايرة موثّقة لتحويل القصور الحراري الظاهري إلى قصور حراري بوحدة TIU للأسطح الجافة، أو نموذج توازن طاقة بمعاملات موثّقة يُطابق على حرارة سطح MODIS."
+    },
+    {
+      "feature": "chloride_index",
+      "status": "unavailable",
+      "reason_code": "calibration_missing",
+      "reason_en": "NASA EMIT L2A reflectance: turning the data into this metric needs a calibration constant for which we have no cited source (chlorides have no diagnostic absorption between 0.4 and 2.5 µm).",
+      "reason_ar": "NASA EMIT L2A reflectance: تحويل البيانات إلى هذا المقياس يحتاج ثابت معايرة ليس لدينا مصدر موثّق له (لا يملك الكلوريد امتصاصاً مميزاً بين 0.4 و2.5 ميكرومتر).",
+      "needed": "A published, cited chloride detection method that can be applied identically to Earth and Mars data (VSWIR brightness/slope thresholds or a thermal-infrared emissivity method).",
+      "needed_ar": "طريقة منشورة وموثّقة لرصد الكلوريد يمكن تطبيقها بالطريقة نفسها على بيانات الأرض والمريخ."
+    }
+  ]
+}
