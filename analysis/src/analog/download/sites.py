@@ -33,7 +33,7 @@ def bbox_for(lat: float, lon: float, half_km: float, body: str = "earth") -> BBo
 
 def load_sites() -> dict[str, dict]:
     sites: dict[str, dict] = {}
-    for name, body in (("earth_sites.yaml", "earth"), ("target_sites.yaml", None)):
+    for name, body in (("earth_sites.yaml", "earth"), ("benchmark_sites.yaml", "earth"), ("target_sites.yaml", None)):
         with open(CONFIG_DIR / name, encoding="utf-8") as fh:
             for s in yaml.safe_load(fh)["sites"]:
                 s.setdefault("body", body)

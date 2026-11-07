@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-07T08:12:30+00:00",
+  "generated": "2026-11-07T09:47:06+00:00",
   "coverage": {
     "measured": 59,
     "unavailable": 16,
@@ -3533,5 +3533,1272 @@
       "dhofar_amadee18": "terra_sirenum_chlorides",
       "jebel_shams": "jezero_crater"
     }
+  },
+  "benchmarks": [
+    {
+      "id": "majlis_al_jinn",
+      "role": "candidate",
+      "country": {
+        "en": "Oman",
+        "ar": "عُمان"
+      },
+      "name": {
+        "en": "Majlis al Jinn, Selma Plateau",
+        "ar": "مجلس الجن، هضبة سلمى"
+      },
+      "lat": 22.8806,
+      "lon": 59.1052,
+      "bbox_km": 10,
+      "coords_source": "Wikipedia (Majlis al Jinn), citing the 1985 PAWR survey",
+      "note": {
+        "en": "Scores describe the plateau surface around the cave entrances; the chamber itself is underground and invisible to orbital data.",
+        "ar": "الدرجات تصف سطح الهضبة حول مداخل الكهف؛ القاعة نفسها تحت الأرض ولا تراها بيانات المدار."
+      },
+      "body": "earth",
+      "raw": {
+        "slope_deg": null,
+        "roughness_m": null,
+        "relief_m": null,
+        "serpentine_index": null,
+        "carbonate_index": null,
+        "chloride_index": null,
+        "albedo": null,
+        "thermal_inertia": null
+      },
+      "provenance": {},
+      "missing": [
+        {
+          "feature": "slope_deg",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "roughness_m",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "relief_m",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "serpentine_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "carbonate_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "chloride_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "albedo",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "thermal_inertia",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        }
+      ],
+      "measured": [],
+      "resolution_m": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      },
+      "sources": {
+        "terrain": [],
+        "mineralogy": [],
+        "surface": []
+      }
+    },
+    {
+      "id": "atacama",
+      "role": "benchmark",
+      "country": {
+        "en": "Chile",
+        "ar": "تشيلي"
+      },
+      "name": {
+        "en": "Atacama Desert (Yungay)",
+        "ar": "صحراء أتاكاما (يونغاي)"
+      },
+      "lat": -24.1,
+      "lon": -70.02,
+      "bbox_km": 10,
+      "coords_source": "Yungay research station area, hyper-arid core of the Atacama",
+      "body": "earth",
+      "raw": {
+        "slope_deg": null,
+        "roughness_m": null,
+        "relief_m": null,
+        "serpentine_index": null,
+        "carbonate_index": null,
+        "chloride_index": null,
+        "albedo": null,
+        "thermal_inertia": null
+      },
+      "provenance": {},
+      "missing": [
+        {
+          "feature": "slope_deg",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "roughness_m",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "relief_m",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "serpentine_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "carbonate_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "chloride_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "albedo",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "thermal_inertia",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        }
+      ],
+      "measured": [],
+      "resolution_m": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      },
+      "sources": {
+        "terrain": [],
+        "mineralogy": [],
+        "surface": []
+      }
+    },
+    {
+      "id": "black_point",
+      "role": "benchmark",
+      "country": {
+        "en": "USA",
+        "ar": "الولايات المتحدة"
+      },
+      "name": {
+        "en": "Black Point Lava Flow, Arizona (Desert RATS)",
+        "ar": "تدفق بلاك بوينت البركاني، أريزونا (Desert RATS)"
+      },
+      "lat": 35.6878,
+      "lon": -111.3599,
+      "bbox_km": 10,
+      "coords_source": "USGS National Map feature 'Black Point' (Coconino County, AZ)",
+      "body": "earth",
+      "raw": {
+        "slope_deg": null,
+        "roughness_m": null,
+        "relief_m": null,
+        "serpentine_index": null,
+        "carbonate_index": null,
+        "chloride_index": null,
+        "albedo": null,
+        "thermal_inertia": null
+      },
+      "provenance": {},
+      "missing": [
+        {
+          "feature": "slope_deg",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "roughness_m",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "relief_m",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "serpentine_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "carbonate_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "chloride_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "albedo",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "thermal_inertia",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        }
+      ],
+      "measured": [],
+      "resolution_m": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      },
+      "sources": {
+        "terrain": [],
+        "mineralogy": [],
+        "surface": []
+      }
+    },
+    {
+      "id": "mdrs",
+      "role": "benchmark",
+      "country": {
+        "en": "USA",
+        "ar": "الولايات المتحدة"
+      },
+      "name": {
+        "en": "Mars Desert Research Station, Utah",
+        "ar": "محطة أبحاث المريخ الصحراوية، يوتا"
+      },
+      "lat": 38.4064,
+      "lon": -110.7919,
+      "bbox_km": 10,
+      "coords_source": "MDRS habitat location published by the Mars Society",
+      "body": "earth",
+      "raw": {
+        "slope_deg": null,
+        "roughness_m": null,
+        "relief_m": null,
+        "serpentine_index": null,
+        "carbonate_index": null,
+        "chloride_index": null,
+        "albedo": null,
+        "thermal_inertia": null
+      },
+      "provenance": {},
+      "missing": [
+        {
+          "feature": "slope_deg",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "roughness_m",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "relief_m",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "serpentine_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "carbonate_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "chloride_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "albedo",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "thermal_inertia",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        }
+      ],
+      "measured": [],
+      "resolution_m": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      },
+      "sources": {
+        "terrain": [],
+        "mineralogy": [],
+        "surface": []
+      }
+    },
+    {
+      "id": "lanzarote",
+      "role": "benchmark",
+      "country": {
+        "en": "Spain",
+        "ar": "إسبانيا"
+      },
+      "name": {
+        "en": "Lanzarote lava fields (Cueva de los Verdes)",
+        "ar": "حقول الحمم في لانزاروتي (كويفا دي لوس فيرديس)"
+      },
+      "lat": 29.157,
+      "lon": -13.44,
+      "bbox_km": 10,
+      "coords_source": "Cueva de los Verdes lava tube entrance",
+      "body": "earth",
+      "raw": {
+        "slope_deg": null,
+        "roughness_m": null,
+        "relief_m": null,
+        "serpentine_index": null,
+        "carbonate_index": null,
+        "chloride_index": null,
+        "albedo": null,
+        "thermal_inertia": null
+      },
+      "provenance": {},
+      "missing": [
+        {
+          "feature": "slope_deg",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "roughness_m",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "relief_m",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "serpentine_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "carbonate_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "chloride_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "albedo",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "thermal_inertia",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        }
+      ],
+      "measured": [],
+      "resolution_m": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      },
+      "sources": {
+        "terrain": [],
+        "mineralogy": [],
+        "surface": []
+      }
+    },
+    {
+      "id": "hiseas",
+      "role": "benchmark",
+      "country": {
+        "en": "USA",
+        "ar": "الولايات المتحدة"
+      },
+      "name": {
+        "en": "HI-SEAS, Mauna Loa, Hawaii",
+        "ar": "محطة HI-SEAS، ماونا لوا، هاواي"
+      },
+      "lat": 19.602,
+      "lon": -155.487,
+      "bbox_km": 10,
+      "coords_source": "HI-SEAS habitat on the north slope of Mauna Loa",
+      "body": "earth",
+      "raw": {
+        "slope_deg": null,
+        "roughness_m": null,
+        "relief_m": null,
+        "serpentine_index": null,
+        "carbonate_index": null,
+        "chloride_index": null,
+        "albedo": null,
+        "thermal_inertia": null
+      },
+      "provenance": {},
+      "missing": [
+        {
+          "feature": "slope_deg",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "roughness_m",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "relief_m",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "serpentine_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "carbonate_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "chloride_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "albedo",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "thermal_inertia",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        }
+      ],
+      "measured": [],
+      "resolution_m": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      },
+      "sources": {
+        "terrain": [],
+        "mineralogy": [],
+        "surface": []
+      }
+    },
+    {
+      "id": "supramonte",
+      "role": "benchmark",
+      "country": {
+        "en": "Italy",
+        "ar": "إيطاليا"
+      },
+      "name": {
+        "en": "Supramonte karst, Sardinia (ESA CAVES)",
+        "ar": "كارست سوبرامونتي، سردينيا (CAVES)"
+      },
+      "lat": 40.2,
+      "lon": 9.5,
+      "bbox_km": 10,
+      "coords_source": "Approximate centre of the Supramonte karst plateau",
+      "note": {
+        "en": "ESA trains astronauts inside the caves; scores describe the karst surface above them.",
+        "ar": "تدرّب وكالة الفضاء الأوروبية الرواد داخل الكهوف؛ الدرجات تصف سطح الكارست فوقها."
+      },
+      "body": "earth",
+      "raw": {
+        "slope_deg": null,
+        "roughness_m": null,
+        "relief_m": null,
+        "serpentine_index": null,
+        "carbonate_index": null,
+        "chloride_index": null,
+        "albedo": null,
+        "thermal_inertia": null
+      },
+      "provenance": {},
+      "missing": [
+        {
+          "feature": "slope_deg",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "roughness_m",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "relief_m",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "serpentine_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "carbonate_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "chloride_index",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "albedo",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        },
+        {
+          "feature": "thermal_inertia",
+          "status": "unavailable",
+          "reason_code": "not_implemented",
+          "reason_en": "The data pipeline has not been run for this site yet.",
+          "reason_ar": "لم يُشغَّل خط معالجة البيانات لهذا الموقع بعد.",
+          "needed": "Run `python -m analog.compute --site <id>`.",
+          "needed_ar": "تشغيل ‎python -m analog.compute --site <id>‎."
+        }
+      ],
+      "measured": [],
+      "resolution_m": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      },
+      "sources": {
+        "terrain": [],
+        "mineralogy": [],
+        "surface": []
+      }
+    }
+  ],
+  "benchmark_scores": [
+    {
+      "earth": "majlis_al_jinn",
+      "target": "jezero_crater",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "majlis_al_jinn",
+      "target": "nili_fossae",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "majlis_al_jinn",
+      "target": "terra_sirenum_chlorides",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "majlis_al_jinn",
+      "target": "nili_patera_dunes",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "majlis_al_jinn",
+      "target": "moon_south_pole",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "atacama",
+      "target": "jezero_crater",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "atacama",
+      "target": "nili_fossae",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "atacama",
+      "target": "terra_sirenum_chlorides",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "atacama",
+      "target": "nili_patera_dunes",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "atacama",
+      "target": "moon_south_pole",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "black_point",
+      "target": "jezero_crater",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "black_point",
+      "target": "nili_fossae",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "black_point",
+      "target": "terra_sirenum_chlorides",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "black_point",
+      "target": "nili_patera_dunes",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "black_point",
+      "target": "moon_south_pole",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "mdrs",
+      "target": "jezero_crater",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "mdrs",
+      "target": "nili_fossae",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "mdrs",
+      "target": "terra_sirenum_chlorides",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "mdrs",
+      "target": "nili_patera_dunes",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "mdrs",
+      "target": "moon_south_pole",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "lanzarote",
+      "target": "jezero_crater",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "lanzarote",
+      "target": "nili_fossae",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "lanzarote",
+      "target": "terra_sirenum_chlorides",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "lanzarote",
+      "target": "nili_patera_dunes",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "lanzarote",
+      "target": "moon_south_pole",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "hiseas",
+      "target": "jezero_crater",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "hiseas",
+      "target": "nili_fossae",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "hiseas",
+      "target": "terra_sirenum_chlorides",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "hiseas",
+      "target": "nili_patera_dunes",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "hiseas",
+      "target": "moon_south_pole",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "supramonte",
+      "target": "jezero_crater",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "supramonte",
+      "target": "nili_fossae",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "supramonte",
+      "target": "terra_sirenum_chlorides",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "supramonte",
+      "target": "nili_patera_dunes",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    },
+    {
+      "earth": "supramonte",
+      "target": "moon_south_pole",
+      "overall": null,
+      "confidence": 0.0,
+      "coverage": 0.0,
+      "resolution_factor": 0.0,
+      "per_criterion": {
+        "terrain": null,
+        "mineralogy": null,
+        "surface": null
+      }
+    }
+  ],
+  "benchmark_mean_mars": {
+    "majlis_al_jinn": null,
+    "atacama": null,
+    "black_point": null,
+    "mdrs": null,
+    "lanzarote": null,
+    "hiseas": null,
+    "supramonte": null
   }
 }

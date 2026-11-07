@@ -1,0 +1,47 @@
+name: Compute new sites from NASA data
+
+# Runs the analysis pipeline (python -m analog.compute / analog.layers) for the candidate and
+# benchmark sites in analysis/config/benchmark_sites.yaml and commits the results to the
+# compute-results branch. Earth terrain (NASADEM) and albedo (MODIS) come from the public
+# Microsoft Planetary Computer mirror; EMIT minerals need an Earthdata token (EARTHDATA_TOKEN secret)
+# and are recorded as unavailable when it is absent.
+
+on:
+  push:
+    branches: [compute]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  compute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pipeline dependencies
+        run: pip install "numpy>=2.1" "pyyaml>=6.0" "rasterio>=1.4" pillow pytest
+      - name: Compute metrics and layers
+        working-directory: analysis
+        env:
+          EARTHDATA_TOKEN: ${{ secrets.EARTHDATA_TOKEN }}
+        run: |
+          ids=$(python -c "import yaml;print(' '.join(s['id'] for s in yaml.safe_load(open('config/benchmark_sites.yaml'))['sites']))")
+          for id in $ids; do
+            echo "::group::compute $id"; PYTHONPATH=src python -m analog.compute --site "$id" || echo "compute failed for $id"; echo "::endgroup::"
+            echo "::group::layers $id"; PYTHONPATH=src python -m analog.layers --site "$id" || echo "layers failed for $id"; echo "::endgroup::"
+          done
+          PYTHONPATH=src python -m analog.export
+          PYTHONPATH=src python -m pytest -q || echo "tests failed"
+      - name: Commit results to compute-results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B compute-results
+          git add -A data/processed web/public analysis/tests/fixtures
+          git commit -m "Pipeline results for candidate and benchmark sites" || echo "nothing to commit"
+          git push -f origin compute-results

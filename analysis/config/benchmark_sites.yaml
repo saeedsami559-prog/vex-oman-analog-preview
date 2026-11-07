@@ -1,0 +1,81 @@
+# Sites scored on the same scale as the Omani analogs, WITHOUT entering the Omani ranking or the
+# normalisation ranges (their scores use the ranges fixed by earth_sites.yaml + target_sites.yaml, so
+# adding them does not change any Omani score).
+#
+#   role: candidate  - a new Omani site, not yet in the main ranking
+#   role: benchmark  - an analog site used by NASA, ESA or the Mars Society elsewhere in the world
+#
+# Coordinates: `coords_source` says where each point comes from. Windows are 10 km half-width, the
+# same as most Omani sites. Sites outside NASADEM coverage (north of 60 N: Haughton, Svalbard,
+# Iceland) are not listed here; they stay described-only in the Analog Atlas.
+# Metric values never live here: they come from `python -m analog.compute`.
+
+sites:
+  - id: majlis_al_jinn
+    role: candidate
+    country: {en: Oman, ar: عُمان}
+    name: {en: "Majlis al Jinn, Selma Plateau", ar: "مجلس الجن، هضبة سلمى"}
+    lat: 22.8806
+    lon: 59.1052
+    bbox_km: 10
+    coords_source: "Wikipedia (Majlis al Jinn), citing the 1985 PAWR survey"
+    note:
+      en: "Scores describe the plateau surface around the cave entrances; the chamber itself is underground and invisible to orbital data."
+      ar: "الدرجات تصف سطح الهضبة حول مداخل الكهف؛ القاعة نفسها تحت الأرض ولا تراها بيانات المدار."
+
+  - id: atacama
+    role: benchmark
+    country: {en: Chile, ar: تشيلي}
+    name: {en: "Atacama Desert (Yungay)", ar: "صحراء أتاكاما (يونغاي)"}
+    lat: -24.10
+    lon: -70.02
+    bbox_km: 10
+    coords_source: "Yungay research station area, hyper-arid core of the Atacama"
+
+  - id: black_point
+    role: benchmark
+    country: {en: USA, ar: الولايات المتحدة}
+    name: {en: "Black Point Lava Flow, Arizona (Desert RATS)", ar: "تدفق بلاك بوينت البركاني، أريزونا (Desert RATS)"}
+    lat: 35.6878
+    lon: -111.3599
+    bbox_km: 10
+    coords_source: "USGS National Map feature 'Black Point' (Coconino County, AZ)"
+
+  - id: mdrs
+    role: benchmark
+    country: {en: USA, ar: الولايات المتحدة}
+    name: {en: "Mars Desert Research Station, Utah", ar: "محطة أبحاث المريخ الصحراوية، يوتا"}
+    lat: 38.4064
+    lon: -110.7919
+    bbox_km: 10
+    coords_source: "MDRS habitat location published by the Mars Society"
+
+  - id: lanzarote
+    role: benchmark
+    country: {en: Spain, ar: إسبانيا}
+    name: {en: "Lanzarote lava fields (Cueva de los Verdes)", ar: "حقول الحمم في لانزاروتي (كويفا دي لوس فيرديس)"}
+    lat: 29.157
+    lon: -13.440
+    bbox_km: 10
+    coords_source: "Cueva de los Verdes lava tube entrance"
+
+  - id: hiseas
+    role: benchmark
+    country: {en: USA, ar: الولايات المتحدة}
+    name: {en: "HI-SEAS, Mauna Loa, Hawaii", ar: "محطة HI-SEAS، ماونا لوا، هاواي"}
+    lat: 19.602
+    lon: -155.487
+    bbox_km: 10
+    coords_source: "HI-SEAS habitat on the north slope of Mauna Loa"
+
+  - id: supramonte
+    role: benchmark
+    country: {en: Italy, ar: إيطاليا}
+    name: {en: "Supramonte karst, Sardinia (ESA CAVES)", ar: "كارست سوبرامونتي، سردينيا (CAVES)"}
+    lat: 40.20
+    lon: 9.50
+    bbox_km: 10
+    coords_source: "Approximate centre of the Supramonte karst plateau"
+    note:
+      en: "ESA trains astronauts inside the caves; scores describe the karst surface above them."
+      ar: "تدرّب وكالة الفضاء الأوروبية الرواد داخل الكهوف؛ الدرجات تصف سطح الكارست فوقها."
