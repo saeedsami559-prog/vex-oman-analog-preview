@@ -1,5 +1,6 @@
 import { CircleMarker, MapContainer, TileLayer, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { ARTEMIS_REGIONS, ARTEMIS_SOURCES, BENCHMARKS, CATEGORIES, OMAN_CANDIDATES, OMAN_SCORED_CATEGORIES, OMAN_TRACK, type AtlasSite } from '../lib/atlas';
@@ -27,18 +28,26 @@ export default function Atlas() {
   const cw = data.config.criteria;
   const shared = { terrain: cw.terrain?.weight ?? 0.4, mineralogy: 0, surface: cw.surface?.weight ?? 0.2 };
   const allEarth = [...scored, ...(data.benchmarks ?? [])];
-  const meanOf = (id: string): number | null => {
-    const site = allEarth.find((x) => x.id === id);
-    return site ? meanMarsSimilarity(data, site, shared) : null;
-  };
-  const twinOf = (site: (typeof allEarth)[number]) =>
+  const [rankBody, setRankBody] = useState<'mars' | 'moon'>('mars');
+  // Similarity of an Earth site to each target of one body, on the shared criteria.
+  const toBody = (site: (typeof allEarth)[number], body: 'mars' | 'moon') =>
     data.targets
-      .filter((t) => t.body === 'mars')
-      .map((t) => ({ target: t.id, overall: similarity(site.raw, t.raw, site.resolution_m, t.resolution_m, data.config, shared, site.body, t.body).overall }))
-      .filter((x) => x.overall !== null)
-      .sort((a, b) => b.overall! - a.overall!)[0];
+      .filter((tg) => tg.body === body)
+      .map((tg) => ({ target: tg.id, overall: similarity(site.raw, tg.raw, site.resolution_m, tg.resolution_m, data.config, shared, site.body, tg.body).overall }))
+      .filter((x): x is { target: string; overall: number } => x.overall !== null);
+  const meanOf = (id: string, body: 'mars' | 'moon' = 'mars'): number | null => {
+    const site = allEarth.find((x) => x.id === id);
+    if (!site) return null;
+    if (body === 'mars') return meanMarsSimilarity(data, site, shared);
+    const v = toBody(site, body);
+    return v.length ? v.reduce((a, b) => a + b.overall, 0) / v.length : null;
+  };
+  // Omani sites are in both rankings; world sites only in the ranking of the body they are an analog for.
+  const inRanking = (site: (typeof allEarth)[number], body: 'mars' | 'moon') =>
+    site.role !== 'benchmark' || !site.analog_for || site.analog_for.includes(body);
   const worldRows = allEarth
-    .map((site) => ({ site, mean: meanOf(site.id), twin: twinOf(site) }))
+    .filter((site) => inRanking(site, rankBody))
+    .map((site) => ({ site, mean: meanOf(site.id, rankBody), twin: toBody(site, rankBody).sort((a, b) => b.overall - a.overall)[0] }))
     .sort((a, b) => (b.mean ?? -1) - (a.mean ?? -1));
   const computed = worldRows.filter((r) => r.mean != null);
   const pending = worldRows.filter((r) => r.mean == null);
@@ -105,6 +114,14 @@ export default function Atlas() {
         <section className="world-rank">
           <h2>{t('atlas.worldTitle')}</h2>
           <p className="muted">{t('atlas.worldText')}</p>
+          <div className="tabs body-tabs" role="tablist">
+            {(['mars', 'moon'] as const).map((b) => (
+              <button key={b} type="button" role="tab" aria-selected={rankBody === b} className={rankBody === b ? 'active' : ''} onClick={() => setRankBody(b)}>
+                <span className={`dot ${b}`} /> {t(`atlas.rank_${b}`)}
+              </button>
+            ))}
+          </div>
+          {rankBody === 'moon' && <p className="small muted">{t('atlas.moonRankNote')}</p>}
           <div className="table-wrap">
             <table className="table">
               <thead>
@@ -112,8 +129,8 @@ export default function Atlas() {
                   <th>#</th>
                   <th>{t('sources.colSite')}</th>
                   <th>{t('atlas.colType')}</th>
-                  <th>{t('atlas.marsAvg')}</th>
-                  <th>{t('site.bestMars')}</th>
+                  <th>{t(rankBody === 'mars' ? 'atlas.marsAvg' : 'atlas.moonScore')}</th>
+                  <th>{t(rankBody === 'mars' ? 'site.bestMars' : 'site.bestMoon')}</th>
                   <th>{t('site.coverageFact')}</th>
                 </tr>
               </thead>
@@ -139,7 +156,7 @@ export default function Atlas() {
                       <td className="small">{tw && twin?.overall != null ? `${loc(tw.name)} · ${num(twin.overall * 100)}%` : '–'}</td>
                       <td className="small nowrap">
                         {num(site.measured.length)}/{num(site.measured.length + site.missing.filter((m) => m.status === 'unavailable').length)}
-                        {(data.config.criteria.surface?.features ?? []).every((f) => site.raw[f] == null) && (
+                        {rankBody === 'mars' && (data.config.criteria.surface?.features ?? []).every((f) => site.raw[f] == null) && (
                           <span className="pill warn small"> {t('atlas.terrainOnly')}</span>
                         )}
                       </td>

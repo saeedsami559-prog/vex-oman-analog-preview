@@ -36,7 +36,7 @@ export default function TwinSlider({ data }: { data: Dataset }) {
   const score = scoreFor(data, pair.earth.id, pair.target.id);
 
   return (
-    <section className="twin" aria-labelledby="twin-title">
+    <section className="twin" id="twin" aria-labelledby="twin-title">
       <div className="section-head">
         <h2 id="twin-title">{t('home.twinTitle')}</h2>
         <p className="muted">{t('home.twinSubtitle')}</p>

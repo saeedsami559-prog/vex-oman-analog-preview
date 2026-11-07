@@ -1,0 +1,95 @@
+{
+  "bounds": [
+    [
+      35.139835678816254,
+      -111.73753847968622
+    ],
+    [
+      35.49956432118374,
+      -111.29666152031378
+    ]
+  ],
+  "half_km": 20,
+  "shape": [
+    1333,
+    1333
+  ],
+  "source": {
+    "dataset": "NASADEM_HGT v001 (Microsoft Planetary Computer COG mirror)",
+    "products": [
+      "NASADEM_HGT_n35w112"
+    ],
+    "urls": [
+      "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n35w112.tif"
+    ],
+    "native_resolution_m": 30
+  },
+  "site": "cinder_lake",
+  "body": "earth",
+  "generated": "2026-11-07T10:24:55+00:00",
+  "elevation_m": {
+    "min": 1424.6,
+    "max": 3831.4,
+    "p2": 1611.4,
+    "p98": 3044.7,
+    "cmap": "terrain"
+  },
+  "slope": {
+    "bins_deg": [
+      0,
+      2,
+      5,
+      10,
+      20,
+      30,
+      90
+    ],
+    "colors": [
+      "#1a9850",
+      "#91cf60",
+      "#d9ef8b",
+      "#fee08b",
+      "#fc8d59",
+      "#d73027"
+    ],
+    "share": {
+      "0-2": 0.2046,
+      "2-5": 0.4009,
+      "5-10": 0.211,
+      "10-20": 0.1157,
+      "20-30": 0.0535,
+      "30-90": 0.0143
+    }
+  },
+  "drainage": {
+    "stream_km2": 5.0,
+    "depression_m": 2.0,
+    "channel_share": 0.0098,
+    "depression_km2": 30.23,
+    "max_upstream_km2": 665.6,
+    "flat": false
+  },
+  "common": {
+    "res_m": 463.0,
+    "shape": [
+      86,
+      86
+    ],
+    "slope_share": {
+      "0-2": 0.4392,
+      "2-5": 0.3277,
+      "5-10": 0.1435,
+      "10-20": 0.0803,
+      "20-30": 0.0093,
+      "30-90": 0.0
+    },
+    "drainage": {
+      "stream_km2": 200.0,
+      "depression_m": 20.0,
+      "channel_share": 0.0112,
+      "depression_km2": 2.6,
+      "max_upstream_km2": 679.7
+    }
+  },
+  "method": "Priority-Flood fill (Barnes et al. 2014) + D8 flow direction (O'Callaghan & Mark 1984)"
+}

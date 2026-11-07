@@ -57,6 +57,8 @@ export interface Site {
   /** analog / reference: the Omani sites; candidate: a new Omani site; benchmark: a world analog site. */
   role?: 'analog' | 'reference' | 'candidate' | 'benchmark';
   country?: Localized;
+  /** For candidate/benchmark sites: which bodies the site is used as an analog for. */
+  analog_for?: ('mars' | 'moon')[];
   coords_source?: string;
   intended_targets?: string[];
   coords_approximate?: boolean;

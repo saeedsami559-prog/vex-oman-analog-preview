@@ -143,7 +143,8 @@
     "ctaText": "Pick a Mars or Moon target and see which Omani site resembles it most, change the weights, or put both places side by side on the map.",
     "ctaPresent": "Presentation mode",
     "dirTitle": "Explore the project",
-    "dirSubtitle": "Each page does one job. Start wherever your question is."
+    "dirSubtitle": "Each page does one job. Start wherever your question is.",
+    "moonTag": "south pole + {n} Moon analog sites"
   },
   "explorer": {
     "title": "Explorer",
@@ -231,7 +232,10 @@
     "role_benchmark": "World benchmark site",
     "extraCandidate": "Scored with the same index and scale as the five Omani sites, but not yet part of the main Omani ranking.",
     "extraBenchmark": "A world analog site, scored with the same index and scale for comparison. It is not part of the Omani ranking and does not change any Omani score.",
-    "coordsFrom": "Point used: {src}"
+    "coordsFrom": "Point used: {src}",
+    "mapTitle": "Satellite map",
+    "mapNote": "Dashed square: the analysis window scored from NASA data. Use the layer button for terrain, slope and drainage from NASADEM.",
+    "photoCredit": "Image"
   },
   "compare": {
     "title": "Compare & adjust",
@@ -504,7 +508,7 @@
       ],
       [
         "Permanent Moon base locations",
-        "Lunar south pole (Shackleton rim) scored on terrain; NASA's nine Artemis III regions listed in the Atlas",
+        "Lunar south pole (Shackleton rim) scored on terrain; Apollo and Artemis training sites (Meteor Crater, Kilbourne Hole, Ries, Sudbury and more) ranked as Moon analogs; NASA's nine Artemis III regions listed in the Atlas",
         "partial"
       ],
       [
@@ -643,7 +647,7 @@
   },
   "atlas": {
     "title": "Analog Atlas",
-    "intro": "Where Oman fits among the world's planetary analog sites. The five Omani sites are scored from NASA data; the benchmark sites and the new Omani candidate are described from published sources and are not scored.",
+    "intro": "Where Oman fits among the world's planetary analog sites. The five Omani sites, the new cave candidate and 15 analog sites used by NASA, ESA and the Mars Society are scored from NASA data; polar sites outside NASADEM coverage are described from published sources only.",
     "legendScored": "Omani site, scored",
     "legendCandidate": "Omani candidate, not yet scored",
     "legendBenchmark": "NASA / ESA analog site",
@@ -676,7 +680,7 @@
     "moonList": "Candidate regions (no priority order)",
     "marsAvg": "Mars average (terrain + surface)",
     "worldTitle": "Oman among the world: same index, same scale",
-    "worldText": "The five Omani sites, the new cave candidate and well-known analog sites used by NASA, ESA and the Mars Society, all scored with the same NASA data (NASADEM terrain, MODIS surface brightness), the same formula and the same normalisation ranges. For a fair comparison this table uses only the criteria measured at every site: terrain and surface. The world sites do not move any Omani score.",
+    "worldText": "The five Omani sites, the new cave candidate and well-known analog sites used by NASA, ESA and the Mars Society, all scored with the same NASA data (NASADEM terrain, MODIS surface brightness), the same formula and the same normalisation ranges. Switch between Mars and Moon: each world site appears in the ranking of the body it is used for. The world sites do not move any Omani score.",
     "colType": "Type",
     "type_analog": "Omani site",
     "type_reference": "Omani reference",
@@ -686,7 +690,12 @@
     "worldNote": "Read with care: minerals are left out here because EMIT mineral data for the world sites needs an Earthdata login, so Omani scores in this table differ from the ones elsewhere on the site, which include minerals. Young dark lava fields (Black Point, Lanzarote, Mauna Loa) rank high because their gentle slopes and low brightness resemble Martian plains; this says nothing about chemistry. Coordinates are a published point at each site, with a 20 × 20 km window around it.",
     "candidateScored": "Omani candidate, scored",
     "openProfile": "Open its profile",
-    "terrainOnly": "terrain only"
+    "terrainOnly": "terrain only",
+    "cat_astrobio": "Signs of ancient life",
+    "rank_mars": "Mars analogs",
+    "rank_moon": "Moon analogs",
+    "moonScore": "Similarity to the lunar south pole",
+    "moonRankNote": "Compared with the lunar south pole (Shackleton rim) on terrain only: slope, roughness and relief from NASADEM against LRO LOLA, on the same 463 m grid. NASA has no mineral or surface data in this pipeline for the Moon."
   },
   "env": {
     "title": "Field environment (NASA POWER)",

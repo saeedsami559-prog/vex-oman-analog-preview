@@ -12,6 +12,7 @@
 
 sites:
   - id: majlis_al_jinn
+    analog_for: [moon, mars]
     role: candidate
     country: {en: Oman, ar: عُمان}
     name: {en: "Majlis al Jinn, Selma Plateau", ar: "مجلس الجن، هضبة سلمى"}
@@ -27,6 +28,7 @@ sites:
       ar: {summary: قاعة كارستية واحدة بنحو 310 × 225 م وسقف يقارب 120 م، لا يُدخل إليها إلا بالنزول بالحبال من 100 إلى 120 م عبر فتحات في السقف، على ارتفاع نحو 1,380 م في هضبة سلمى. أنابيب الحمم على القمر والمريخ مقترحة كملاجئ، وهذه القاعة تضيف عمليات الدخول العمودي عبر فتحة في السقف، مثل الفتحات السماوية على القمر والمريخ.}
 
   - id: atacama
+    analog_for: [mars]
     role: benchmark
     country: {en: Chile, ar: تشيلي}
     name: {en: "Atacama Desert (Yungay)", ar: "صحراء أتاكاما (يونغاي)"}
@@ -39,6 +41,7 @@ sites:
       ar: {summary: جفاف شديد وميكروبات قديمة محفوظة، تدرسها ناسا لفهم الظروف على المريخ.}
 
   - id: black_point
+    analog_for: [moon, mars]
     role: benchmark
     country: {en: USA, ar: الولايات المتحدة}
     name: {en: "Black Point Lava Flow, Arizona (Desert RATS)", ar: "تدفق بلاك بوينت البركاني، أريزونا (Desert RATS)"}
@@ -51,6 +54,7 @@ sites:
       ar: {summary: تدفقات بازلتية وحقول رماد بركاني ذات جيولوجيا شبيهة بالقمر، اختبر فيها برنامج Desert RATS التابع لناسا المركبات الجوالة والسير خارج المركبة.}
 
   - id: mdrs
+    analog_for: [mars]
     role: benchmark
     country: {en: USA, ar: الولايات المتحدة}
     name: {en: "Mars Desert Research Station, Utah", ar: "محطة أبحاث المريخ الصحراوية، يوتا"}
@@ -63,6 +67,7 @@ sites:
       ar: {summary: موئل في صحراء رسوبية حمراء تتدرّب فيه طواقم جمعية المريخ على أيام العمل الميداني على المريخ.}
 
   - id: lanzarote
+    analog_for: [moon, mars]
     role: benchmark
     country: {en: Spain, ar: إسبانيا}
     name: {en: "Lanzarote lava fields (Cueva de los Verdes)", ar: "حقول الحمم في لانزاروتي (كويفا دي لوس فيرديس)"}
@@ -75,6 +80,7 @@ sites:
       ar: {summary: حقول حمم حديثة حول أحد أكبر أنظمة أنابيب الحمم (نحو 8 كم)، رسمتها حملة Pangaea-X التابعة لوكالة الفضاء الأوروبية كنظير لأنابيب الحمم على القمر والمريخ.}
 
   - id: hiseas
+    analog_for: [moon, mars]
     role: benchmark
     country: {en: USA, ar: الولايات المتحدة}
     name: {en: "HI-SEAS, Mauna Loa, Hawaii", ar: "محطة HI-SEAS، ماونا لوا، هاواي"}
@@ -87,6 +93,7 @@ sites:
       ar: {summary: موئل على المنحدر البركاني لماونا لوا استخدمته بعثات HI-SEAS الممولة من ناسا لدراسات العزلة الطويلة.}
 
   - id: supramonte
+    analog_for: [moon, mars]
     role: benchmark
     country: {en: Italy, ar: إيطاليا}
     name: {en: "Supramonte karst, Sardinia (ESA CAVES)", ar: "كارست سوبرامونتي، سردينيا (CAVES)"}
@@ -100,3 +107,122 @@ sites:
     card:
       en: {summary: A limestone karst plateau where ESA's CAVES course sends astronauts from several agencies underground to train exploration and teamwork.}
       ar: {summary: هضبة كارستية جيرية يرسل فيها برنامج CAVES التابع لوكالة الفضاء الأوروبية رواداً من عدة وكالات تحت الأرض للتدرب على الاستكشاف والعمل الجماعي.}
+
+  # ---- Added: more NASA-used Mars analogs -------------------------------------------------------
+  - id: death_valley
+    analog_for: [mars]
+    role: benchmark
+    country: {en: USA, ar: الولايات المتحدة}
+    name: {en: "Death Valley (Ubehebe Crater), California", ar: "وادي الموت (فوهة أوبيهيبي)، كاليفورنيا"}
+    lat: 37.0097
+    lon: -117.4503
+    bbox_km: 10
+    coords_source: "Ubehebe Crater (Wikipedia coordinates; National Park Service 'NASA in Death Valley')"
+    card:
+      en: {summary: "NASA has tested Mars hardware here since the Viking era, including the Lander Vision System that guided Perseverance to Jezero (2019) and Mars drone navigation (2025). The National Park Service notes that Ubehebe Crater's clay-rich floor resembles mudstone studied by Curiosity in Gale Crater."}
+      ar: {summary: "تختبر ناسا هنا معدات المريخ منذ عهد مركبات فايكنغ، ومنها نظام الرؤية الذي وجّه هبوط Perseverance في Jezero (2019) وملاحة طائرات المريخ المسيّرة (2025). وتذكر هيئة المتنزهات الوطنية أن قاع فوهة أوبيهيبي الغني بالطين يشبه الصخر الطيني الذي درسته Curiosity في فوهة Gale."}
+
+  - id: rio_tinto
+    analog_for: [mars]
+    role: benchmark
+    country: {en: Spain, ar: إسبانيا}
+    name: {en: "Río Tinto headwaters (Peña de Hierro), Spain", ar: "منابع ريو تينتو (بينيا دي إييرو)، إسبانيا"}
+    lat: 37.7255
+    lon: -6.5556
+    bbox_km: 10
+    coords_source: "Peña de Hierro mine (IGME heritage sheet UTM 29N 715470 E, 4178190 N; cross-checked with a second published point)"
+    card:
+      en: {summary: "Acidic, iron- and sulfate-rich waters over a massive sulfide deposit, the site of NASA's MARTE robotic drilling experiment (2003–2005), which simulated a Mars mission to search for subsurface life."}
+      ar: {summary: "مياه حمضية غنية بالحديد والكبريتات فوق رواسب كبريتيدية ضخمة، وهو موقع تجربة الحفر الروبوتي MARTE التابعة لناسا (2003–2005) التي حاكت مهمة على المريخ للبحث عن حياة تحت السطح."}
+
+  - id: pilbara
+    analog_for: [mars]
+    role: benchmark
+    country: {en: Australia, ar: أستراليا}
+    name: {en: "Pilbara, Dresser Formation (North Pole Dome), Australia", ar: "بيلبارا، تكوين دريسر (قبة القطب الشمالي)، أستراليا"}
+    lat: -21.1518
+    lon: 119.4373
+    bbox_km: 10
+    coords_source: "Dresser Formation (Wikipedia), cross-checked with the Dresser Mine locality on Mindat"
+    card:
+      en: {summary: "About 3.48-billion-year-old rocks with some of Earth's oldest stromatolites. Scientists from NASA's Mars 2020 (Perseverance) and ESA's ExoMars teams trained here in 2019 to recognise signs of ancient life before searching for it on Mars."}
+      ar: {summary: "صخور عمرها نحو 3.48 مليار سنة تضم بعضاً من أقدم الستروماتوليت على الأرض. تدرّب هنا علماء فريقي Mars 2020 (Perseverance) التابع لناسا وExoMars التابع لوكالة الفضاء الأوروبية عام 2019 على التعرّف على آثار الحياة القديمة قبل البحث عنها على المريخ."}
+
+  # ---- Added: Moon analogs used for Apollo and Artemis astronaut training ----------------------
+  - id: meteor_crater
+    analog_for: [moon]
+    role: benchmark
+    country: {en: USA, ar: الولايات المتحدة}
+    name: {en: "Meteor Crater (Barringer), Arizona", ar: "فوهة النيزك (بارينجر)، أريزونا"}
+    lat: 35.0281
+    lon: -111.0233
+    bbox_km: 10
+    coords_source: "Meteor Crater (Wikipedia coordinates)"
+    card:
+      en: {summary: "A well-preserved impact crater about 1.2 km across, formed about 50,000 years ago. Apollo-era astronauts visited it repeatedly for geology training (NASA Apollo Lunar Surface Journal training record)."}
+      ar: {summary: "فوهة ارتطام محفوظة جيداً بعرض نحو 1.2 كم، تكوّنت قبل نحو 50 ألف سنة. زارها رواد عصر أبولو مراراً للتدرّب على الجيولوجيا (سجل تدريب رحلة أبولو على سطح القمر لدى ناسا)."}
+
+  - id: cinder_lake
+    analog_for: [moon]
+    role: benchmark
+    country: {en: USA, ar: الولايات المتحدة}
+    name: {en: "Cinder Lake crater field, Arizona", ar: "حقل فوهات سيندر ليك، أريزونا"}
+    lat: 35.3197
+    lon: -111.5171
+    bbox_km: 10
+    coords_source: "USGS GNIS feature 'Cinder Lake' (Coconino County), cross-checked with a USGS well at the site"
+    card:
+      en: {summary: "In 1967 the USGS blasted a full-scale replica of an Apollo landing area into this cinder-covered flat near Flagstaff. Apollo crews, including Apollo 15 in 1970, rehearsed traverses here with a rover simulator."}
+      ar: {summary: "عام 1967 فجّرت هيئة المسح الجيولوجي الأمريكية في هذا السهل المغطى بالرماد البركاني قرب فلاغستاف نسخة بالحجم الطبيعي من منطقة هبوط لأبولو. وتدرّبت طواقم أبولو هنا، ومنها طاقم أبولو 15 عام 1970، على التنقل بمحاكي المركبة الجوالة."}
+
+  - id: kilbourne_hole
+    analog_for: [moon]
+    role: benchmark
+    country: {en: USA, ar: الولايات المتحدة}
+    name: {en: "Kilbourne Hole, New Mexico", ar: "كيلبورن هول، نيو مكسيكو"}
+    lat: 31.9719
+    lon: -106.9647
+    bbox_km: 10
+    coords_source: "Kilbourne Hole (Wikipedia coordinates)"
+    card:
+      en: {summary: "A volcanic maar crater about 3 km long in the Potrillo volcanic field. Apollo 12, 15, 16 and 17 crews trained here, and NASA's Artemis geology team uses it again to train astronauts for the lunar south pole."}
+      ar: {summary: "فوهة ماار بركانية بطول نحو 3 كم في حقل بوتريلو البركاني. تدرّبت هنا طواقم أبولو 12 و15 و16 و17، ويعود فريق الجيولوجيا في برنامج Artemis لاستخدامها لتدريب الرواد على القطب الجنوبي للقمر."}
+
+  - id: ries
+    analog_for: [moon]
+    role: benchmark
+    country: {en: Germany, ar: ألمانيا}
+    name: {en: "Ries impact crater (Nördlingen), Germany", ar: "فوهة ريس الارتطامية (نوردلينغن)، ألمانيا"}
+    lat: 48.8833
+    lon: 10.5667
+    bbox_km: 10
+    coords_source: "Nördlinger Ries (Wikipedia coordinates)"
+    card:
+      en: {summary: "One of the best-preserved large impact craters on Earth, about 25 km across and roughly 15 million years old. The Apollo 14 crew trained here, and ESA's PANGAEA course still brings astronauts preparing for Artemis."}
+      ar: {summary: "من أفضل الفوهات الارتطامية الكبيرة حفظاً على الأرض، بعرض نحو 25 كم وعمر يقارب 15 مليون سنة. تدرّب هنا طاقم أبولو 14، ولا تزال دورة PANGAEA التابعة لوكالة الفضاء الأوروبية تحضر إليها رواداً يستعدون لبرنامج Artemis."}
+
+  - id: sudbury
+    analog_for: [moon]
+    role: benchmark
+    country: {en: Canada, ar: كندا}
+    name: {en: "Sudbury impact structure, Ontario", ar: "بنية سدبري الارتطامية، أونتاريو"}
+    lat: 46.6
+    lon: -81.1833
+    bbox_km: 10
+    coords_source: "Sudbury Basin (Wikipedia coordinates)"
+    card:
+      en: {summary: "A very large, deeply eroded impact structure about 1.85 billion years old. Apollo 16 and Apollo 17 crews studied its impact rocks during geology training (NASA Apollo Lunar Surface Journal training record)."}
+      ar: {summary: "بنية ارتطامية ضخمة شديدة التآكل عمرها نحو 1.85 مليار سنة. درس طاقما أبولو 16 وأبولو 17 صخورها الارتطامية خلال التدريب على الجيولوجيا (سجل تدريب رحلة أبولو على سطح القمر لدى ناسا)."}
+
+  - id: craters_of_the_moon
+    analog_for: [moon]
+    role: benchmark
+    country: {en: USA, ar: الولايات المتحدة}
+    name: {en: "Craters of the Moon lava field, Idaho", ar: "حقل حمم كريترز أوف ذا مون، أيداهو"}
+    lat: 43.4617
+    lon: -113.5627
+    bbox_km: 10
+    coords_source: "Craters of the Moon National Monument (Wikipedia coordinates)"
+    card:
+      en: {summary: "Young basalt flows, cones and lava tubes erupted between about 15,000 and 2,000 years ago. NASA's FINESSE project (SSERVI, NASA Ames) studied it as an analog for volcanic terrain on the Moon."}
+      ar: {summary: "تدفقات بازلتية حديثة ومخاريط وأنابيب حمم ثارت بين نحو 15 ألف وألفي سنة مضت. درسها مشروع FINESSE التابع لناسا (SSERVI، مركز أميس) كنظير للتضاريس البركانية على القمر."}

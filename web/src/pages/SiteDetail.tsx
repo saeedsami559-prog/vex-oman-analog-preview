@@ -5,6 +5,8 @@ import ScoreBadge, { ScoreBar } from '../components/similarity/ScoreBadge';
 import { useI18n } from '../i18n';
 import { analogsFor, bestMatch, findSite, isExtraSite, matchesFor, useDataset } from '../lib/data';
 import { BENCHMARKS, OMAN_CANDIDATES } from '../lib/atlas';
+import { SITE_PHOTOS, photoPage, photoUrl } from '../lib/photos';
+import SiteMap from '../components/map/SiteMap';
 import { formatCoords } from '../lib/geo';
 import { kmFromMuscat, mineralsFromLowSignal, sharedFeatures } from '../lib/analysis';
 import { FIELD_NOTES } from '../lib/fieldNotes';
@@ -67,6 +69,7 @@ export default function SiteDetail() {
   const lowSignal = !!(pairEarth && pairTarget && mineralsFromLowSignal(data, pairEarth, pairTarget));
   const surf = pairEarth && pairTarget ? sharedFeatures(data, 'surface', pairEarth, pairTarget) : null;
   const notes = FIELD_NOTES[site.id];
+  const photo = SITE_PHOTOS[site.id];
   const slopeKeys = meta?.common ? Object.keys(meta.common.slope_share) : [];
   const slopeLabel = (k: string) => {
     const [lo, hi] = k.split('-');
@@ -159,6 +162,26 @@ export default function SiteDetail() {
           )}
           {site.coords_source && <span className="muted"> · {t('site.coordsFrom', { src: site.coords_source })}</span>}
         </p>
+      )}
+
+      {(isEarth || photo) && (
+        <div className={`site-media${isEarth && photo ? ' two' : ''}`}>
+          {isEarth && <SiteMap site={site} />}
+          {photo && (
+            <figure className="panel site-photo">
+              <a href={photoPage(photo)} target="_blank" rel="noreferrer">
+                <img src={photoUrl(photo)} alt={loc(photo.caption)} loading="lazy" referrerPolicy="no-referrer" />
+              </a>
+              <figcaption>
+                <span>{loc(photo.caption)}</span>
+                <span className="muted small">
+                  {t('site.photoCredit')}: {photo.credit} ·{' '}
+                  <a href={photoPage(photo)} target="_blank" rel="noreferrer">NASA {photo.nasaId}</a>
+                </span>
+              </figcaption>
+            </figure>
+          )}
+        </div>
       )}
 
       {notes && (

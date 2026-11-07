@@ -1,0 +1,101 @@
+{
+  "bounds": [
+    [
+      34.84823567881626,
+      -111.24294924845867
+    ],
+    [
+      35.207964321183745,
+      -110.80365075154134
+    ]
+  ],
+  "half_km": 20,
+  "shape": [
+    1333,
+    1333
+  ],
+  "source": {
+    "dataset": "NASADEM_HGT v001 (Microsoft Planetary Computer COG mirror)",
+    "products": [
+      "NASADEM_HGT_n35w112",
+      "NASADEM_HGT_n35w111",
+      "NASADEM_HGT_n34w112",
+      "NASADEM_HGT_n34w111"
+    ],
+    "urls": [
+      "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n35w112.tif",
+      "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n35w111.tif",
+      "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n34w112.tif",
+      "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n34w111.tif"
+    ],
+    "native_resolution_m": 30
+  },
+  "site": "meteor_crater",
+  "body": "earth",
+  "generated": "2026-11-07T10:24:07+00:00",
+  "elevation_m": {
+    "min": 1428.1,
+    "max": 2112.0,
+    "p2": 1453.6,
+    "p98": 1941.0,
+    "cmap": "terrain"
+  },
+  "slope": {
+    "bins_deg": [
+      0,
+      2,
+      5,
+      10,
+      20,
+      30,
+      90
+    ],
+    "colors": [
+      "#1a9850",
+      "#91cf60",
+      "#d9ef8b",
+      "#fee08b",
+      "#fc8d59",
+      "#d73027"
+    ],
+    "share": {
+      "0-2": 0.5065,
+      "2-5": 0.4223,
+      "5-10": 0.0446,
+      "10-20": 0.0235,
+      "20-30": 0.0029,
+      "30-90": 0.0003
+    }
+  },
+  "drainage": {
+    "stream_km2": 5.0,
+    "depression_m": 2.0,
+    "channel_share": 0.0116,
+    "depression_km2": 14.67,
+    "max_upstream_km2": 572.0,
+    "flat": false
+  },
+  "common": {
+    "res_m": 463.0,
+    "shape": [
+      86,
+      86
+    ],
+    "slope_share": {
+      "0-2": 0.9327,
+      "2-5": 0.0358,
+      "5-10": 0.0277,
+      "10-20": 0.0038,
+      "20-30": 0.0,
+      "30-90": 0.0
+    },
+    "drainage": {
+      "stream_km2": 200.0,
+      "depression_m": 20.0,
+      "channel_share": 0.012,
+      "depression_km2": 0.87,
+      "max_upstream_km2": 934.1
+    }
+  },
+  "method": "Priority-Flood fill (Barnes et al. 2014) + D8 flow direction (O'Callaghan & Mark 1984)"
+}

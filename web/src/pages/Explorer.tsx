@@ -14,7 +14,7 @@ type View = 'map' | 'compare' | 'targets' | 'map2' | 'table';
 const VIEWS: View[] = ['map', 'compare', 'targets', 'map2', 'table'];
 
 export default function Explorer() {
-  const { t, loc, num } = useI18n();
+  const { t, loc, num, lang } = useI18n();
   const data = useDataset();
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
@@ -116,6 +116,17 @@ export default function Explorer() {
             onSelectEarth={(id) => select(id)}
             onSelectTarget={(id) => select(earth.id, id)}
           />
+
+          <div className="grid two">
+            <div className="panel">
+              <h3><span className="dot earth" /> {loc(earth.name)}</h3>
+              <p>{earth.card[lang].summary}</p>
+            </div>
+            <div className="panel">
+              <h3><span className={`dot ${target.body}`} /> {loc(target.name)}</h3>
+              <p>{target.card[lang].summary}</p>
+            </div>
+          </div>
 
           <div className="panel pair-strip">
             <p>

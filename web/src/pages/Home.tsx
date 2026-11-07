@@ -35,7 +35,7 @@ const IMPACT_ICONS = [
 ];
 
 export default function Home() {
-  const { t, loc, num } = useI18n();
+  const { t, loc, num, lang } = useI18n();
   const data = useDataset();
   const v = data.validation;
   const meanMars = v.mean_mars_similarity;
@@ -54,7 +54,7 @@ export default function Home() {
 
   return (
     <>
-      <SpaceHero earthSites={data.earth_sites.length} marsTargets={marsCount} />
+      <SpaceHero earthSites={data.earth_sites.length} marsTargets={marsCount} moonAnalogs={(data.benchmarks ?? []).filter((b) => b.analog_for?.includes('moon')).length} />
       <div className="page">
         <TwinSlider data={data} />
 
@@ -97,6 +97,7 @@ export default function Home() {
                       )}
                     </span>
                     <span className="tile-name">{loc(site.name)}</span>
+                    <span className="tile-summary">{site.card[lang].summary}</span>
                     {best && twin && (
                       <span className="tile-twin">
                         <span className="muted">{t(twin.body === 'moon' ? 'home.galleryMoonTwin' : 'home.galleryTwin')}</span>

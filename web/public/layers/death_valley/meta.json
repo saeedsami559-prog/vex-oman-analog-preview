@@ -1,0 +1,97 @@
+{
+  "bounds": [
+    [
+      36.82983567881626,
+      -117.67554326868525
+    ],
+    [
+      37.189564321183745,
+      -117.22505673131475
+    ]
+  ],
+  "half_km": 20,
+  "shape": [
+    1333,
+    1333
+  ],
+  "source": {
+    "dataset": "NASADEM_HGT v001 (Microsoft Planetary Computer COG mirror)",
+    "products": [
+      "NASADEM_HGT_n37w118",
+      "NASADEM_HGT_n36w118"
+    ],
+    "urls": [
+      "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n37w118.tif",
+      "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n36w118.tif"
+    ],
+    "native_resolution_m": 30
+  },
+  "site": "death_valley",
+  "body": "earth",
+  "generated": "2026-11-07T10:21:54+00:00",
+  "elevation_m": {
+    "min": 108.7,
+    "max": 2718.4,
+    "p2": 314.3,
+    "p98": 2286.4,
+    "cmap": "terrain"
+  },
+  "slope": {
+    "bins_deg": [
+      0,
+      2,
+      5,
+      10,
+      20,
+      30,
+      90
+    ],
+    "colors": [
+      "#1a9850",
+      "#91cf60",
+      "#d9ef8b",
+      "#fee08b",
+      "#fc8d59",
+      "#d73027"
+    ],
+    "share": {
+      "0-2": 0.0455,
+      "2-5": 0.2078,
+      "5-10": 0.2475,
+      "10-20": 0.2696,
+      "20-30": 0.1583,
+      "30-90": 0.0712
+    }
+  },
+  "drainage": {
+    "stream_km2": 5.0,
+    "depression_m": 2.0,
+    "channel_share": 0.0087,
+    "depression_km2": 4.53,
+    "max_upstream_km2": 1138.2,
+    "flat": false
+  },
+  "common": {
+    "res_m": 463.0,
+    "shape": [
+      86,
+      86
+    ],
+    "slope_share": {
+      "0-2": 0.0756,
+      "2-5": 0.275,
+      "5-10": 0.3647,
+      "10-20": 0.2346,
+      "20-30": 0.0485,
+      "30-90": 0.0016
+    },
+    "drainage": {
+      "stream_km2": 200.0,
+      "depression_m": 20.0,
+      "channel_share": 0.0108,
+      "depression_km2": 0.0,
+      "max_upstream_km2": 1209.9
+    }
+  },
+  "method": "Priority-Flood fill (Barnes et al. 2014) + D8 flow direction (O'Callaghan & Mark 1984)"
+}
