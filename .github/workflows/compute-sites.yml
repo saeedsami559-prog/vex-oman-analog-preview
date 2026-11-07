@@ -30,7 +30,8 @@ jobs:
         env:
           EARTHDATA_TOKEN: ${{ secrets.EARTHDATA_TOKEN }}
         run: |
-          ids=$(python -c "import yaml;print(' '.join(s['id'] for s in yaml.safe_load(open('config/benchmark_sites.yaml'))['sites']))")
+          ids=$(python -c "import yaml,os;print(' '.join(s['id'] for s in yaml.safe_load(open('config/benchmark_sites.yaml'))['sites'] if not os.path.exists('../data/processed/metrics/'+s['id']+'.json')))")
+          echo "computing: $ids"
           for id in $ids; do
             echo "::group::compute $id"; PYTHONPATH=src python -m analog.compute --site "$id" || echo "compute failed for $id"; echo "::endgroup::"
             echo "::group::layers $id"; PYTHONPATH=src python -m analog.layers --site "$id" || echo "layers failed for $id"; echo "::endgroup::"

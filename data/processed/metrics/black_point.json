@@ -1,0 +1,110 @@
+{
+  "site": "black_point",
+  "generated": "2026-11-07T09:55:54+00:00",
+  "measured": {
+    "slope_deg": {
+      "value": 1.532789,
+      "provenance": {
+        "dataset": "NASADEM_HGT (NASA SRTM reprocessing), Microsoft Planetary Computer COG mirror",
+        "version": "001",
+        "products": [
+          "NASADEM_HGT_n35w112"
+        ],
+        "urls": [
+          "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n35w112.tif"
+        ],
+        "acquired": [
+          "2000-02-20"
+        ],
+        "native_resolution_m": 30,
+        "window_coverage": 1.0,
+        "processing": "Reprojected to a site-centred azimuthal-equidistant grid at native resolution, area-averaged to exactly 463 m, then slope (central differences), RMS roughness (plane-detrended, ~1.4 km windows, median) and relief (max-min in 5 km windows, median)."
+      }
+    },
+    "roughness_m": {
+      "value": 2.303021,
+      "provenance": {
+        "dataset": "NASADEM_HGT (NASA SRTM reprocessing), Microsoft Planetary Computer COG mirror",
+        "version": "001",
+        "products": [
+          "NASADEM_HGT_n35w112"
+        ],
+        "urls": [
+          "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n35w112.tif"
+        ],
+        "acquired": [
+          "2000-02-20"
+        ],
+        "native_resolution_m": 30,
+        "window_coverage": 1.0,
+        "processing": "Reprojected to a site-centred azimuthal-equidistant grid at native resolution, area-averaged to exactly 463 m, then slope (central differences), RMS roughness (plane-detrended, ~1.4 km windows, median) and relief (max-min in 5 km windows, median)."
+      }
+    },
+    "relief_m": {
+      "value": 128.71965,
+      "provenance": {
+        "dataset": "NASADEM_HGT (NASA SRTM reprocessing), Microsoft Planetary Computer COG mirror",
+        "version": "001",
+        "products": [
+          "NASADEM_HGT_n35w112"
+        ],
+        "urls": [
+          "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n35w112.tif"
+        ],
+        "acquired": [
+          "2000-02-20"
+        ],
+        "native_resolution_m": 30,
+        "window_coverage": 1.0,
+        "processing": "Reprojected to a site-centred azimuthal-equidistant grid at native resolution, area-averaged to exactly 463 m, then slope (central differences), RMS roughness (plane-detrended, ~1.4 km windows, median) and relief (max-min in 5 km windows, median)."
+      }
+    }
+  },
+  "missing": [
+    {
+      "feature": "albedo",
+      "status": "unavailable",
+      "reason_code": "no_coverage",
+      "reason_en": "MODIS MCD43A4 v061 has no usable pixels in this site's window.",
+      "reason_ar": "لا توجد بكسلات صالحة من MODIS MCD43A4 v061 داخل نافذة هذا الموقع.",
+      "needed": "Valid MODIS NBAR composites for this window.",
+      "needed_ar": "مركبات MODIS NBAR صالحة لهذه النافذة."
+    },
+    {
+      "feature": "thermal_inertia",
+      "status": "unavailable",
+      "reason_code": "calibration_missing",
+      "reason_en": "MODIS MOD11A1/MYD11A1 day/night land-surface temperature: turning the data into this metric needs a calibration constant for which we have no cited source (only apparent thermal inertia (ATI) can be derived, which is not comparable with Mars thermal inertia).",
+      "reason_ar": "MODIS MOD11A1/MYD11A1 day/night land-surface temperature: تحويل البيانات إلى هذا المقياس يحتاج ثابت معايرة ليس لدينا مصدر موثّق له (يمكن حساب القصور الحراري الظاهري فقط، وهو غير قابل للمقارنة مع القصور الحراري للمريخ).",
+      "needed": "A cited calibration from apparent thermal inertia to thermal inertia (J m-2 K-1 s-1/2) for arid surfaces, or a surface energy-balance model with cited parameters fitted to MODIS LST.",
+      "needed_ar": "معايرة موثّقة لتحويل القصور الحراري الظاهري إلى قصور حراري بوحدة TIU للأسطح الجافة، أو نموذج توازن طاقة بمعاملات موثّقة يُطابق على حرارة سطح MODIS."
+    },
+    {
+      "feature": "chloride_index",
+      "status": "unavailable",
+      "reason_code": "calibration_missing",
+      "reason_en": "NASA EMIT L2A reflectance: turning the data into this metric needs a calibration constant for which we have no cited source (chlorides have no diagnostic absorption between 0.4 and 2.5 µm).",
+      "reason_ar": "NASA EMIT L2A reflectance: تحويل البيانات إلى هذا المقياس يحتاج ثابت معايرة ليس لدينا مصدر موثّق له (لا يملك الكلوريد امتصاصاً مميزاً بين 0.4 و2.5 ميكرومتر).",
+      "needed": "A published, cited chloride detection method that can be applied identically to Earth and Mars data (VSWIR brightness/slope thresholds or a thermal-infrared emissivity method).",
+      "needed_ar": "طريقة منشورة وموثّقة لرصد الكلوريد يمكن تطبيقها بالطريقة نفسها على بيانات الأرض والمريخ."
+    },
+    {
+      "feature": "serpentine_index",
+      "status": "unavailable",
+      "reason_code": "needs_login",
+      "reason_en": "NASA EMIT L2A reflectance (EMITL2ARFL v001) is only available with a NASA Earthdata Login, which is not configured on the processing machine.",
+      "reason_ar": "بيانات NASA EMIT L2A reflectance (EMITL2ARFL v001) متاحة فقط بحساب NASA Earthdata، وهو غير مُعدّ على جهاز المعالجة.",
+      "needed": "Create a free NASA Earthdata Login and store it in ~/.netrc (machine urs.earthdata.nasa.gov) or in EARTHDATA_USERNAME / EARTHDATA_PASSWORD, or put a user token in .env.local as EARTHDATA_TOKEN, then re-run `python -m analog.compute`.",
+      "needed_ar": "إنشاء حساب NASA Earthdata مجاني وحفظه في ملف ‎~/.netrc‎ أو في متغيرات EARTHDATA_USERNAME و EARTHDATA_PASSWORD أو وضع رمز المستخدم في ‎.env.local‎ باسم EARTHDATA_TOKEN ثم إعادة تشغيل ‎python -m analog.compute‎."
+    },
+    {
+      "feature": "carbonate_index",
+      "status": "unavailable",
+      "reason_code": "needs_login",
+      "reason_en": "NASA EMIT L2A reflectance (EMITL2ARFL v001) is only available with a NASA Earthdata Login, which is not configured on the processing machine.",
+      "reason_ar": "بيانات NASA EMIT L2A reflectance (EMITL2ARFL v001) متاحة فقط بحساب NASA Earthdata، وهو غير مُعدّ على جهاز المعالجة.",
+      "needed": "Create a free NASA Earthdata Login and store it in ~/.netrc (machine urs.earthdata.nasa.gov) or in EARTHDATA_USERNAME / EARTHDATA_PASSWORD, or put a user token in .env.local as EARTHDATA_TOKEN, then re-run `python -m analog.compute`.",
+      "needed_ar": "إنشاء حساب NASA Earthdata مجاني وحفظه في ملف ‎~/.netrc‎ أو في متغيرات EARTHDATA_USERNAME و EARTHDATA_PASSWORD أو وضع رمز المستخدم في ‎.env.local‎ باسم EARTHDATA_TOKEN ثم إعادة تشغيل ‎python -m analog.compute‎."
+    }
+  ]
+}
