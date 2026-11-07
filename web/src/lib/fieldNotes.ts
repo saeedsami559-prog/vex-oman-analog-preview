@@ -60,6 +60,14 @@ export const FIELD_NOTES: Record<string, FieldNotes> = {
         en: 'A full analog mission: the Austrian Space Forum ran the AMADEE-18 Mars simulation here in 2018, so crew, logistics and experiments have already been tested on site.',
         ar: 'بعثة مماثلة كاملة: نفّذ المنتدى الفضائي النمساوي محاكاة المريخ AMADEE-18 هنا عام 2018، فالطاقم والإمداد والتجارب اختُبرت في الموقع من قبل.',
       },
+      {
+        en: 'Remote science with a time delay: from 1 to 28 February 2018 a field crew ran 19 experiments (geoscience, astrobiology, engineering, human factors) directed by a Mission Support Center in Innsbruck, with the Oman Astronomical Society and teams from 25 nations (Groemer et al. 2020).',
+        ar: 'علم عن بُعد مع تأخير زمني: من 1 إلى 28 فبراير 2018 نفّذ طاقم ميداني 19 تجربة (علوم أرض، أحياء فلكية، هندسة، عوامل بشرية) بتوجيه من مركز دعم المهمة في إنسبروك، بالتعاون مع الجمعية الفلكية العمانية وفرق من 25 دولة (Groemer وآخرون 2020).',
+      },
+      {
+        en: 'Sample triage before return: lab analysis of 25 sediment samples the analog astronauts collected found minerals formed by volcanism, hydrothermal activity and weathering, and the authors compare Dhofar with the Eridania Basin on Mars (Lalla et al. 2020).',
+        ar: 'فرز العينات قبل إعادتها: التحليل المخبري لـ 25 عينة رواسب جمعها الرواد التناظريون كشف معادن تكوّنت بالبراكين والنشاط الحراري المائي والتجوية، ويقارن الباحثون ظفار بحوض Eridania على المريخ (Lalla وآخرون 2020).',
+      },
     ],
   },
   jebel_shams: {

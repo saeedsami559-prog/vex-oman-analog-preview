@@ -50,3 +50,17 @@ export const MISSION_LEGS: MissionLeg[] = [
 ];
 
 export const MISSION_EXTENSION = 'dhofar_amadee18';
+
+/** Optional Moon track (2 days) after the main route: rehearse what Artemis crews will face at the south pole. */
+export const MOON_TRACK: MissionLeg[] = [
+  {
+    site: 'majlis_al_jinn',
+    days: '10–11',
+    tasks: [
+      { en: 'Vertical entry: a 100–120 m rope descent through the roof openings, the way a crew might enter a lava-tube skylight on the Moon or Mars.', ar: 'الدخول العمودي: نزول بالحبال من 100 إلى 120 م عبر فتحات السقف، كما قد يدخل طاقم إلى فتحة سماوية لأنبوب حمم على القمر أو المريخ.' },
+      { en: 'Work in total darkness with only carried lights and no GPS, a stand-in for operations inside permanently shadowed craters.', ar: 'العمل في ظلام تام بالإضاءة المحمولة فقط ومن دون GPS، بديلاً عن العمليات داخل الفوهات المظللة دائماً.' },
+      { en: 'Relay radio through the shaft and log how long each message takes, to plan comms for sites out of line of sight.', ar: 'تمرير الاتصال اللاسلكي عبر الفتحة وتسجيل زمن كل رسالة، لتخطيط الاتصالات في المواقع خارج خط الرؤية.' },
+    ],
+    fills: ['thermal_inertia'],
+  },
+];

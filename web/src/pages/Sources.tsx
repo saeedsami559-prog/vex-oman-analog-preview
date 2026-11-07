@@ -6,6 +6,8 @@ import { DATA_SOURCES } from '../lib/sources';
 import { ENV_URL } from '../lib/environment';
 import ContinueExploring from '../components/common/ContinueExploring';
 import PageToc from '../components/common/PageToc';
+import { BENCHMARKS, OMAN_CANDIDATES, ARTEMIS_SOURCES } from '../lib/atlas';
+import { sourcesForSite } from '../lib/references';
 import type { Provenance } from '../types';
 
 interface UsedRow {
@@ -206,6 +208,40 @@ export default function Sources() {
       </div>
       <h2>{t('sources.mapsTitle')}</h2>
       <p>{t('sources.mapsText')}</p>
+
+      <h2>{t('sources.siteTable')}</h2>
+      <p className="muted">{t('sources.siteTableText')}</p>
+      <div className="site-source-groups">
+        {([
+          ['explorer.groupOman', [...data.earth_sites, ...(data.benchmarks ?? []).filter((b) => b.role === 'candidate')]],
+          ['explorer.groupTargets', data.targets],
+          ['explorer.groupWorld', (data.benchmarks ?? []).filter((b) => b.role === 'benchmark')],
+        ] as const).map(([key, list]) => (
+          <div key={key} className="panel">
+            <h3>{t(key)}</h3>
+            <ul className="site-source-list">
+              {list.map((site) => {
+                const atlas = [...BENCHMARKS, ...OMAN_CANDIDATES].find((a) => a.id === site.id);
+                const refs = sourcesForSite(site.id, atlas?.source ?? (site.id === 'moon_south_pole' ? ARTEMIS_SOURCES[0] : undefined));
+                return (
+                  <li key={site.id}>
+                    <Link to={`/site/${site.id}`}><span className={`dot ${site.body}`} /> {loc(site.name)}</Link>
+                    {refs.length ? (
+                      <ul>
+                        {refs.map((r) => (
+                          <li key={r.url}><a href={r.url} target="_blank" rel="noreferrer">{r.label}</a></li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="muted small">{t('sources.dataOnly')}</p>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </div>
       <ContinueExploring from="sources" />
     </div>
   );

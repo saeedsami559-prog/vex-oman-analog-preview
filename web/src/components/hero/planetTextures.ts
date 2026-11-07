@@ -3,7 +3,7 @@
  * unit sphere (not the flat map), so there is no seam at the date line and no pinching at the poles.
  */
 export interface PlanetTexture {
-  kind: 'earth' | 'mars';
+  kind: 'earth' | 'mars' | 'moon';
   w: number;
   h: number;
   color: Uint8ClampedArray; // RGBA
@@ -200,4 +200,52 @@ export function marsTexture(w = 1024, h = 512): PlanetTexture {
     color[o + 3] = 255;
   }
   return { kind: 'mars', w, h, color };
+}
+
+/** Grey highlands, darker maria on the near side and many fresh, bright-rimmed craters. */
+export function moonTexture(w = 768, h = 384): PlanetTexture {
+  const nBase = makeNoise(401), nMare = makeNoise(503), nWarp = makeNoise(601);
+  const N = w * h;
+  const base = new Float32Array(N), mare = new Float32Array(N), lats = new Float32Array(N);
+  const px = new Float32Array(N), py = new Float32Array(N), pz = new Float32Array(N);
+  forEachTexel(w, h, (i, x, y, z, lat) => {
+    const q = fbm(nWarp, x * 1.4, y * 1.4, z * 1.4, 3);
+    base[i] = fbm(nBase, x * 4 + q, y * 4, z * 4 - q, 6);
+    mare[i] = fbm(nMare, x * 1.1 + q * 0.7, y * 1.3, z * 1.1, 4);
+    lats[i] = lat;
+    px[i] = x;
+    py[i] = y;
+    pz[i] = z;
+  });
+  const mareThr = percentile(mare, 0.7);
+  const r = rng(707);
+  const craters: { x: number; y: number; z: number; cosOuter: number; rad: number; lat: number }[] = [];
+  for (let k = 0; k < 320; k++) {
+    const u = r() * 2 - 1, th = r() * Math.PI * 2, s = Math.sqrt(1 - u * u);
+    const rad = 0.006 + Math.pow(r(), 3) * 0.09;
+    craters.push({ x: s * Math.cos(th), y: u, z: s * Math.sin(th), rad, cosOuter: Math.cos(rad * 1.3), lat: Math.asin(u) });
+  }
+  const high: RGB = [186, 184, 180], low: RGB = [150, 148, 145], maria: RGB = [92, 92, 94];
+  const color = new Uint8ClampedArray(N * 4);
+  for (let i = 0; i < N; i++) {
+    let c = mix(low, high, smooth(-0.3, 0.3, base[i]));
+    c = mix(c, maria, smooth(mareThr - 0.02, mareThr + 0.1, mare[i]) * 0.85);
+    let shade = 1;
+    for (const k of craters) {
+      if (Math.abs(lats[i] - k.lat) > k.rad * 1.3) continue;
+      const d = px[i] * k.x + py[i] * k.y + pz[i] * k.z;
+      if (d < k.cosOuter) continue;
+      const t = Math.acos(Math.min(1, d)) / k.rad;
+      if (t < 0.8) shade *= 0.84 + t * 0.1;
+      else if (t < 1.08) shade *= 1.16;
+      else shade *= 1 + (1.3 - t) * 0.12; // faint ejecta
+    }
+    c = [c[0] * shade, c[1] * shade, c[2] * shade];
+    const o = i * 4;
+    color[o] = c[0];
+    color[o + 1] = c[1];
+    color[o + 2] = c[2];
+    color[o + 3] = 255;
+  }
+  return { kind: 'moon', w, h, color };
 }

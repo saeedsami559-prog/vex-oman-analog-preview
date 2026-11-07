@@ -3,7 +3,7 @@ import { useI18n } from '../i18n';
 import { kmFromMuscat } from '../lib/analysis';
 import { bestMatch, findSite, useDataset } from '../lib/data';
 import { layerUrl } from '../lib/layerMeta';
-import { MISSION_EXTENSION, MISSION_LEGS } from '../lib/mission';
+import { MISSION_EXTENSION, MISSION_LEGS, MOON_TRACK, type MissionLeg } from '../lib/mission';
 import { envSite, meanOver, monthNames, monthRange, sharedCoolestMonths, useEnvironment } from '../lib/environment';
 import ContinueExploring from '../components/common/ContinueExploring';
 
@@ -20,6 +20,45 @@ export default function Mission() {
   const hottest = routeClimate.map((e) => Math.max(...e!.monthly.T2M));
   const ext = findSite(data, MISSION_EXTENSION);
   const extKm = ext ? kmFromMuscat(ext) : null;
+
+  const renderLeg = (leg: MissionLeg, body?: 'moon') => {
+    const site = findSite(data, leg.site);
+    if (!site) return null;
+    const twin = body ? data.targets.find((tg) => tg.body === body) : findSite(data, bestMatch(data, site)?.target);
+    const km = kmFromMuscat(site);
+    return (
+      <li key={leg.site} className="panel mission-leg">
+        <img src={layerUrl(site.id, 'elevation.png')} alt="" loading="lazy" draggable={false} />
+        <div className="mission-leg-body">
+          <p className="muted small">
+            {t('mission.days', { d: leg.days })}
+            {km !== null && ` · ${t('explorer.findAccess', { km: num(km) })}`}
+          </p>
+          <h3>
+            <Link to={`/site/${site.id}`}>{loc(site.name)}</Link>
+          </h3>
+          {twin && (
+            <p className="small">
+              {t('mission.rehearses')} <span className={`dot ${twin.body}`} /> <strong>{loc(twin.name)}</strong>
+            </p>
+          )}
+          <ul>
+            {leg.tasks.map((task) => (
+              <li key={task.en}>{loc(task)}</li>
+            ))}
+          </ul>
+          <p className="small">
+            <span className="muted">{t('mission.fills')}</span>{' '}
+            {leg.fills.map((f) => (
+              <span key={f} className="pill soft">
+                {t(`features.${f}`)}
+              </span>
+            ))}
+          </p>
+        </div>
+      </li>
+    );
+  };
 
   return (
     <div className="page mission">
@@ -58,50 +97,18 @@ export default function Mission() {
 
       <h2>{t('mission.routeTitle')}</h2>
       <ol className="mission-legs">
-        {MISSION_LEGS.map((leg) => {
-          const site = findSite(data, leg.site);
-          if (!site) return null;
-          const twin = findSite(data, bestMatch(data, site)?.target);
-          const km = kmFromMuscat(site);
-          return (
-            <li key={leg.site} className="panel mission-leg">
-              <img src={layerUrl(site.id, 'elevation.png')} alt="" loading="lazy" draggable={false} />
-              <div className="mission-leg-body">
-                <p className="muted small">
-                  {t('mission.days', { d: leg.days })}
-                  {km !== null && ` · ${t('explorer.findAccess', { km: num(km) })}`}
-                </p>
-                <h3>
-                  <Link to={`/site/${site.id}`}>{loc(site.name)}</Link>
-                </h3>
-                {twin && (
-                  <p className="small">
-                    {t('mission.rehearses')} <span className={`dot ${twin.body}`} /> <strong>{loc(twin.name)}</strong>
-                  </p>
-                )}
-                <ul>
-                  {leg.tasks.map((task) => (
-                    <li key={task.en}>{loc(task)}</li>
-                  ))}
-                </ul>
-                <p className="small">
-                  <span className="muted">{t('mission.fills')}</span>{' '}
-                  {leg.fills.map((f) => (
-                    <span key={f} className="pill soft">
-                      {t(`features.${f}`)}
-                    </span>
-                  ))}
-                </p>
-              </div>
-            </li>
-          );
-        })}
+        {MISSION_LEGS.map((leg) => renderLeg(leg))}
       </ol>
       {ext && (
         <p className="note">
           {t('mission.extension', { site: loc(ext.name), km: extKm !== null ? num(extKm) : '–' })}
         </p>
       )}
+
+      <h2><span className="dot moon" /> {t('mission.moonTitle')}</h2>
+      <p>{t('mission.moonText')}</p>
+      <ol className="mission-legs">{MOON_TRACK.map((leg) => renderLeg(leg, 'moon'))}</ol>
+      <p className="muted small">{t('mission.moonNote')}</p>
 
       <div className="grid two">
         <div className="panel">

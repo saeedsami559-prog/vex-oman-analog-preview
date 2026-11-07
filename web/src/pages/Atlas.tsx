@@ -1,7 +1,7 @@
-import { CircleMarker, MapContainer, TileLayer, Tooltip } from 'react-leaflet';
+import { CircleMarker, MapContainer, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { ARTEMIS_REGIONS, ARTEMIS_SOURCES, BENCHMARKS, CATEGORIES, OMAN_CANDIDATES, OMAN_SCORED_CATEGORIES, OMAN_TRACK, type AtlasSite } from '../lib/atlas';
 import { findSite, useDataset } from '../lib/data';
@@ -28,7 +28,15 @@ export default function Atlas() {
   const cw = data.config.criteria;
   const shared = { terrain: cw.terrain?.weight ?? 0.4, mineralogy: 0, surface: cw.surface?.weight ?? 0.2 };
   const allEarth = [...scored, ...(data.benchmarks ?? [])];
-  const [rankBody, setRankBody] = useState<'mars' | 'moon'>('mars');
+  const [params] = useSearchParams();
+  const [rankBody, setRankBody] = useState<'mars' | 'moon'>(params.get('rank') === 'moon' ? 'moon' : 'mars');
+  // arriving from the Moon in the home hero: open the Moon ranking and scroll to it
+  useEffect(() => {
+    if (params.get('rank') !== 'moon') return;
+    setRankBody('moon');
+    const id = window.setTimeout(() => document.getElementById('world-rank')?.scrollIntoView({ block: 'start' }), 150);
+    return () => window.clearTimeout(id);
+  }, [params]);
   // Similarity of an Earth site to each target of one body, on the shared criteria.
   const toBody = (site: (typeof allEarth)[number], body: 'mars' | 'moon') =>
     data.targets
@@ -52,6 +60,32 @@ export default function Atlas() {
   const computed = worldRows.filter((r) => r.mean != null);
   const pending = worldRows.filter((r) => r.mean == null);
 
+  // Permanent labels: the site name and, under it, what it is an analog of.
+  const [labelled, setLabelled] = useState<Set<string>>(new Set());
+  const onLabels = useCallback((ids: Set<string>) => {
+    setLabelled((prev) => (prev.size === ids.size && [...ids].every((i) => prev.has(i)) ? prev : ids));
+  }, []);
+  const meaning = (bodies: string[], cats: string[]) =>
+    [bodies.map((b) => t(`body.${b}`)).join(' · '), cats.slice(0, 2).map((c) => t(`atlas.cat_${c}`)).join(', ')].filter(Boolean).join(' — ');
+  const label = (id: string, name: string, bodies: string[], cats: string[], extra?: string) =>
+    labelled.has(id) ? (
+      <Tooltip key={`${id}-on`} permanent direction="bottom" offset={[0, 8]} className="pin-label" interactive>
+        <strong>{name}</strong>
+        <span>{meaning(bodies, cats)}</span>
+      </Tooltip>
+    ) : (
+      <Tooltip key={`${id}-off`} direction="top" offset={[0, -6]}>
+        {name}{extra}
+      </Tooltip>
+    );
+  const scoredBodies = (s: (typeof scored)[number]) =>
+    [...new Set((s.intended_targets ?? []).map((id) => data.targets.find((tg) => tg.id === id)?.body).filter((b): b is 'mars' | 'moon' => !!b))];
+  const labelPoints: LabelPoint[] = [
+    ...scored.map((s) => ({ id: s.id, lat: s.lat, lon: s.lon })),
+    ...OMAN_CANDIDATES.map((s) => ({ id: s.id, lat: s.lat, lon: s.lon })),
+    ...BENCHMARKS.map((s) => ({ id: s.id, lat: s.lat, lon: s.lon })),
+  ];
+
   const pin = (s: AtlasSite, kind: 'candidate' | 'benchmark') => (
     <CircleMarker
       key={s.id}
@@ -60,11 +94,13 @@ export default function Atlas() {
       pathOptions={{ color: '#0b0f17', weight: 1.5, fillColor: COLORS[kind], fillOpacity: 0.95 }}
       eventHandlers={{ click: () => findSite(data, s.id) && navigate(`/site/${s.id}`) }}
     >
-      <Tooltip direction="top" offset={[0, -6]}>
-        {loc(s.name)} · {loc(s.place)}
-        {s.approx ? ` (${t('atlas.approx')})` : ''}
-        {meanOf(s.id) != null && ` · ${t('atlas.marsAvg')} ${num(meanOf(s.id)! * 100)}%`}
-      </Tooltip>
+      {label(
+        s.id,
+        loc(s.name),
+        s.bodies,
+        s.categories,
+        ` · ${loc(s.place)}${s.approx ? ` (${t('atlas.approx')})` : ''}${meanOf(s.id) != null ? ` · ${t('atlas.marsAvg')} ${num(meanOf(s.id)! * 100)}%` : ''}`,
+      )}
     </CircleMarker>
   );
 
@@ -87,6 +123,7 @@ export default function Atlas() {
             url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
             attribution="Esri, Maxar, Earthstar Geographics"
           />
+          <LabelLayout points={labelPoints} onChange={onLabels} />
           {BENCHMARKS.map((s) => pin(s, 'benchmark'))}
           {OMAN_CANDIDATES.map((s) => pin(s, 'candidate'))}
           {scored.map((s) => (
@@ -97,9 +134,7 @@ export default function Atlas() {
               pathOptions={{ color: '#0b0f17', weight: 1.5, fillColor: COLORS.scored, fillOpacity: 0.95 }}
               eventHandlers={{ click: () => navigate(`/site/${s.id}`) }}
             >
-              <Tooltip direction="top" offset={[0, -6]}>
-                {loc(s.name)}
-              </Tooltip>
+              {label(s.id, loc(s.name), scoredBodies(s), OMAN_SCORED_CATEGORIES[s.id] ?? [])}
             </CircleMarker>
           ))}
         </MapContainer>
@@ -111,7 +146,7 @@ export default function Atlas() {
       </div>
 
       {(data.benchmarks?.length ?? 0) > 0 && (
-        <section className="world-rank">
+        <section className="world-rank" id="world-rank">
           <h2>{t('atlas.worldTitle')}</h2>
           <p className="muted">{t('atlas.worldText')}</p>
           <div className="tabs body-tabs" role="tablist">
@@ -366,4 +401,33 @@ export default function Atlas() {
       <ContinueExploring from="atlas" />
     </div>
   );
+}
+
+interface LabelPoint { id: string; lat: number; lon: number }
+
+/**
+ * Decides which pins get a permanent name label at the current zoom: pins are taken in
+ * priority order (Omani sites first) and a label is skipped when it would overlap one
+ * already placed, so clusters (Oman, northern Arizona) open up as you zoom in.
+ */
+function LabelLayout({ points, onChange }: { points: LabelPoint[]; onChange: (ids: Set<string>) => void }) {
+  const map = useMap();
+  const layout = useCallback(() => {
+    const placed: { x: number; y: number }[] = [];
+    const show = new Set<string>();
+    const size = map.getSize();
+    for (const p of points) {
+      const pt = map.latLngToContainerPoint([p.lat, p.lon]);
+      if (pt.x < -40 || pt.y < -20 || pt.x > size.x + 40 || pt.y > size.y + 20) continue;
+      if (placed.some((q) => Math.abs(q.x - pt.x) < 150 && Math.abs(q.y - pt.y) < 40)) continue;
+      placed.push({ x: pt.x, y: pt.y });
+      show.add(p.id);
+    }
+    onChange(show);
+  }, [map, points, onChange]);
+  useMapEvents({ zoomend: layout, moveend: layout, resize: layout });
+  useEffect(() => {
+    layout();
+  }, [layout]);
+  return null;
 }

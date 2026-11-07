@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import CriteriaRadar from '../components/charts/CriteriaRadar';
 import MetricValue from '../components/site/MetricValue';
 import ScoreBadge, { ScoreBar } from '../components/similarity/ScoreBadge';
@@ -14,12 +14,14 @@ import { layerUrl, useLayerMeta } from '../lib/layerMeta';
 import { envSite, useEnvironment } from '../lib/environment';
 import EnvironmentPanel from '../components/site/EnvironmentPanel';
 import ContinueExploring from '../components/common/ContinueExploring';
+import SiteSources from '../components/common/SiteSources';
 
 const BODY_HEX = { earth: '#3fb6a8', mars: '#e0703f', moon: '#b8c2d6' } as const;
 
 export default function SiteDetail() {
   const { id } = useParams();
-  const { t, loc, lang, num } = useI18n();
+  const { t, loc, lang, num, dir } = useI18n();
+  const navigate = useNavigate();
   const data = useDataset();
   const site = findSite(data, id);
   const meta = useLayerMeta(site && site.body !== 'moon' ? site.id : null);
@@ -76,9 +78,19 @@ export default function SiteDetail() {
     return hi === '90' ? `> ${lo}°` : `${lo}–${hi}°`;
   };
 
+  // Back to wherever the visitor came from (Atlas map, Explorer...), or to the parent page on a direct visit.
+  const goBack = () => {
+    const idx = (window.history.state as { idx?: number } | null)?.idx ?? 0;
+    if (idx > 0) navigate(-1);
+    else navigate(isExtraSite(site) ? '/atlas' : isEarth ? `/explorer?site=${site.id}` : '/explorer?view=targets');
+  };
+
   return (
     <div className="page">
       <div className="detail-tools no-print">
+        <button type="button" className="btn ghost small back-btn" onClick={goBack}>
+          <span aria-hidden="true">{dir === 'rtl' ? '→' : '←'}</span> {t('common.back')}
+        </button>
         <nav className="breadcrumb" aria-label={t('common.breadcrumb')}>
           <Link to="/">{t('nav.home')}</Link>
           <span aria-hidden="true">›</span>
@@ -318,6 +330,7 @@ export default function SiteDetail() {
           </table></div>
         </div>
       </div>
+      <SiteSources ids={[site.id]} />
       <ContinueExploring from="site" />
     </div>
   );

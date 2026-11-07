@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useI18n } from '../../i18n';
-import { earthMarsDistanceKm, LIGHT_KM_S } from '../../lib/orbits';
+import { earthMarsDistanceKm, earthMoonDistanceKm, LIGHT_KM_S } from '../../lib/orbits';
 import { PlanetRenderer, type PlanetStyle } from './PlanetRenderer';
 import type { PlanetTexture } from './planetTextures';
 
-type Body = 'earth' | 'mars';
+type Body = 'earth' | 'mars' | 'moon';
+const BODIES: Body[] = ['earth', 'mars', 'moon'];
 
 // Textures are generated once per page load, off the main thread, low-res first then sharp.
 const textures: Partial<Record<Body, PlanetTexture>> = {};
-const listeners: Record<Body, Set<(t: PlanetTexture) => void>> = { earth: new Set(), mars: new Set() };
+const listeners: Record<Body, Set<(t: PlanetTexture) => void>> = { earth: new Set(), mars: new Set(), moon: new Set() };
 const started = new Set<Body>();
 
 function publish(kind: Body, tex: PlanetTexture) {
@@ -24,7 +25,7 @@ function watchTexture(kind: Body, fn: (t: PlanetTexture) => void): () => void {
   if (!started.has(kind)) {
     started.add(kind);
     const fallback = () =>
-      import('./planetTextures').then((m) => publish(kind, kind === 'earth' ? m.earthTexture() : m.marsTexture()));
+      import('./planetTextures').then((m) => publish(kind, kind === 'earth' ? m.earthTexture() : kind === 'mars' ? m.marsTexture() : m.moonTexture()));
     try {
       const worker = new Worker(new URL('./textureWorker.ts', import.meta.url), { type: 'module' });
       let got = 0;
@@ -48,8 +49,11 @@ const DEG = Math.PI / 180;
 const STYLES: Record<Body, PlanetStyle> = {
   earth: { tilt: 23.4 * DEG, pitch: 0.2, atmo: [70, 140, 255], atmoStrength: 0.8, glow: [80, 150, 255], glowAlpha: 0.4, ambient: 0.035 },
   mars: { tilt: -25.2 * DEG, pitch: 0.12, atmo: [235, 150, 110], atmoStrength: 0.35, glow: [235, 140, 95], glowAlpha: 0.2, ambient: 0.03 },
+  moon: { tilt: 6.7 * DEG, pitch: 0.05, atmo: [200, 205, 215], atmoStrength: 0.04, glow: [200, 210, 235], glowAlpha: 0.1, ambient: 0.02 },
 };
-const SPIN: Record<Body, number> = { earth: 1 / 90, mars: 1 / 120 }; // turns per second
+const SPIN: Record<Body, number> = { earth: 1 / 90, mars: 1 / 120, moon: 1 / 160 }; // turns per second
+/** One trip of the Moon around Earth in the hero, seconds (the real one takes 27.3 days). */
+const ORBIT_S = 48;
 const DEPTH = { stars: 5, nebula: 9, mars: 12, moon: 16, earth: 22 }; // parallax in px
 
 interface Star { x: number; y: number; s: number; a: number; tw: number; ph: number; d: number; c: number }
@@ -72,69 +76,6 @@ function makeSprite(rgb: string) {
   g.fillStyle = grad;
   g.fillRect(0, 0, 32, 32);
   return c;
-}
-
-/** A small, softly lit Moon (procedural maria and craters), drawn once per size. */
-function makeMoon(r: number, dpr: number) {
-  const pad = 1.35;
-  const size = Math.max(2, Math.round(r * 2 * pad * dpr));
-  const c = document.createElement('canvas');
-  c.width = c.height = size;
-  const g = c.getContext('2d')!;
-  g.scale(dpr, dpr);
-  const cx = r * pad, cy = r * pad;
-  // faint halo
-  const halo = g.createRadialGradient(cx, cy, r * 0.9, cx, cy, r * pad);
-  halo.addColorStop(0, 'rgba(200,210,235,0.18)');
-  halo.addColorStop(1, 'rgba(200,210,235,0)');
-  g.fillStyle = halo;
-  g.fillRect(0, 0, r * 2 * pad, r * 2 * pad);
-  g.save();
-  g.beginPath();
-  g.arc(cx, cy, r, 0, Math.PI * 2);
-  g.clip();
-  // sunlit from the upper right, like the rest of the scene
-  const lx = cx + r * 0.45, ly = cy - r * 0.45;
-  const base = g.createRadialGradient(lx, ly, r * 0.1, cx, cy, r * 1.15);
-  base.addColorStop(0, '#e7e8ec');
-  base.addColorStop(0.55, '#a9adb6');
-  base.addColorStop(1, '#4a4e57');
-  g.fillStyle = base;
-  g.fillRect(cx - r, cy - r, r * 2, r * 2);
-  let seed = 7;
-  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  // maria: a few broad dark patches
-  for (let i = 0; i < 6; i++) {
-    const mx = cx + (rnd() - 0.6) * r * 1.1, my = cy + (rnd() - 0.45) * r * 1.0, mr = r * (0.18 + rnd() * 0.22);
-    const mg = g.createRadialGradient(mx, my, 0, mx, my, mr);
-    mg.addColorStop(0, 'rgba(60,64,74,0.38)');
-    mg.addColorStop(1, 'rgba(60,64,74,0)');
-    g.fillStyle = mg;
-    g.fillRect(mx - mr, my - mr, mr * 2, mr * 2);
-  }
-  // craters: dark floor, bright sunward rim
-  for (let i = 0; i < 26; i++) {
-    const a = rnd() * Math.PI * 2, d = Math.sqrt(rnd()) * r * 0.92;
-    const x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d, cr = r * (0.025 + rnd() * rnd() * 0.12);
-    g.fillStyle = 'rgba(40,43,50,0.32)';
-    g.beginPath();
-    g.arc(x, y, cr, 0, Math.PI * 2);
-    g.fill();
-    g.strokeStyle = 'rgba(245,246,250,0.28)';
-    g.lineWidth = Math.max(0.6, cr * 0.25);
-    g.beginPath();
-    g.arc(x, y, cr, -Math.PI * 0.85, Math.PI * 0.15);
-    g.stroke();
-  }
-  // night side
-  const night = g.createLinearGradient(cx + r * 0.7, cy - r * 0.7, cx - r, cy + r);
-  night.addColorStop(0, 'rgba(5,7,14,0)');
-  night.addColorStop(0.62, 'rgba(5,7,14,0.15)');
-  night.addColorStop(1, 'rgba(5,7,14,0.82)');
-  g.fillStyle = night;
-  g.fillRect(cx - r, cy - r, r * 2, r * 2);
-  g.restore();
-  return { canvas: c, css: r * 2 * pad };
 }
 
 function makeNebula(w: number, h: number) {
@@ -177,7 +118,7 @@ function makeNebula(w: number, h: number) {
   return c;
 }
 
-function layout(w: number, h: number, rtl: boolean): Record<Body | 'moon', Disc> {
+function layout(w: number, h: number, rtl: boolean): Record<Body, Disc> {
   let earth: Disc, mars: Disc;
   if (w >= 900) {
     const R = Math.min(h * 0.3, w * 0.16, 250);
@@ -192,13 +133,21 @@ function layout(w: number, h: number, rtl: boolean): Record<Body | 'moon', Disc>
     earth.x = w - earth.x;
     mars.x = w - mars.x;
   }
-  // The Moon sits in the gap between Earth and Mars, on the line joining them.
-  const dx = mars.x - earth.x, dy = mars.y - earth.y, dist = Math.hypot(dx, dy) || 1;
-  const gap = dist - earth.r - mars.r;
-  const mr = Math.max(7, Math.min(earth.r * 0.17, (gap - 10) / 2));
-  const along = earth.r + Math.max(gap / 2, mr + 4);
-  const moon = { x: earth.x + (dx / dist) * along, y: earth.y + (dy / dist) * along, r: mr };
+  // The Moon orbits Earth; its size is the real Moon/Earth ratio (0.27). Its position is set per frame.
+  const moon = { x: earth.x, y: earth.y, r: Math.max(9, earth.r * 0.27) };
   return { earth, mars, moon };
+}
+
+/** Moon position on a tilted orbit around Earth whose long axis points toward Mars; z > 0 is in front of Earth. */
+function moonOrbit(earth: Disc, mars: Disc, moonR: number, angle: number) {
+  const dx = mars.x - earth.x, dy = mars.y - earth.y, len = Math.hypot(dx, dy) || 1;
+  const ux = dx / len, uy = dy / len;
+  const nx = -uy, ny = ux;
+  const gap = len - earth.r - mars.r;
+  const a = Math.max(earth.r + moonR * 1.6, Math.min(earth.r * 1.42, earth.r + gap - moonR * 1.2));
+  const b = a * 0.3;
+  const c = Math.cos(angle), sn = Math.sin(angle);
+  return { x: earth.x + ux * a * c + nx * b * sn, y: earth.y + uy * a * c + ny * b * sn, z: sn, a, b, ux, uy, nx, ny };
 }
 
 function bezier(p0: number, c: number, p1: number, t: number) {
@@ -213,6 +162,7 @@ export default function SpaceHero({ earthSites, marsTargets, moonAnalogs }: { ea
   const spaceRef = useRef<HTMLCanvasElement>(null);
   const earthRef = useRef<HTMLCanvasElement>(null);
   const marsRef = useRef<HTMLCanvasElement>(null);
+  const moonRef = useRef<HTMLCanvasElement>(null);
   const earthTagRef = useRef<HTMLButtonElement>(null);
   const marsTagRef = useRef<HTMLAnchorElement>(null);
   const moonTagRef = useRef<HTMLAnchorElement>(null);
@@ -225,7 +175,7 @@ export default function SpaceHero({ earthSites, marsTargets, moonAnalogs }: { ea
 
   const goSites = () => document.getElementById('sites')?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' });
   const goMars = () => navigate('/explorer');
-  const goMoon = () => navigate('/atlas');
+  const goMoon = () => navigate('/atlas?rank=moon');
   const actions = useRef({ earth: goSites, mars: goMars, moon: goMoon });
   actions.current = { earth: goSites, mars: goMars, moon: goMoon };
 
@@ -237,11 +187,12 @@ export default function SpaceHero({ earthSites, marsTargets, moonAnalogs }: { ea
   useEffect(() => {
     const hero = heroRef.current!, space = spaceRef.current!;
     const sctx = space.getContext('2d')!;
-    const canvases: Record<Body, HTMLCanvasElement> = { earth: earthRef.current!, mars: marsRef.current! };
-    const tags: Record<Body, HTMLElement> = { earth: earthTagRef.current!, mars: marsTagRef.current! };
+    const canvases: Record<Body, HTMLCanvasElement> = { earth: earthRef.current!, mars: marsRef.current!, moon: moonRef.current! };
+    const tags: Record<Body, HTMLElement> = { earth: earthTagRef.current!, mars: marsTagRef.current!, moon: moonTagRef.current! };
     const renderers: Record<Body, PlanetRenderer> = {
       earth: new PlanetRenderer(canvases.earth, STYLES.earth),
       mars: new PlanetRenderer(canvases.mars, STYLES.mars),
+      moon: new PlanetRenderer(canvases.moon, STYLES.moon),
     };
     const sprites = [makeSprite('232,238,255'), makeSprite('190,210,255'), makeSprite('255,226,200')];
     const probeSprite = makeSprite('255,236,214');
@@ -250,20 +201,20 @@ export default function SpaceHero({ earthSites, marsTargets, moonAnalogs }: { ea
       w: 0, h: 0, dpr: 1,
       discs: layout(1, 1, false),
       nebula: null as HTMLCanvasElement | null,
-      moon: null as null | { canvas: HTMLCanvasElement; css: number },
-      moonHover: false,
+      orbit: 0.9, // Moon orbit angle, radians
+      moonPos: { x: 0, y: 0, z: 1 },
       stars: [] as Star[],
       px: 0, py: 0, tpx: 0, tpy: 0,
-      rot: { earth: 0.32, mars: 0.6 } as Record<Body, number>,
-      vel: { earth: SPIN.earth * (reduced ? 0 : 14), mars: SPIN.mars * (reduced ? 0 : 14) } as Record<Body, number>,
+      rot: { earth: 0.32, mars: 0.6, moon: 0.1 } as Record<Body, number>,
+      vel: { earth: SPIN.earth * (reduced ? 0 : 14), mars: SPIN.mars * (reduced ? 0 : 14), moon: SPIN.moon * (reduced ? 0 : 14) } as Record<Body, number>,
       clouds: 0.1,
       hover: null as Body | null,
-      glow: { earth: 0, mars: 0 } as Record<Body, number>,
-      fade: { earth: 0, mars: 0 } as Record<Body, number>,
-      readyAt: { earth: 0, mars: 0 } as Record<Body, number>,
+      glow: { earth: 0, mars: 0, moon: 0 } as Record<Body, number>,
+      fade: { earth: 0, mars: 0, moon: 0 } as Record<Body, number>,
+      readyAt: { earth: 0, mars: 0, moon: 0 } as Record<Body, number>,
       drag: null as null | { body: Body; id: number; x0: number; y0: number; lastX: number; lastT: number; moved: boolean },
-      dirty: { earth: true, mars: true } as Record<Body, boolean>,
-      lastRot: { earth: -1, mars: -1 } as Record<Body, number>,
+      dirty: { earth: true, mars: true, moon: true } as Record<Body, boolean>,
+      lastRot: { earth: -1, mars: -1, moon: -1 } as Record<Body, number>,
       frame: 0,
       visible: true,
       meteor: null as null | { x: number; y: number; vx: number; vy: number; life: number },
@@ -293,25 +244,33 @@ export default function SpaceHero({ earthSites, marsTargets, moonAnalogs }: { ea
       relayout();
     };
 
+    const placeMoon = () => {
+      const m = moonOrbit(st.discs.earth, st.discs.mars, st.discs.moon.r, st.orbit);
+      st.moonPos = { x: m.x, y: m.y, z: m.z };
+      st.discs.moon.x = m.x;
+      st.discs.moon.y = m.y;
+    };
+
     const relayout = () => {
       if (!st.w) return;
       st.discs = layout(st.w, st.h, dirRef.current === 'rtl');
-      st.moon = makeMoon(st.discs.moon.r, Math.min(st.dpr, 2));
+      placeMoon();
       const pr = Math.min(st.dpr, 1.6);
-      for (const b of ['earth', 'mars'] as Body[]) {
+      for (const b of BODIES) {
         const d = st.discs[b];
-        renderers[b].resize(Math.min(d.r * 2 * pr, b === 'earth' ? 720 : 400));
+        renderers[b].resize(Math.min(d.r * 2 * pr, b === 'earth' ? 720 : b === 'mars' ? 400 : 240));
         const css = d.r * 2 * 1.4; // canvas includes 20% halo padding on each side
         const c = canvases[b];
         c.style.width = c.style.height = `${css}px`;
-        c.style.left = `${d.x - css / 2}px`;
-        c.style.top = `${d.y - css / 2}px`;
+        // the Moon moves every frame: it is placed with a transform from the origin instead
+        c.style.left = `${b === 'moon' ? -css / 2 : d.x - css / 2}px`;
+        c.style.top = `${b === 'moon' ? -css / 2 : d.y - css / 2}px`;
         st.dirty[b] = true;
       }
     };
     relayoutRef.current = relayout;
 
-    const unwatch = (['earth', 'mars'] as Body[]).map((b) =>
+    const unwatch = BODIES.map((b) =>
       watchTexture(b, (tex) => {
         renderers[b].setTexture(tex);
         st.dirty[b] = true;
@@ -319,12 +278,10 @@ export default function SpaceHero({ earthSites, marsTargets, moonAnalogs }: { ea
     );
 
     const offset = (b: Body) => ({ x: st.px * DEPTH[b], y: st.py * DEPTH[b] });
-    const hitMoon = (x: number, y: number) => {
-      const d = st.discs.moon;
-      return Math.hypot(x - d.x - st.px * DEPTH.moon, y - d.y - st.py * DEPTH.moon) < d.r * 1.25;
-    };
     const hit = (x: number, y: number): Body | null => {
-      for (const b of ['earth', 'mars'] as Body[]) {
+      // the Moon is tested first while it is in front of Earth, last while it is behind
+      const order: Body[] = st.moonPos.z >= 0 ? ['moon', 'earth', 'mars'] : ['earth', 'mars', 'moon'];
+      for (const b of order) {
         const d = st.discs[b], o = offset(b);
         if (Math.hypot(x - d.x - o.x, y - d.y - o.y) < d.r * 1.03) return b;
       }
@@ -355,17 +312,13 @@ export default function SpaceHero({ earthSites, marsTargets, moonAnalogs }: { ea
         return;
       }
       st.hover = onControl(e) ? null : hit(p.x, p.y);
-      st.moonHover = !onControl(e) && !st.hover && hitMoon(p.x, p.y);
-      hero.style.cursor = st.hover ? 'grab' : st.moonHover ? 'pointer' : '';
+      hero.style.cursor = st.hover ? 'grab' : '';
     };
     const onDown = (e: PointerEvent) => {
       if (onControl(e) || e.button > 0) return;
       const p = local(e);
       const b = hit(p.x, p.y);
-      if (!b) {
-        if (hitMoon(p.x, p.y)) actions.current.moon();
-        return;
-      }
+      if (!b) return;
       e.preventDefault();
       hero.setPointerCapture(e.pointerId);
       st.drag = { body: b, id: e.pointerId, x0: p.x, y0: p.y, lastX: p.x, lastT: performance.now(), moved: false };
@@ -436,13 +389,21 @@ export default function SpaceHero({ earthSites, marsTargets, moonAnalogs }: { ea
         }
       }
 
-      // the Moon, between Earth and Mars
-      if (st.moon) {
-        const d = st.discs.moon, css = st.moon.css;
-        const mx0 = d.x + st.px * DEPTH.moon, my0 = d.y + st.py * DEPTH.moon;
-        sctx.globalAlpha = st.moonHover ? 1 : 0.92;
-        sctx.drawImage(st.moon.canvas, mx0 - css / 2, my0 - css / 2, css, css);
-        sctx.globalAlpha = 1;
+      // the Moon's orbit around Earth: a faint dashed ellipse
+      {
+        const m = moonOrbit(st.discs.earth, st.discs.mars, st.discs.moon.r, 0);
+        const oe = offset('earth');
+        sctx.save();
+        sctx.translate(st.discs.earth.x + oe.x, st.discs.earth.y + oe.y);
+        sctx.rotate(Math.atan2(m.uy, m.ux));
+        sctx.strokeStyle = 'rgba(200,210,235,0.22)';
+        sctx.lineWidth = 1;
+        sctx.setLineDash([3, 7]);
+        sctx.beginPath();
+        sctx.ellipse(0, 0, m.a, m.b, 0, 0, Math.PI * 2);
+        sctx.stroke();
+        sctx.setLineDash([]);
+        sctx.restore();
       }
 
       // transfer arc Earth -> Mars, with a probe travelling along it
@@ -499,7 +460,7 @@ export default function SpaceHero({ earthSites, marsTargets, moonAnalogs }: { ea
       st.px += (st.tpx - st.px) * ease;
       st.py += (st.tpy - st.py) * ease;
 
-      for (const b of ['earth', 'mars'] as Body[]) {
+      for (const b of BODIES) {
         if (st.drag?.body !== b) {
           const base = reduced ? 0 : SPIN[b];
           st.vel[b] += (base - st.vel[b]) * Math.min(1, dt * 0.9);
@@ -511,10 +472,15 @@ export default function SpaceHero({ earthSites, marsTargets, moonAnalogs }: { ea
         st.glow[b] = g;
       }
       if (!reduced) st.clouds += (SPIN.earth * 1.25) * dt;
+      // the Moon keeps orbiting unless the pointer is on it or it is being spun
+      if (!reduced && st.hover !== 'moon' && tagHover.current !== 'moon' && st.drag?.body !== 'moon') {
+        st.orbit = (st.orbit + (dt * Math.PI * 2) / ORBIT_S) % (Math.PI * 2);
+      }
+      placeMoon();
 
       drawSpace(time);
 
-      for (const b of ['earth', 'mars'] as Body[]) {
+      for (const b of BODIES) {
         const r = renderers[b];
         const moved = Math.abs(st.rot[b] - st.lastRot[b]) > 1e-5;
         // planets turn slowly: 30 fps is plenty unless the user is spinning one
@@ -530,27 +496,18 @@ export default function SpaceHero({ earthSites, marsTargets, moonAnalogs }: { ea
           canvases[b].style.opacity = String(f * f * (3 - 2 * f));
         }
         const o = offset(b), d = st.discs[b];
-        canvases[b].style.transform = `translate3d(${o.x}px, ${o.y}px, 0)`;
-        // Earth's label sits below it, Mars's above it, so neither crosses the other planet
-        const ty = b === 'earth' ? d.y + d.r + 14 : Math.max(10, d.y - d.r - 14 - tags[b].offsetHeight);
+        if (b === 'moon') {
+          canvases.moon.style.transform = `translate3d(${d.x + o.x}px, ${d.y + o.y}px, 0)`;
+          canvases.moon.style.zIndex = st.moonPos.z >= 0 ? '1' : '0';
+        } else {
+          canvases[b].style.transform = `translate3d(${o.x}px, ${o.y}px, 0)`;
+        }
+        // Earth's label sits below it, Mars's above it, the Moon's just below the Moon
+        const ty = b === 'earth' ? d.y + d.r + 14 : b === 'moon' ? d.y + d.r + 8 : Math.max(10, d.y - d.r - 14 - tags[b].offsetHeight);
         const half = tags[b].offsetWidth / 2;
         const tx = Math.min(st.w - half - 10, Math.max(half + 10, d.x + o.x)); // keep the label inside the hero
         tags[b].style.transform = `translate3d(${tx}px, ${ty + o.y}px, 0) translateX(-50%)`;
         tags[b].classList.toggle('hot', st.glow[b] > 0.5);
-      }
-      // Moon label: beside the Moon, on the side away from both planets
-      const mt = moonTagRef.current;
-      if (mt) {
-        const E = st.discs.earth, M = st.discs.mars, d = st.discs.moon;
-        const ux = M.x - E.x, uy = M.y - E.y, len = Math.hypot(ux, uy) || 1;
-        let nx = -uy / len, ny = ux / len;
-        if (ny < 0) { nx = -nx; ny = -ny; }
-        const ox = st.px * DEPTH.moon, oy = st.py * DEPTH.moon;
-        const half = mt.offsetWidth / 2;
-        const tx = Math.min(st.w - half - 10, Math.max(half + 10, d.x + ox + nx * (d.r + 22)));
-        const ty = d.y + oy + ny * (d.r + 10);
-        mt.style.transform = `translate3d(${tx}px, ${ty}px, 0) translateX(-50%)`;
-        mt.classList.toggle('hot', st.moonHover);
       }
     };
     resize();
@@ -582,12 +539,13 @@ export default function SpaceHero({ earthSites, marsTargets, moonAnalogs }: { ea
       <canvas className="space-bg" ref={spaceRef} aria-hidden="true" />
       <canvas className="planet" ref={marsRef} aria-hidden="true" />
       <canvas className="planet" ref={earthRef} aria-hidden="true" />
+      <canvas className="planet moon" ref={moonRef} aria-hidden="true" />
       <button type="button" className="planet-tag" ref={earthTagRef} onClick={goSites} {...tagProps('earth')}>
         <span className="dot earth" />
         <strong>{t('body.earth')}</strong>
         <span className="tag-sub">{t('home.earthTag', { n: earthSites })}</span>
       </button>
-      <Link to="/atlas" className="planet-tag moon-tag" ref={moonTagRef}>
+      <Link to="/atlas?rank=moon" className="planet-tag moon-tag" ref={moonTagRef} {...tagProps('moon')}>
         <span className="dot moon" />
         <strong>{t('body.moon')}</strong>
         <span className="tag-sub">{t('home.moonTag', { n: moonAnalogs })}</span>
@@ -629,23 +587,43 @@ function LiveDistance() {
     const id = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(id);
   }, []);
-  const d = earthMarsDistanceKm(new Date(now));
-  const rate = (earthMarsDistanceKm(new Date(now + 3_600_000)) - d) / 3600; // km/s
-  const secs = Math.round(d / LIGHT_KM_S);
+  const at = new Date(now), later = new Date(now + 3_600_000);
+  const mars = earthMarsDistanceKm(at);
+  const marsRate = (earthMarsDistanceKm(later) - mars) / 3600; // km/s
+  const marsSecs = Math.round(mars / LIGHT_KM_S);
+  const moon = earthMoonDistanceKm(at);
+  const moonRate = ((earthMoonDistanceKm(later) - moon) / 3600) * 1000; // m/s
   return (
-    <div className="live-distance">
-      <div className="ld-head">
-        <span>{t('home.liveDistance')}</span>
-        <span className="ld-live"><i />{t('home.live')}</span>
+    <div className="ld-pair">
+      <div className="live-distance">
+        <div className="ld-head">
+          <span>{t('home.liveDistance')}</span>
+          <span className="ld-live"><i />{t('home.live')}</span>
+        </div>
+        <div className="ld-val">
+          {num(Math.round(mars))} <small>{t('home.km')}</small>
+        </div>
+        <div className="ld-meta">
+          <span>{t('home.lightDelay', { min: Math.floor(marsSecs / 60), sec: marsSecs % 60 })}</span>
+          <span className={marsRate < 0 ? 'closing' : 'receding'}>
+            {t(marsRate < 0 ? 'home.closing' : 'home.receding', { v: num(Math.abs(marsRate), 1) })}
+          </span>
+        </div>
       </div>
-      <div className="ld-val">
-        {num(Math.round(d))} <small>{t('home.km')}</small>
-      </div>
-      <div className="ld-meta">
-        <span>{t('home.lightDelay', { min: Math.floor(secs / 60), sec: secs % 60 })}</span>
-        <span className={rate < 0 ? 'closing' : 'receding'}>
-          {t(rate < 0 ? 'home.closing' : 'home.receding', { v: num(Math.abs(rate), 1) })}
-        </span>
+      <div className="live-distance moon">
+        <div className="ld-head">
+          <span>{t('home.liveMoon')}</span>
+          <span className="ld-live"><i />{t('home.live')}</span>
+        </div>
+        <div className="ld-val">
+          {num(Math.round(moon))} <small>{t('home.km')}</small>
+        </div>
+        <div className="ld-meta">
+          <span>{t('home.moonDelay', { sec: num(moon / LIGHT_KM_S, 2) })}</span>
+          <span className={moonRate < 0 ? 'closing' : 'receding'}>
+            {t(moonRate < 0 ? 'home.moonClosing' : 'home.moonReceding', { v: num(Math.abs(moonRate), 0) })}
+          </span>
+        </div>
       </div>
     </div>
   );

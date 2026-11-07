@@ -144,7 +144,11 @@
     "ctaPresent": "Presentation mode",
     "dirTitle": "Explore the project",
     "dirSubtitle": "Each page does one job. Start wherever your question is.",
-    "moonTag": "south pole + {n} Moon analog sites"
+    "moonTag": "south pole + {n} Moon analog sites",
+    "liveMoon": "Earth ↔ Moon right now",
+    "moonDelay": "Radio signal: {sec} s one way",
+    "moonClosing": "Moon approaching at {v} m/s",
+    "moonReceding": "Moon receding at {v} m/s"
   },
   "explorer": {
     "title": "Explorer",
@@ -185,7 +189,11 @@
     "findAccess": "{km} km from Muscat",
     "mapHint": "Hover over a point to see its three closest sites; click it to open the site page.",
     "sharedOf": "{n} of {m} features measured on both",
-    "whyScore": "Why this score"
+    "whyScore": "Why this score",
+    "groupOman": "Oman",
+    "groupTargets": "Mars and Moon targets",
+    "groupWorld": "World analog sites",
+    "pairSources": "Sources for this pair"
   },
   "site": {
     "coords": "Coordinates",
@@ -359,7 +367,11 @@
     "downloadTitle": "Download the data",
     "downloadText": "Everything on this site is open. Reuse it with credit to the NASA datasets listed below.",
     "downloadJson": "All data (sites.json)",
-    "downloadCsv": "Scores (CSV)"
+    "downloadCsv": "Scores (CSV)",
+    "siteSources": "Sources for this site",
+    "siteTable": "Sources for every site",
+    "siteTableText": "Each site with the peer-reviewed papers and programme pages behind it. Click a site to open its page.",
+    "dataOnly": "Measured from the NASA datasets above; no site-specific paper yet."
   },
   "metric": {
     "notAvailable": "Not available",
@@ -407,7 +419,17 @@
     "uses": "Uses on Earth",
     "values": "Measured index per site",
     "refs": "References",
-    "notScored": "Not scored: no cited calibration"
+    "notScored": "Not scored: no cited calibration",
+    "moonTitle": "And the Moon?",
+    "moonLead": "The minerals above record liquid water on Mars. The Moon never had rivers or seas, so its south pole is compared with Oman on terrain only; its resource story is ice and oxygen-bearing rock, not water-altered minerals.",
+    "moonRocks": "Rock types",
+    "moonRocksText": "Bright highlands of anorthosite (mostly plagioclase feldspar) and dark maria of basalt. The south pole is highland crust broken by impact craters.",
+    "moonIce": "Water ice",
+    "moonIceText": "In 2009 NASA's LCROSS impact into the shadowed crater Cabeus released water: about 5.6 ± 2.9 % ice by mass. In 2018 the Moon Mineralogy Mapper saw ice exposed at the surface in permanently shadowed craters, but patchy and in a small share of them.",
+    "moonWhy": "Why it matters",
+    "moonWhyText": "Ice can become drinking water, oxygen and rocket propellant. That is why Artemis targets the south pole, where lit ridges for solar power sit next to shadowed, icy craters (LOLA illumination maps).",
+    "moonOman": "What Oman can and cannot rehearse",
+    "moonOmanText": "No Earth desert holds lunar ice. What Oman offers is the terrain: Jebel Shams ranks first of all our sites for the Moon on slope, relief and roughness, and Majlis al Jinn adds a vertical shaft like a skylight, so crews can practise traverses, rope descents and hazard mapping. Ice prospecting has to be rehearsed in polar or lab settings."
   },
   "terrain": {
     "elevation": "Elevation (DEM)",
@@ -467,7 +489,10 @@
       "Field spectra agree in direction with the satellite mineral indices at each site.",
       "Every visited site gains a measured surface temperature cycle, so thermal inertia is no longer \"not available\".",
       "Updated values are run through the same open pipeline, and the scores are republished with their provenance."
-    ]
+    ],
+    "moonTitle": "Optional Moon track",
+    "moonText": "Two extra days for the Moon. Jebel Shams (days 4–5) already covers the crater-rim slopes; Majlis al Jinn adds what no desert can: a vertical entry and work in darkness, like a lunar skylight or a shadowed crater.",
+    "moonNote": "A concept like the rest of this page. Majlis al Jinn needs a licensed caving team and permission; no ice or lunar regolith can be rehearsed in Oman."
   },
   "about": {
     "title": "About the project",
@@ -529,6 +554,21 @@
       [
         "Scientific reporting",
         "Methodology, sensitivity test, limitations, downloads, printable site profiles",
+        "done"
+      ],
+      [
+        "Earth–Moon comparison alongside Earth–Mars",
+        "Live Earth–Moon distance next to the Earth–Mars one, the Moon orbiting Earth in the hero, a Moon ranking in the Atlas, a Moon section in the Minerals guide and an optional Moon track in the mission concept",
+        "done"
+      ],
+      [
+        "A source for every site",
+        "Sources page lists the peer-reviewed papers and programme pages behind each Omani site, each Mars and Moon target and each world analog; the same list appears on every site page and under each Explorer pair",
+        "done"
+      ],
+      [
+        "Accessible to everyone",
+        "English and Arabic, dark and light themes, keyboard navigation and printable pages",
         "done"
       ]
     ],
@@ -738,6 +778,11 @@
     "onThisPage": "On this page",
     "skip": "Skip to content",
     "meetTeam": "Meet Team VEX",
-    "breadcrumb": "You are here"
+    "breadcrumb": "You are here",
+    "back": "Back"
+  },
+  "theme": {
+    "toLight": "Switch to light theme",
+    "toDark": "Switch to dark theme"
   }
 }

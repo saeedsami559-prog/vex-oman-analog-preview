@@ -75,6 +75,29 @@ export default function Minerals() {
           </div>
         </section>
       ))}
+      <section className="panel mineral moon-minerals" id="moon">
+        <header>
+          <h2><span className="dot moon" /> {t('minerals.moonTitle')}</h2>
+        </header>
+        <p className="lead">{t('minerals.moonLead')}</p>
+        <div className="grid two">
+          <dl className="mineral-facts">
+            <dt>{t('minerals.moonRocks')}</dt><dd>{t('minerals.moonRocksText')}</dd>
+            <dt>{t('minerals.moonIce')}</dt><dd>{t('minerals.moonIceText')}</dd>
+            <dt>{t('minerals.moonWhy')}</dt><dd>{t('minerals.moonWhyText')}</dd>
+          </dl>
+          <div>
+            <h3>{t('minerals.moonOman')}</h3>
+            <p>{t('minerals.moonOmanText')}</p>
+            <h3>{t('minerals.refs')}</h3>
+            <ul className="refs">
+              {['colaprete2010', 'li2018', 'smith2010', 'mazarico2011'].map((id) => REFERENCES.find((r) => r.id === id)).filter(Boolean).map((r) => (
+                <li key={r!.id}><a href={r!.url} target="_blank" rel="noreferrer">{r!.cite}</a> — <em>{r!.title}</em>. <span className="muted">{r!.venue}</span></li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
       <ContinueExploring from="minerals" />
     </div>
   );

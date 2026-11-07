@@ -58,7 +58,9 @@ export function scoreFor(data: Dataset, earthId: string, targetId: string): Scor
 export function bestMatch(data: Dataset, earth: Site): Score | undefined {
   const pool = matchesFor(data, earth.id).filter((s) => s.overall !== null);
   const bodyOf = (id: string) => data.targets.find((t) => t.id === id)?.body;
-  const moonOnly = !!earth.intended_targets?.length && earth.intended_targets.every((id) => bodyOf(id) === 'moon');
+  const moonOnly = earth.intended_targets?.length
+    ? earth.intended_targets.every((id) => bodyOf(id) === 'moon')
+    : !!earth.analog_for?.length && earth.analog_for.every((b) => b === 'moon');
   return pool.find((s) => bodyOf(s.target) === (moonOnly ? 'moon' : 'mars'));
 }
 
