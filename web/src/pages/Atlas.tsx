@@ -46,7 +46,7 @@ export default function Atlas() {
       <PageToc deps={[env]} />
 
       <div className="panel atlas-map-panel">
-        <MapContainer center={[28, 20]} zoom={2} minZoom={2} scrollWheelZoom={false} worldCopyJump className="map atlas-map">
+        <MapContainer center={[28, 20]} zoom={2} minZoom={2} maxZoom={17} scrollWheelZoom wheelPxPerZoomLevel={90} worldCopyJump className="map atlas-map">
           <TileLayer
             url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
             attribution="Esri, Maxar, Earthstar Geographics"
