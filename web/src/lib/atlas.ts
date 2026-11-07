@@ -237,6 +237,22 @@ export const OMAN_CANDIDATES: AtlasSite[] = [
 /** Oman's track record as an analog host (public sources). */
 export const OMAN_TRACK: { when: Localized; what: Localized; source: { label: string; url: string } }[] = [
   {
+    when: { en: 'November 1999', ar: 'نوفمبر 1999' },
+    what: {
+      en: 'Pieces of Mars found at Sayh al Uhaymir (Al Wusta): the shergottite SaU 005 and its pairs, about 10 kg in all, described in NASA\'s Mars Meteorite Compendium.',
+      ar: 'العثور على قطع من المريخ في صيح العهيمر (الوسطى): نيزك الشيرغوتيت SaU 005 وأزواجه، نحو 10 كغ إجمالاً، موصوفة في موسوعة نيازك المريخ التابعة لناسا.',
+    },
+    source: { label: 'NASA JSC Mars Meteorite Compendium: Sayh al Uhaymir 005 (Meyer 2012)', url: 'https://curator.jsc.nasa.gov/antmet/mmc/SaU005.pdf' },
+  },
+  {
+    when: { en: 'January 2000', ar: 'يناير 2000' },
+    what: {
+      en: 'Dhofar 019, a 1.06 kg Martian basalt, found in the Dhofar desert; a NASA-hosted study found it had lain on Earth for a long time despite the hot desert.',
+      ar: 'العثور على ظفار 019، بازلت مريخي وزنه 1.06 كغ، في صحراء ظفار؛ ووجدت دراسة منشورة لدى ناسا أنه بقي على الأرض زمناً طويلاً رغم حرارة الصحراء.',
+    },
+    source: { label: 'NASA NTRS: Exposure and terrestrial histories of Dhofar 019 Martian meteorite', url: 'https://ntrs.nasa.gov/citations/20020045902' },
+  },
+  {
     when: { en: '2017 onward', ar: 'منذ 2017' },
     what: {
       en: "NASA's Rock Powered Life astrobiology team sampled serpentinizing fluids in the Samail Ophiolite with the Oman Drilling Project, as an analog for early Earth and Mars.",
@@ -267,6 +283,18 @@ export const OMAN_TRACK: { when: Localized; what: Localized; source: { label: st
       ar: 'استضافت عُمان أحد مواقع الموائل في بعثة مماثلة للقمر والمريخ عبر عدة قارات نسّقها المنتدى الفضائي النمساوي (13–26 أكتوبر).',
     },
     source: { label: 'Oman Observer, 6 October 2025', url: 'https://www.omanobserver.om/ampArticle/1177656' },
+  },
+];
+
+/** Martian meteorites found in Oman (find coordinates as published in the Meteoritical Bulletin). */
+export const OMAN_METEORITES: { id: string; name: Localized; lat: number; lon: number; source: { label: string; url: string } }[] = [
+  {
+    id: 'sau005', name: { en: 'Sayh al Uhaymir 005 (Martian meteorite)', ar: 'صيح العهيمر 005 (نيزك مريخي)' }, lat: 20.9960, lon: 57.3258,
+    source: { label: 'NASA JSC Mars Meteorite Compendium', url: 'https://curator.jsc.nasa.gov/antmet/mmc/SaU005.pdf' },
+  },
+  {
+    id: 'dho019', name: { en: 'Dhofar 019 (Martian meteorite)', ar: 'ظفار 019 (نيزك مريخي)' }, lat: 18.3162, lon: 54.1478,
+    source: { label: 'NASA NTRS 20020045902', url: 'https://ntrs.nasa.gov/citations/20020045902' },
   },
 ];
 

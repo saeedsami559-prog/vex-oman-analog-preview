@@ -15,6 +15,8 @@ export interface SitePhoto {
 }
 
 export const photoUrl = (p: SitePhoto) => `https://images-assets.nasa.gov/image/${p.nasaId}/${p.nasaId}${p.file}`;
+/** Web-sized copy stored with the site (public/photos), so the photo shows even when images-assets.nasa.gov is unreachable. */
+export const photoLocal = (siteId: string) => `${import.meta.env.BASE_URL}photos/${siteId}.jpg`;
 export const photoPage = (p: SitePhoto) => `https://images.nasa.gov/details/${encodeURIComponent(p.nasaId)}`;
 
 export const SITE_PHOTOS: Record<string, SitePhoto> = {

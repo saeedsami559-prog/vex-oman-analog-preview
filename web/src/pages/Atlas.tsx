@@ -3,7 +3,7 @@ import 'leaflet/dist/leaflet.css';
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useI18n } from '../i18n';
-import { ARTEMIS_REGIONS, ARTEMIS_SOURCES, BENCHMARKS, CATEGORIES, OMAN_CANDIDATES, OMAN_SCORED_CATEGORIES, OMAN_TRACK, type AtlasSite } from '../lib/atlas';
+import { ARTEMIS_REGIONS, ARTEMIS_SOURCES, BENCHMARKS, CATEGORIES, OMAN_CANDIDATES, OMAN_SCORED_CATEGORIES, OMAN_METEORITES, OMAN_TRACK, type AtlasSite } from '../lib/atlas';
 import { findSite, useDataset } from '../lib/data';
 import { meanMarsSimilarity } from '../lib/analysis';
 import { similarity } from '../lib/similarity';
@@ -11,7 +11,7 @@ import { ENV_URL, ltr, meanOver, monthNames, monthRange, periodYears, useEnviron
 import ContinueExploring from '../components/common/ContinueExploring';
 import PageToc from '../components/common/PageToc';
 
-const COLORS = { scored: '#3fb6a8', candidate: '#e6b34a', benchmark: '#f1f4fa' } as const;
+const COLORS = { scored: '#3fb6a8', candidate: '#e6b34a', benchmark: '#f1f4fa', meteorite: '#b07cff' } as const;
 
 /** Oman among the world's analog sites: map, category coverage, candidate, track record, Moon regions. */
 export default function Atlas() {
@@ -84,6 +84,7 @@ export default function Atlas() {
     ...scored.map((s) => ({ id: s.id, lat: s.lat, lon: s.lon })),
     ...OMAN_CANDIDATES.map((s) => ({ id: s.id, lat: s.lat, lon: s.lon })),
     ...BENCHMARKS.map((s) => ({ id: s.id, lat: s.lat, lon: s.lon })),
+    ...OMAN_METEORITES.map((s) => ({ id: s.id, lat: s.lat, lon: s.lon })),
   ];
 
   const pin = (s: AtlasSite, kind: 'candidate' | 'benchmark') => (
@@ -126,6 +127,17 @@ export default function Atlas() {
           <LabelLayout points={labelPoints} onChange={onLabels} />
           {BENCHMARKS.map((s) => pin(s, 'benchmark'))}
           {OMAN_CANDIDATES.map((s) => pin(s, 'candidate'))}
+          {OMAN_METEORITES.map((m) => (
+            <CircleMarker
+              key={m.id}
+              center={[m.lat, m.lon]}
+              radius={5}
+              pathOptions={{ color: '#0b0f17', weight: 1.5, fillColor: COLORS.meteorite, fillOpacity: 0.95 }}
+              eventHandlers={{ click: () => window.open(m.source.url, '_blank', 'noopener') }}
+            >
+              {label(m.id, loc(m.name), ['mars'], [], ` · ${m.source.label}`)}
+            </CircleMarker>
+          ))}
           {scored.map((s) => (
             <CircleMarker
               key={s.id}
@@ -142,6 +154,7 @@ export default function Atlas() {
           <li><i style={{ background: COLORS.scored }} /> {t('atlas.legendScored')}</li>
           <li><i style={{ background: COLORS.candidate }} /> {t('atlas.legendCandidate')}</li>
           <li><i style={{ background: COLORS.benchmark }} /> {t('atlas.legendBenchmark')}</li>
+          <li><i style={{ background: COLORS.meteorite }} /> {t('atlas.legendMeteorite')}</li>
         </ul>
       </div>
 

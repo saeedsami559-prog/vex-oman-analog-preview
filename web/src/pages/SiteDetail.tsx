@@ -5,7 +5,7 @@ import ScoreBadge, { ScoreBar } from '../components/similarity/ScoreBadge';
 import { useI18n } from '../i18n';
 import { analogsFor, bestMatch, findSite, isExtraSite, matchesFor, useDataset } from '../lib/data';
 import { BENCHMARKS, OMAN_CANDIDATES } from '../lib/atlas';
-import { SITE_PHOTOS, photoPage, photoUrl } from '../lib/photos';
+import { SITE_PHOTOS, photoLocal, photoPage, photoUrl } from '../lib/photos';
 import SiteMap from '../components/map/SiteMap';
 import { formatCoords } from '../lib/geo';
 import { kmFromMuscat, mineralsFromLowSignal, sharedFeatures } from '../lib/analysis';
@@ -182,7 +182,20 @@ export default function SiteDetail() {
           {photo && (
             <figure className="panel site-photo">
               <a href={photoPage(photo)} target="_blank" rel="noreferrer">
-                <img src={photoUrl(photo)} alt={loc(photo.caption)} loading="lazy" referrerPolicy="no-referrer" />
+                <img
+                  key={site.id}
+                  src={photoLocal(site.id)}
+                  alt={loc(photo.caption)}
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    // local copy missing: fall back to the NASA library file, then give up quietly
+                    const img = e.currentTarget;
+                    if (!img.dataset.fallback) {
+                      img.dataset.fallback = '1';
+                      img.src = photoUrl(photo);
+                    } else img.classList.add('failed');
+                  }}
+                />
               </a>
               <figcaption>
                 <span>{loc(photo.caption)}</span>

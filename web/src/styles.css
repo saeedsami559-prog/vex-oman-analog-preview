@@ -155,8 +155,6 @@ select {
 .space-hero {
   position: relative; overflow: hidden; isolation: isolate;
   height: clamp(580px, calc(100svh - 64px), 820px);
-  background:
-    radial-gradient(120% 90% at 75% 40%, #0e1830 0%, #080c18 55%, #05070e 100%);
   touch-action: pan-y;
   user-select: none;
 }
@@ -166,11 +164,16 @@ select {
   background: linear-gradient(90deg, rgba(5, 7, 14, 0.78) 0%, rgba(5, 7, 14, 0.4) 34%, transparent 56%);
 }
 html[dir='rtl'] .space-hero::before { background: linear-gradient(270deg, rgba(5, 7, 14, 0.78) 0%, rgba(5, 7, 14, 0.4) 34%, transparent 56%); }
-.space-hero::after {
-  content: ''; position: absolute; inset: auto 0 0; height: 120px; z-index: 1; pointer-events: none;
-  background: linear-gradient(transparent, var(--bg));
+/* The hero sky fades out at the bottom instead of ending on a solid band, so it blends into the
+   starfield that runs behind every page. */
+.space-bg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  background: radial-gradient(120% 90% at 75% 40%, #0e1830 0%, #080c18 55%, #05070e 100%);
 }
-.space-bg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.space-bg, .space-hero::before {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 200px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 200px), transparent);
+}
 .planet {
   position: absolute; z-index: 0; pointer-events: none;
   opacity: 0; /* faded in from the animation loop once its texture is ready */
@@ -561,7 +564,7 @@ html[dir='rtl'] .ramp-cell { margin-inline-start: 0; }
 
 /* Soft glow where the planets appear, so the hero is never empty while their textures load. */
 @media (min-width: 900px) {
-  .space-hero {
+  .space-bg {
     background:
       radial-gradient(circle at 66% 62%, rgba(63, 182, 168, 0.16) 0, transparent 22%),
       radial-gradient(circle at 87% 28%, rgba(224, 112, 63, 0.16) 0, transparent 13%),
@@ -1198,3 +1201,4 @@ html.has-starfield body::before, html.has-starfield body::after { display: none;
 .leaflet-tooltip.pin-label::before { display: none; }
 .leaflet-tooltip.pin-label strong { font-size: 0.74rem; font-weight: 600; }
 .leaflet-tooltip.pin-label span { font-size: 0.64rem; color: #aab4c8; }
+.site-photo img.failed { visibility: hidden; }

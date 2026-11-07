@@ -1,0 +1,130 @@
+{
+  "dhofar_amadee18": {
+    "nasa_id": "iss069e003275",
+    "source": "https://images-assets.nasa.gov/image/iss069e003275/iss069e003275~medium.jpg",
+    "size": [
+      1280,
+      853
+    ]
+  },
+  "atacama": {
+    "nasa_id": "PIA23420",
+    "source": "https://images-assets.nasa.gov/image/PIA23420/PIA23420~medium.jpg",
+    "size": [
+      1040,
+      1280
+    ]
+  },
+  "black_point": {
+    "nasa_id": "jsc2008e138809",
+    "source": "https://images-assets.nasa.gov/image/jsc2008e138809/jsc2008e138809~medium.jpg",
+    "size": [
+      1280,
+      851
+    ]
+  },
+  "lanzarote": {
+    "nasa_id": "PIA23526",
+    "source": "https://images-assets.nasa.gov/image/PIA23526/PIA23526~medium.jpg",
+    "size": [
+      933,
+      1280
+    ]
+  },
+  "hiseas": {
+    "nasa_id": "PIA01304",
+    "source": "https://images-assets.nasa.gov/image/PIA01304/PIA01304~medium.jpg",
+    "size": [
+      708,
+      1280
+    ]
+  },
+  "death_valley": {
+    "nasa_id": "PIA26676",
+    "source": "https://images-assets.nasa.gov/image/PIA26676/PIA26676~medium.jpg",
+    "size": [
+      853,
+      1280
+    ]
+  },
+  "rio_tinto": {
+    "nasa_id": "PIA13365",
+    "source": "https://images-assets.nasa.gov/image/PIA13365/PIA13365~medium.jpg",
+    "size": [
+      1267,
+      1280
+    ]
+  },
+  "pilbara": {
+    "nasa_id": "PIA23551",
+    "source": "https://images-assets.nasa.gov/image/PIA23551/PIA23551~medium.jpg",
+    "size": [
+      1280,
+      960
+    ]
+  },
+  "meteor_crater": {
+    "nasa_id": "iss074e0208832",
+    "source": "https://images-assets.nasa.gov/image/iss074e0208832/iss074e0208832~large.jpg",
+    "size": [
+      1280,
+      853
+    ]
+  },
+  "cinder_lake": {
+    "nasa_id": "S70-53300",
+    "source": "https://images-assets.nasa.gov/image/S70-53300/S70-53300~medium.jpg",
+    "size": [
+      1272,
+      1280
+    ]
+  },
+  "ries": {
+    "nasa_id": "PIA23851",
+    "source": "https://images-assets.nasa.gov/image/PIA23851/PIA23851~orig.jpg",
+    "size": [
+      600,
+      600
+    ]
+  },
+  "craters_of_the_moon": {
+    "nasa_id": "PIA26501",
+    "source": "https://images-assets.nasa.gov/image/PIA26501/PIA26501~medium.jpg",
+    "size": [
+      1105,
+      1280
+    ]
+  },
+  "jezero_crater": {
+    "nasa_id": "PIA25350",
+    "source": "https://images-assets.nasa.gov/image/PIA25350/PIA25350~medium.jpg",
+    "size": [
+      623,
+      1280
+    ]
+  },
+  "nili_fossae": {
+    "nasa_id": "PIA06388",
+    "source": "https://images-assets.nasa.gov/image/PIA06388/PIA06388~small.jpg",
+    "size": [
+      326,
+      640
+    ]
+  },
+  "terra_sirenum_chlorides": {
+    "nasa_id": "PIA21289",
+    "source": "https://images-assets.nasa.gov/image/PIA21289/PIA21289~medium.jpg",
+    "size": [
+      629,
+      1280
+    ]
+  },
+  "nili_patera_dunes": {
+    "nasa_id": "PIA12382",
+    "source": "https://images-assets.nasa.gov/image/PIA12382/PIA12382~medium.jpg",
+    "size": [
+      707,
+      1280
+    ]
+  }
+}
