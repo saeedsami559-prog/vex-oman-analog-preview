@@ -36,6 +36,8 @@ export function useLayerMeta(site: Site): LayerMeta | null {
   const [meta, setMeta] = useState<LayerMeta | null>(null);
   useEffect(() => {
     let live = true;
+    // Terrain layers exist for Earth and Mars sites only (the lunar pole grid is polar, not lat/lon).
+    if (site.body === 'moon') cache.set(site.id, Promise.resolve(null));
     if (!cache.has(site.id)) {
       cache.set(site.id, fetch(layerUrl(site.id, 'meta.json')).then((r) => (r.ok ? r.json() : null)).catch(() => null));
     }
