@@ -1,0 +1,101 @@
+{
+  "bounds": [
+    [
+      22.700735678816255,
+      58.909974795049536
+    ],
+    [
+      23.060464321183748,
+      59.30042520495047
+    ]
+  ],
+  "half_km": 20,
+  "shape": [
+    1333,
+    1333
+  ],
+  "source": {
+    "dataset": "NASADEM_HGT v001 (Microsoft Planetary Computer COG mirror)",
+    "products": [
+      "NASADEM_HGT_n23e059",
+      "NASADEM_HGT_n23e058",
+      "NASADEM_HGT_n22e059",
+      "NASADEM_HGT_n22e058"
+    ],
+    "urls": [
+      "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n23e059.tif",
+      "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n23e058.tif",
+      "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n22e059.tif",
+      "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n22e058.tif"
+    ],
+    "native_resolution_m": 30
+  },
+  "site": "majlis_al_jinn",
+  "body": "earth",
+  "generated": "2026-11-07T09:54:06+00:00",
+  "elevation_m": {
+    "min": -19.6,
+    "max": 2067.2,
+    "p2": 0.0,
+    "p98": 1708.6,
+    "cmap": "terrain"
+  },
+  "slope": {
+    "bins_deg": [
+      0,
+      2,
+      5,
+      10,
+      20,
+      30,
+      90
+    ],
+    "colors": [
+      "#1a9850",
+      "#91cf60",
+      "#d9ef8b",
+      "#fee08b",
+      "#fc8d59",
+      "#d73027"
+    ],
+    "share": {
+      "0-2": 0.2319,
+      "2-5": 0.0681,
+      "5-10": 0.1276,
+      "10-20": 0.2501,
+      "20-30": 0.1835,
+      "30-90": 0.1388
+    }
+  },
+  "drainage": {
+    "stream_km2": 5.0,
+    "depression_m": 2.0,
+    "channel_share": 0.0077,
+    "depression_km2": 29.31,
+    "max_upstream_km2": 216.4,
+    "flat": false
+  },
+  "common": {
+    "res_m": 463.0,
+    "shape": [
+      86,
+      86
+    ],
+    "slope_share": {
+      "0-2": 0.2733,
+      "2-5": 0.141,
+      "5-10": 0.2408,
+      "10-20": 0.255,
+      "20-30": 0.0759,
+      "30-90": 0.0141
+    },
+    "drainage": {
+      "stream_km2": 200.0,
+      "depression_m": 20.0,
+      "channel_share": 0.0015,
+      "depression_km2": 12.77,
+      "max_upstream_km2": 212.5
+    }
+  },
+  "method": "Priority-Flood fill (Barnes et al. 2014) + D8 flow direction (O'Callaghan & Mark 1984)"
+}

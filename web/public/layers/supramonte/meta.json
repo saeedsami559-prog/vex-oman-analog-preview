@@ -1,0 +1,95 @@
+{
+  "bounds": [
+    [
+      40.02013567881626,
+      9.264512625831179
+    ],
+    [
+      40.379864321183746,
+      9.735487374168821
+    ]
+  ],
+  "half_km": 20,
+  "shape": [
+    1333,
+    1333
+  ],
+  "source": {
+    "dataset": "NASADEM_HGT v001 (Microsoft Planetary Computer COG mirror)",
+    "products": [
+      "NASADEM_HGT_n40e009"
+    ],
+    "urls": [
+      "https://nasademeuwest.blob.core.windows.net/nasadem-cog/v001/NASADEM_HGT_n40e009.tif"
+    ],
+    "native_resolution_m": 30
+  },
+  "site": "supramonte",
+  "body": "earth",
+  "generated": "2026-11-07T10:00:17+00:00",
+  "elevation_m": {
+    "min": -1.6,
+    "max": 1768.6,
+    "p2": 0.0,
+    "p98": 1307.0,
+    "cmap": "terrain"
+  },
+  "slope": {
+    "bins_deg": [
+      0,
+      2,
+      5,
+      10,
+      20,
+      30,
+      90
+    ],
+    "colors": [
+      "#1a9850",
+      "#91cf60",
+      "#d9ef8b",
+      "#fee08b",
+      "#fc8d59",
+      "#d73027"
+    ],
+    "share": {
+      "0-2": 0.1704,
+      "2-5": 0.1075,
+      "5-10": 0.1682,
+      "10-20": 0.2878,
+      "20-30": 0.1953,
+      "30-90": 0.0709
+    }
+  },
+  "drainage": {
+    "stream_km2": 5.0,
+    "depression_m": 2.0,
+    "channel_share": 0.0076,
+    "depression_km2": 11.1,
+    "max_upstream_km2": 620.9,
+    "flat": false
+  },
+  "common": {
+    "res_m": 463.0,
+    "shape": [
+      86,
+      86
+    ],
+    "slope_share": {
+      "0-2": 0.2038,
+      "2-5": 0.2166,
+      "5-10": 0.2772,
+      "10-20": 0.253,
+      "20-30": 0.0449,
+      "30-90": 0.0046
+    },
+    "drainage": {
+      "stream_km2": 200.0,
+      "depression_m": 20.0,
+      "channel_share": 0.0077,
+      "depression_km2": 16.43,
+      "max_upstream_km2": 630.3
+    }
+  },
+  "method": "Priority-Flood fill (Barnes et al. 2014) + D8 flow direction (O'Callaghan & Mark 1984)"
+}

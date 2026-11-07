@@ -202,6 +202,10 @@ def build() -> dict[str, Any]:
     targets = prepare_sites(load_yaml("target_sites.yaml")["sites"], base)
     config = scoring_config(base, earth + targets)
     scores = score_pairs(earth, targets, config)
+    # Candidate and benchmark sites: scored with the SAME normalisation ranges (fixed above by the Omani
+    # sites and the targets), so they can be compared with the Omani sites without moving any Omani score.
+    bench = prepare_sites(load_yaml("benchmark_sites.yaml")["sites"], base, body="earth")
+    bench_scores = score_pairs(bench, targets, config)
     return {
         "generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "coverage": coverage_summary(earth + targets, config),
@@ -211,6 +215,9 @@ def build() -> dict[str, Any]:
         "targets": targets,
         "scores": scores,
         "validation": validation_summary(earth, targets, scores),
+        "benchmarks": bench,
+        "benchmark_scores": bench_scores,
+        "benchmark_mean_mars": validation_summary(bench, targets, bench_scores)["mean_mars_similarity"],
     }
 
 

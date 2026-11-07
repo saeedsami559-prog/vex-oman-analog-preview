@@ -3,7 +3,8 @@ import CriteriaRadar from '../components/charts/CriteriaRadar';
 import MetricValue from '../components/site/MetricValue';
 import ScoreBadge, { ScoreBar } from '../components/similarity/ScoreBadge';
 import { useI18n } from '../i18n';
-import { analogsFor, bestMatch, findSite, matchesFor, useDataset } from '../lib/data';
+import { analogsFor, bestMatch, findSite, isExtraSite, matchesFor, useDataset } from '../lib/data';
+import { BENCHMARKS, OMAN_CANDIDATES } from '../lib/atlas';
 import { formatCoords } from '../lib/geo';
 import { kmFromMuscat, mineralsFromLowSignal, sharedFeatures } from '../lib/analysis';
 import { FIELD_NOTES } from '../lib/fieldNotes';
@@ -56,7 +57,9 @@ export default function SiteDetail() {
   }
   glance.push({ label: t('site.coverageFact'), value: t('site.coverageVal', { m: num(site.measured.length), n: num(applicable) }) });
   glance.push({ label: t('home.area'), value: t('home.areaValue', { n: num(site.bbox_km * 2) }) });
-  const km = kmFromMuscat(site);
+  const extra = isExtraSite(site);
+  const atlasEntry = [...BENCHMARKS, ...OMAN_CANDIDATES].find((a) => a.id === site.id);
+  const km = site.role === 'benchmark' ? null : kmFromMuscat(site);
   if (km !== null) glance.push({ label: t('site.access'), value: t('site.accessVal', { km: num(km) }) });
   // Honest flags on the headline pair (same checks as the explorer).
   const pairEarth = isEarth ? site : counterpart;
@@ -76,7 +79,11 @@ export default function SiteDetail() {
         <nav className="breadcrumb" aria-label={t('common.breadcrumb')}>
           <Link to="/">{t('nav.home')}</Link>
           <span aria-hidden="true">›</span>
-          <Link to={isEarth ? `/explorer?site=${site.id}` : '/explorer?view=targets'}>{t('nav.explorer')}</Link>
+          {isExtraSite(site) ? (
+            <Link to="/atlas">{t('nav.atlas')}</Link>
+          ) : (
+            <Link to={isEarth ? `/explorer?site=${site.id}` : '/explorer?view=targets'}>{t('nav.explorer')}</Link>
+          )}
           <span aria-hidden="true">›</span>
           <span>{t(`body.${site.body}`)}</span>
           <span aria-hidden="true">›</span>
@@ -97,7 +104,8 @@ export default function SiteDetail() {
         <div>
           <p className="kicker">
             <span className={`dot ${site.body}`} /> {t(`body.${site.body}`)}
-            {isEarth && ` · ${t(site.role === 'reference' ? 'site.role_reference' : 'site.role_analog')}`}
+            {isEarth && ` · ${t(`site.role_${site.role ?? 'analog'}`)}`}
+            {site.country && ` · ${loc(site.country)}`}
           </p>
           <h1>{loc(site.name)}</h1>
           <p className="coords-line muted">
@@ -139,6 +147,19 @@ export default function SiteDetail() {
       )}
 
       <p className="lead">{card.summary}</p>
+
+      {extra && (
+        <p className="note small">
+          {t(site.role === 'candidate' ? 'site.extraCandidate' : 'site.extraBenchmark')}
+          {atlasEntry && (
+            <>
+              {' '}
+              {t('atlas.source')}: <a href={atlasEntry.source.url} target="_blank" rel="noreferrer">{atlasEntry.source.label}</a>
+            </>
+          )}
+          {site.coords_source && <span className="muted"> · {t('site.coordsFrom', { src: site.coords_source })}</span>}
+        </p>
+      )}
 
       {notes && (
         <section className="panel field-notes">
@@ -219,7 +240,7 @@ export default function SiteDetail() {
                     </td>
                     <td className="bar-cell"><ScoreBar value={m.overall} /></td>
                     <td className="muted nowrap">{t('score.confidence')} {num(m.confidence * 100)}%</td>
-                    <td><Link className="btn ghost small" to={`/explorer?view=compare&site=${earthId}&target=${targetId}`}>{t('site.compare')}</Link></td>
+                    <td>{!extra && !isExtraSite(other) && <Link className="btn ghost small" to={`/explorer?view=compare&site=${earthId}&target=${targetId}`}>{t('site.compare')}</Link>}</td>
                   </tr>
                 );
               })}

@@ -56,10 +56,10 @@ export const BENCHMARKS: AtlasSite[] = [
     source: { label: 'NASA Science: 10 things to know about planetary analogs', url: 'https://science.nasa.gov/solar-system/planetary-analogs/10-things-to-know-about-planetary-analogs' },
   },
   {
-    id: 'desert_rats',
+    id: 'black_point',
     name: { en: 'Black Point Lava Flow & Cinder Lake', ar: 'تدفق بلاك بوينت البركاني وبحيرة سيندر' },
     place: { en: 'San Francisco Volcanic Field, Arizona, USA', ar: 'حقل سان فرانسيسكو البركاني، أريزونا، الولايات المتحدة' },
-    lat: 35.32, lon: -111.52,
+    lat: 35.6878, lon: -111.3599,
     categories: ['volcanic', 'desert'], bodies: ['moon', 'mars'],
     programme: { en: 'NASA Desert RATS', ar: 'برنامج Desert RATS التابع لناسا' },
     what: { en: 'Rover and spacewalk operations over basalt flows and cinder fields with moon-like geology.', ar: 'عمليات المركبات الجوالة والسير خارج المركبة فوق تدفقات البازلت وحقول الرماد ذات الجيولوجيا الشبيهة بالقمر.' },
@@ -96,7 +96,7 @@ export const BENCHMARKS: AtlasSite[] = [
     source: { label: 'NASA Technical Reports Server: analog field tests (AMASE 2007)', url: 'https://ntrs.nasa.gov/api/citations/20080010736/downloads/20080010736.pdf' },
   },
   {
-    id: 'caves_sardinia',
+    id: 'supramonte',
     name: { en: 'Supramonte karst caves', ar: 'كهوف سوبرامونتي الكارستية' },
     place: { en: 'Sardinia, Italy', ar: 'سردينيا، إيطاليا' },
     lat: 40.2, lon: 9.5, approx: true,

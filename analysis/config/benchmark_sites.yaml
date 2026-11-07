@@ -1,0 +1,102 @@
+# Sites scored on the same scale as the Omani analogs, WITHOUT entering the Omani ranking or the
+# normalisation ranges (their scores use the ranges fixed by earth_sites.yaml + target_sites.yaml, so
+# adding them does not change any Omani score).
+#
+#   role: candidate  - a new Omani site, not yet in the main ranking
+#   role: benchmark  - an analog site used by NASA, ESA or the Mars Society elsewhere in the world
+#
+# Coordinates: `coords_source` says where each point comes from. Windows are 10 km half-width, the
+# same as most Omani sites. Sites outside NASADEM coverage (north of 60 N: Haughton, Svalbard,
+# Iceland) are not listed here; they stay described-only in the Analog Atlas.
+# Metric values never live here: they come from `python -m analog.compute`.
+
+sites:
+  - id: majlis_al_jinn
+    role: candidate
+    country: {en: Oman, ar: عُمان}
+    name: {en: "Majlis al Jinn, Selma Plateau", ar: "مجلس الجن، هضبة سلمى"}
+    lat: 22.8806
+    lon: 59.1052
+    bbox_km: 10
+    coords_source: "Wikipedia (Majlis al Jinn), citing the 1985 PAWR survey"
+    coords_note:
+      en: "Scores describe the plateau surface around the cave entrances; the chamber itself is underground and invisible to orbital data."
+      ar: "الدرجات تصف سطح الهضبة حول مداخل الكهف؛ القاعة نفسها تحت الأرض ولا تراها بيانات المدار."
+    card:
+      en: {summary: A single karst chamber about 310 × 225 m with a ceiling around 120 m, entered only by a 100–120 m rope descent through holes in the roof, at about 1,380 m on the Selma Plateau. Lava tubes on the Moon and Mars are proposed as shelters; this chamber adds vertical-entry operations through a roof opening, like a lunar or Martian skylight.}
+      ar: {summary: قاعة كارستية واحدة بنحو 310 × 225 م وسقف يقارب 120 م، لا يُدخل إليها إلا بالنزول بالحبال من 100 إلى 120 م عبر فتحات في السقف، على ارتفاع نحو 1,380 م في هضبة سلمى. أنابيب الحمم على القمر والمريخ مقترحة كملاجئ، وهذه القاعة تضيف عمليات الدخول العمودي عبر فتحة في السقف، مثل الفتحات السماوية على القمر والمريخ.}
+
+  - id: atacama
+    role: benchmark
+    country: {en: Chile, ar: تشيلي}
+    name: {en: "Atacama Desert (Yungay)", ar: "صحراء أتاكاما (يونغاي)"}
+    lat: -24.10
+    lon: -70.02
+    bbox_km: 10
+    coords_source: "Yungay research station area, hyper-arid core of the Atacama"
+    card:
+      en: {summary: Extreme dryness and preserved ancient microbes, studied by NASA to understand conditions on Mars.}
+      ar: {summary: جفاف شديد وميكروبات قديمة محفوظة، تدرسها ناسا لفهم الظروف على المريخ.}
+
+  - id: black_point
+    role: benchmark
+    country: {en: USA, ar: الولايات المتحدة}
+    name: {en: "Black Point Lava Flow, Arizona (Desert RATS)", ar: "تدفق بلاك بوينت البركاني، أريزونا (Desert RATS)"}
+    lat: 35.6878
+    lon: -111.3599
+    bbox_km: 10
+    coords_source: "USGS National Map feature 'Black Point' (Coconino County, AZ)"
+    card:
+      en: {summary: Basalt flows and cinder fields with moon-like geology, where NASA's Desert RATS tested rovers and spacewalk operations.}
+      ar: {summary: تدفقات بازلتية وحقول رماد بركاني ذات جيولوجيا شبيهة بالقمر، اختبر فيها برنامج Desert RATS التابع لناسا المركبات الجوالة والسير خارج المركبة.}
+
+  - id: mdrs
+    role: benchmark
+    country: {en: USA, ar: الولايات المتحدة}
+    name: {en: "Mars Desert Research Station, Utah", ar: "محطة أبحاث المريخ الصحراوية، يوتا"}
+    lat: 38.4064
+    lon: -110.7919
+    bbox_km: 10
+    coords_source: "MDRS habitat location published by the Mars Society"
+    card:
+      en: {summary: A habitat in red sedimentary desert where crews of the Mars Society rehearse Mars field days.}
+      ar: {summary: موئل في صحراء رسوبية حمراء تتدرّب فيه طواقم جمعية المريخ على أيام العمل الميداني على المريخ.}
+
+  - id: lanzarote
+    role: benchmark
+    country: {en: Spain, ar: إسبانيا}
+    name: {en: "Lanzarote lava fields (Cueva de los Verdes)", ar: "حقول الحمم في لانزاروتي (كويفا دي لوس فيرديس)"}
+    lat: 29.157
+    lon: -13.440
+    bbox_km: 10
+    coords_source: "Cueva de los Verdes lava tube entrance"
+    card:
+      en: {summary: Young lava fields around one of the largest lava-tube systems (~8 km), mapped by ESA's Pangaea-X campaign as an analog for lunar and Martian lava tubes.}
+      ar: {summary: حقول حمم حديثة حول أحد أكبر أنظمة أنابيب الحمم (نحو 8 كم)، رسمتها حملة Pangaea-X التابعة لوكالة الفضاء الأوروبية كنظير لأنابيب الحمم على القمر والمريخ.}
+
+  - id: hiseas
+    role: benchmark
+    country: {en: USA, ar: الولايات المتحدة}
+    name: {en: "HI-SEAS, Mauna Loa, Hawaii", ar: "محطة HI-SEAS، ماونا لوا، هاواي"}
+    lat: 19.602
+    lon: -155.487
+    bbox_km: 10
+    coords_source: "HI-SEAS habitat on the north slope of Mauna Loa"
+    card:
+      en: {summary: A habitat on the volcanic slope of Mauna Loa used by NASA-funded HI-SEAS missions for long isolation studies.}
+      ar: {summary: موئل على المنحدر البركاني لماونا لوا استخدمته بعثات HI-SEAS الممولة من ناسا لدراسات العزلة الطويلة.}
+
+  - id: supramonte
+    role: benchmark
+    country: {en: Italy, ar: إيطاليا}
+    name: {en: "Supramonte karst, Sardinia (ESA CAVES)", ar: "كارست سوبرامونتي، سردينيا (CAVES)"}
+    lat: 40.20
+    lon: 9.50
+    bbox_km: 10
+    coords_source: "Approximate centre of the Supramonte karst plateau"
+    coords_note:
+      en: "ESA trains astronauts inside the caves; scores describe the karst surface above them."
+      ar: "تدرّب وكالة الفضاء الأوروبية الرواد داخل الكهوف؛ الدرجات تصف سطح الكارست فوقها."
+    card:
+      en: {summary: A limestone karst plateau where ESA's CAVES course sends astronauts from several agencies underground to train exploration and teamwork.}
+      ar: {summary: هضبة كارستية جيرية يرسل فيها برنامج CAVES التابع لوكالة الفضاء الأوروبية رواداً من عدة وكالات تحت الأرض للتدرب على الاستكشاف والعمل الجماعي.}

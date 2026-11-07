@@ -226,7 +226,12 @@
     "notesBadge": "Team assessment, based on the values above",
     "rehearse": "What could be rehearsed here",
     "resources": "Resources angle (ISRU)",
-    "print": "Print or save as PDF"
+    "print": "Print or save as PDF",
+    "role_candidate": "New Omani candidate",
+    "role_benchmark": "World benchmark site",
+    "extraCandidate": "Scored with the same index and scale as the five Omani sites, but not yet part of the main Omani ranking.",
+    "extraBenchmark": "A world analog site, scored with the same index and scale for comparison. It is not part of the Omani ranking and does not change any Omani score.",
+    "coordsFrom": "Point used: {src}"
   },
   "compare": {
     "title": "Compare & adjust",
@@ -668,7 +673,20 @@
     "trackTitle": "Oman's record as an analog host",
     "moonTitle": "Moon base regions",
     "moonText": "NASA narrowed its Artemis III candidate landing regions near the lunar south pole to nine in October 2024 (from thirteen announced in 2022). Our scored lunar target is on the Shackleton rim, next to the 2022 candidates Peak Near Shackleton and Connecting Ridge. Scoring the nine regions with the same LOLA elevation data is the next step for the Moon side of this platform.",
-    "moonList": "Candidate regions (no priority order)"
+    "moonList": "Candidate regions (no priority order)",
+    "marsAvg": "Mars average (terrain + surface)",
+    "worldTitle": "Oman among the world: same index, same scale",
+    "worldText": "The five Omani sites, the new cave candidate and well-known analog sites used by NASA, ESA and the Mars Society, all scored with the same NASA data (NASADEM terrain, MODIS surface brightness), the same formula and the same normalisation ranges. For a fair comparison this table uses only the criteria measured at every site: terrain and surface. The world sites do not move any Omani score.",
+    "colType": "Type",
+    "type_analog": "Omani site",
+    "type_reference": "Omani reference",
+    "type_candidate": "Omani candidate",
+    "type_benchmark": "World benchmark",
+    "worldPending": "Not computed yet:",
+    "worldNote": "Read with care: minerals are left out here because EMIT mineral data for the world sites needs an Earthdata login, so Omani scores in this table differ from the ones elsewhere on the site, which include minerals. Young dark lava fields (Black Point, Lanzarote, Mauna Loa) rank high because their gentle slopes and low brightness resemble Martian plains; this says nothing about chemistry. Coordinates are a published point at each site, with a 20 × 20 km window around it.",
+    "candidateScored": "Omani candidate, scored",
+    "openProfile": "Open its profile",
+    "terrainOnly": "terrain only"
   },
   "env": {
     "title": "Field environment (NASA POWER)",

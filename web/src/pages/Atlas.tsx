@@ -1,9 +1,11 @@
 import { CircleMarker, MapContainer, TileLayer, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { ARTEMIS_REGIONS, ARTEMIS_SOURCES, BENCHMARKS, CATEGORIES, OMAN_CANDIDATES, OMAN_SCORED_CATEGORIES, OMAN_TRACK, type AtlasSite } from '../lib/atlas';
 import { findSite, useDataset } from '../lib/data';
+import { meanMarsSimilarity } from '../lib/analysis';
+import { similarity } from '../lib/similarity';
 import { ENV_URL, ltr, meanOver, monthNames, monthRange, periodYears, useEnvironment } from '../lib/environment';
 import ContinueExploring from '../components/common/ContinueExploring';
 import PageToc from '../components/common/PageToc';
@@ -14,9 +16,32 @@ const COLORS = { scored: '#3fb6a8', candidate: '#e6b34a', benchmark: '#f1f4fa' }
 export default function Atlas() {
   const { t, loc, lang, num } = useI18n();
   const data = useDataset();
+  const navigate = useNavigate();
   const env = useEnvironment();
   const months = monthNames(lang);
   const scored = data.earth_sites;
+
+  // Oman among the world: every Earth site scored with the same index and the same normalisation ranges,
+  // on the criteria measured at every site (terrain + surface; EMIT minerals are missing for the world sites),
+  // so no site gains or loses from a criterion the others lack.
+  const cw = data.config.criteria;
+  const shared = { terrain: cw.terrain?.weight ?? 0.4, mineralogy: 0, surface: cw.surface?.weight ?? 0.2 };
+  const allEarth = [...scored, ...(data.benchmarks ?? [])];
+  const meanOf = (id: string): number | null => {
+    const site = allEarth.find((x) => x.id === id);
+    return site ? meanMarsSimilarity(data, site, shared) : null;
+  };
+  const twinOf = (site: (typeof allEarth)[number]) =>
+    data.targets
+      .filter((t) => t.body === 'mars')
+      .map((t) => ({ target: t.id, overall: similarity(site.raw, t.raw, site.resolution_m, t.resolution_m, data.config, shared, site.body, t.body).overall }))
+      .filter((x) => x.overall !== null)
+      .sort((a, b) => b.overall! - a.overall!)[0];
+  const worldRows = allEarth
+    .map((site) => ({ site, mean: meanOf(site.id), twin: twinOf(site) }))
+    .sort((a, b) => (b.mean ?? -1) - (a.mean ?? -1));
+  const computed = worldRows.filter((r) => r.mean != null);
+  const pending = worldRows.filter((r) => r.mean == null);
 
   const pin = (s: AtlasSite, kind: 'candidate' | 'benchmark') => (
     <CircleMarker
@@ -24,10 +49,12 @@ export default function Atlas() {
       center={[s.lat, s.lon]}
       radius={kind === 'candidate' ? 8 : 6}
       pathOptions={{ color: '#0b0f17', weight: 1.5, fillColor: COLORS[kind], fillOpacity: 0.95 }}
+      eventHandlers={{ click: () => findSite(data, s.id) && navigate(`/site/${s.id}`) }}
     >
       <Tooltip direction="top" offset={[0, -6]}>
         {loc(s.name)} · {loc(s.place)}
         {s.approx ? ` (${t('atlas.approx')})` : ''}
+        {meanOf(s.id) != null && ` · ${t('atlas.marsAvg')} ${num(meanOf(s.id)! * 100)}%`}
       </Tooltip>
     </CircleMarker>
   );
@@ -59,6 +86,7 @@ export default function Atlas() {
               center={[s.lat, s.lon]}
               radius={7}
               pathOptions={{ color: '#0b0f17', weight: 1.5, fillColor: COLORS.scored, fillOpacity: 0.95 }}
+              eventHandlers={{ click: () => navigate(`/site/${s.id}`) }}
             >
               <Tooltip direction="top" offset={[0, -6]}>
                 {loc(s.name)}
@@ -72,6 +100,63 @@ export default function Atlas() {
           <li><i style={{ background: COLORS.benchmark }} /> {t('atlas.legendBenchmark')}</li>
         </ul>
       </div>
+
+      {(data.benchmarks?.length ?? 0) > 0 && (
+        <section className="world-rank">
+          <h2>{t('atlas.worldTitle')}</h2>
+          <p className="muted">{t('atlas.worldText')}</p>
+          <div className="table-wrap">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>{t('sources.colSite')}</th>
+                  <th>{t('atlas.colType')}</th>
+                  <th>{t('atlas.marsAvg')}</th>
+                  <th>{t('site.bestMars')}</th>
+                  <th>{t('site.coverageFact')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {computed.map(({ site, mean, twin }, i) => {
+                  const tw = findSite(data, twin?.target);
+                  const oman = site.role !== 'benchmark';
+                  return (
+                    <tr key={site.id} className={oman ? 'is-oman' : undefined}>
+                      <td>{num(i + 1)}</td>
+                      <th scope="row">
+                        <span className={`dot ${oman ? 'earth' : 'bench'}`} /> <Link to={`/site/${site.id}`}>{loc(site.name)}</Link>
+                        {site.country && <span className="muted small"> · {loc(site.country)}</span>}
+                      </th>
+                      <td>
+                        <span className={`pill ${site.role === 'benchmark' ? 'soft' : site.role === 'candidate' ? 'warn' : 'ok'} small`}>
+                          {t(`atlas.type_${site.role ?? 'analog'}`)}
+                        </span>
+                      </td>
+                      <td className="bar-cell">
+                        <span className="world-bar"><i style={{ width: `${(mean ?? 0) * 100}%` }} /></span> {num((mean ?? 0) * 100)}%
+                      </td>
+                      <td className="small">{tw && twin?.overall != null ? `${loc(tw.name)} · ${num(twin.overall * 100)}%` : '–'}</td>
+                      <td className="small nowrap">
+                        {num(site.measured.length)}/{num(site.measured.length + site.missing.filter((m) => m.status === 'unavailable').length)}
+                        {(data.config.criteria.surface?.features ?? []).every((f) => site.raw[f] == null) && (
+                          <span className="pill warn small"> {t('atlas.terrainOnly')}</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          {pending.length > 0 && (
+            <p className="small muted">
+              {t('atlas.worldPending')} {pending.map((r) => loc(r.site.name)).join(' · ')}
+            </p>
+          )}
+          <p className="note small">{t('atlas.worldNote')}</p>
+        </section>
+      )}
 
       <h2>{t('atlas.coverageTitle')}</h2>
       <p className="muted">{t('atlas.coverageText')}</p>
@@ -114,7 +199,7 @@ export default function Atlas() {
         <section key={s.id} className="panel atlas-candidate">
           <div className="atlas-candidate-head">
             <h3>{loc(s.name)}</h3>
-            <span className="pill warn">{loc(s.programme)}</span>
+            <span className="pill warn">{meanOf(s.id) != null ? t('atlas.candidateScored') : loc(s.programme)}</span>
           </div>
           <p className="muted small">
             {loc(s.place)} · {s.lat.toFixed(4)}° N, {s.lon.toFixed(4)}° E
@@ -127,7 +212,14 @@ export default function Atlas() {
               </span>
             ))}
           </p>
-          <p className="note small">{t('atlas.candidateNote')}</p>
+          {meanOf(s.id) != null ? (
+            <p className="small">
+              {t('atlas.marsAvg')} <strong>{num(meanOf(s.id)! * 100)}%</strong> ·{' '}
+              <Link to={`/site/${s.id}`}>{t('atlas.openProfile')} →</Link>
+            </p>
+          ) : (
+            <p className="note small">{t('atlas.candidateNote')}</p>
+          )}
           <p className="small">
             {t('atlas.source')}: <a href={s.source.url} target="_blank" rel="noreferrer">{s.source.label}</a>
           </p>

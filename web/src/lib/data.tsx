@@ -30,12 +30,18 @@ export function useDataset(): Dataset {
 }
 
 export function findSite(data: Dataset, id: string | null | undefined): Site | undefined {
-  return [...data.earth_sites, ...data.targets].find((s) => s.id === id);
+  return [...data.earth_sites, ...data.targets, ...(data.benchmarks ?? [])].find((s) => s.id === id);
 }
+
+/** Omani scores plus candidate/benchmark scores (the latter never enter Omani rankings). */
+const allScores = (data: Dataset): Score[] => [...data.scores, ...(data.benchmark_scores ?? [])];
+
+/** True for a world benchmark or the new Omani candidate (scored, but outside the main five). */
+export const isExtraSite = (s: { role?: string }) => s.role === 'benchmark' || s.role === 'candidate';
 
 /** Scores for one Earth site against every target, best first. */
 export function matchesFor(data: Dataset, earthId: string): Score[] {
-  return data.scores.filter((s) => s.earth === earthId).sort((a, b) => (b.overall ?? -1) - (a.overall ?? -1));
+  return allScores(data).filter((s) => s.earth === earthId).sort((a, b) => (b.overall ?? -1) - (a.overall ?? -1));
 }
 
 /** Scores for one target against every Earth site, best first. */
@@ -44,7 +50,7 @@ export function analogsFor(data: Dataset, targetId: string): Score[] {
 }
 
 export function scoreFor(data: Dataset, earthId: string, targetId: string): Score | undefined {
-  return data.scores.find((s) => s.earth === earthId && s.target === targetId);
+  return allScores(data).find((s) => s.earth === earthId && s.target === targetId);
 }
 
 /** Headline match: the highest-scoring Mars target, whatever the site was originally chosen for.
