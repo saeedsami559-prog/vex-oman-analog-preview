@@ -1,0 +1,19 @@
+name: Search NASA Image Library
+on:
+  push:
+    branches: [meteor]
+permissions:
+  contents: write
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/search_images.py
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B meteor-results
+          git add results
+          git commit -m "NASA image search results"
+          git push -f origin meteor-results
