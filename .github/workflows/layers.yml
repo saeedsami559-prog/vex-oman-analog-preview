@@ -1,0 +1,26 @@
+name: VEX Scout - extra layers (land cover, surface water, HD terrain, MODIS LST)
+on:
+  push:
+    branches: [layers]
+permissions:
+  contents: write
+jobs:
+  layers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "numpy>=2.1" "pyyaml>=6.0" "rasterio>=1.4" shapely pillow
+      - working-directory: analysis
+        run: PYTHONPATH=src python -m analog.grid_layers
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B layers-results
+          git add -A data/processed/grid web/public/grid
+          git commit -m "VEX Scout extra layers" || true
+          git push -f origin layers-results
