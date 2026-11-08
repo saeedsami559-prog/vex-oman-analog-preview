@@ -64,6 +64,8 @@ export default function Scout() {
   const [marsTarget, setMarsTarget] = useState<string | null>(null); // null = each cell's best Mars target
   const [sel, setSel] = useState<ScoutCell | null>(null);
   const [hm, setHm] = useState<{ id: string; heights: Float32Array; slope: Float32Array; px: number; resM: number; draw: { heights: Float32Array; px: number; resM: number } | null; layers: { cover: Uint8Array; water: Uint8Array } | null; buildings: Float32Array | null } | null>(null);
+  const [sunHour, setSunHour] = useState(8);
+  const [cine, setCine] = useState(false);
   const [sens, setSens] = useState<number>(() => { try { return Number(localStorage.getItem('vex-sens')) || 1; } catch { return 1; } });
   const cellLayers = useCellLayers();
   const [hmErr, setHmErr] = useState(false);
@@ -166,6 +168,24 @@ export default function Scout() {
       flight.current = null;
     };
   }, [sel, persist, cellLayers]);
+
+  // V toggles the cinematic view (no HUD), Esc leaves it
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+      if (e.key === 'v' || e.key === 'V') setCine((c) => !c);
+      if (e.key === 'Escape') setCine(false);
+    };
+    window.addEventListener('keydown', key);
+    return () => window.removeEventListener('keydown', key);
+  }, []);
+  const applySun = (h: number) => {
+    setSunHour(h);
+    // a simple sun path for Oman: rises in the east, south at noon, sets in the west
+    const el = Math.max(3, 72 * Math.sin((Math.PI * (h - 6)) / 12));
+    drone.current?.setSun(el, 90 + (h - 6) * 15);
+  };
 
   useEffect(() => {
     const bye = () => persist();
@@ -379,7 +399,7 @@ export default function Scout() {
           </div>
 
           <div className="scout-cockpit">
-            <div className="scout-screen">
+            <div className={`scout-screen ${cine ? 'cine' : ''}`}>
               {hm && hm.id === sel.id ? (
                 <SafeBox key={sel.id} fallback={<p className="center-msg">{t('scout.viewFail')}</p>}>
                 <DroneView
@@ -503,6 +523,12 @@ export default function Scout() {
                   <input type="range" min={0.5} max={1.5} step={0.1} value={sens} onChange={(e) => { const v = Number(e.target.value); setSens(v); try { localStorage.setItem('vex-sens', String(v)); } catch { /* ignore */ } }} />
                   <b>{num(sens, 1)}×</b>
                 </label>
+                <label className="sens sun">
+                  <span>☀ {t('scout.sun')}</span>
+                  <input type="range" min={6} max={18} step={0.25} value={sunHour} onChange={(e) => applySun(Number(e.target.value))} />
+                  <b dir="ltr">{String(Math.floor(sunHour)).padStart(2, '0')}:{String(Math.round((sunHour % 1) * 60)).padStart(2, '0')}</b>
+                </label>
+                <button type="button" className={`btn small ${cine ? 'primary' : 'ghost'}`} onClick={() => setCine((c) => !c)}>🎬 {t('scout.cine')}</button>
                 <span className={`pad-state ${tel?.pad ? 'on' : ''}`}>🎮 {tel?.pad ? t('scout.padOn') : t('scout.padOff')}</span>
               </div>
             </div>

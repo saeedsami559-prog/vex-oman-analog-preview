@@ -1027,8 +1027,11 @@
     "padOn": "controller connected",
     "padOff": "plug in a game controller",
     "bldNote": "{n} buildings in this square from Overture Maps (OpenStreetMap and Microsoft footprints found by AI in satellite images), drawn as blocks where they really stand; most have no recorded height, so a typical one- or two-storey height is used. Some villages are missing from the data.",
-    "mouseHelp": "Mouse: drag to turn and tilt the camera, wheel to zoom the camera, double-click the ground (or the mini-map) to fly there. C switches between the drone camera and the view from behind.",
-    "padHelp": "Game controller (Xbox / PlayStation): left stick climb and turn, right stick move and slide, A take off / land, B return home, X photo, Y scan, LB/RB tilt the camera, LT/RT zoom, Start changes the camera."
+    "mouseHelp": "Mouse: drag to turn and tilt the camera, wheel to zoom the camera, double-click the ground (or the mini-map) to fly there. C switches between the drone camera and the view from behind. V hides everything for a clean video (cinematic view).",
+    "padHelp": "Game controller (Xbox / PlayStation): left stick climb and turn, right stick move and slide, A take off / land, B return home, X photo, Y scan, LB/RB tilt the camera, LT/RT zoom, Start changes the camera.",
+    "sun": "Sun (time of day)",
+    "cine": "Cinematic view (V)",
+    "cineHint": "Cinematic view: press V or Esc to bring the instruments back"
   },
   "log": {
     "kicker": "VEX Scout · mission log",

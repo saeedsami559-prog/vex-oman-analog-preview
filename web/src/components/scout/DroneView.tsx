@@ -85,6 +85,7 @@ export interface DroneHandle {
   stats: () => FlightStats;
   setCam: (c: CamMode) => void;
   setAltitude: (aglM: number) => void;
+  setSun: (elevationDeg: number, azimuthDeg: number) => void;
 }
 
 export type DroneEvent =
@@ -163,18 +164,20 @@ const mul = (a: M4, b: M4): M4 => {
 };
 
 const VS = `
-attribute vec3 aPos; attribute vec3 aNormal; attribute float aSlope; attribute float aRough; attribute vec2 aUv; attribute vec3 aCover; attribute float aWater;
+attribute vec3 aPos; attribute vec3 aNormal; attribute float aSlope; attribute float aRough; attribute vec2 aUv; attribute vec3 aCover; attribute float aWater; attribute float aShadow;
 uniform mat4 uMvp; uniform vec3 uEye;
-varying vec3 vNormal; varying float vSlope; varying float vRough; varying float vH; varying vec2 vUv; varying float vDist; varying vec2 vXZ; varying vec3 vCover; varying float vWater;
+varying vec3 vNormal; varying float vSlope; varying float vRough; varying float vH; varying vec2 vUv; varying float vDist; varying vec2 vXZ; varying vec3 vCover; varying float vWater; varying float vShadow;
 void main(){
-  vNormal = aNormal; vSlope = aSlope; vRough = aRough; vH = aPos.y; vUv = aUv; vXZ = aPos.xz; vCover = aCover; vWater = aWater;
+  vNormal = aNormal; vSlope = aSlope; vRough = aRough; vH = aPos.y; vUv = aUv; vXZ = aPos.xz; vCover = aCover; vWater = aWater; vShadow = aShadow;
   vDist = distance(aPos, uEye);
   gl_Position = uMvp * vec4(aPos, 1.0);
 }`;
 
 const fsSource = (derivatives: boolean) => `${derivatives ? '#extension GL_OES_standard_derivatives : enable\n' : ''}
 precision mediump float;
-varying vec3 vNormal; varying float vSlope; varying float vRough; varying float vH; varying vec2 vUv; varying float vDist; varying vec2 vXZ; varying vec3 vCover; varying float vWater;
+varying vec3 vNormal; varying float vSlope; varying float vRough; varying float vH; varying vec2 vUv; varying float vDist; varying vec2 vXZ; varying vec3 vCover; varying float vWater; varying float vShadow;
+uniform vec4 uHole; uniform float uHoleOn;
+uniform sampler2D uDetail3; uniform vec4 uDet3; uniform float uDet3On;
 uniform int uLens; uniform vec2 uHRange; uniform vec3 uSun; uniform vec3 uFog; uniform float uFogFar;
 uniform sampler2D uTex; uniform vec3 uScan; uniform float uScanT;
 uniform sampler2D uDetail; uniform vec4 uDet; uniform float uDetOn;
@@ -196,6 +199,13 @@ vec3 satellite(){
     if (du.x > 0.0 && du.y > 0.0 && du.x < 1.0 && du.y < 1.0) {
       float e = smoothstep(0.0, 0.1, min(min(du.x, du.y), min(1.0 - du.x, 1.0 - du.y)));
       base = mix(base, sharp(uDetail, du, uTexel.y, 0.45), e);
+    }
+  }
+  if (uDet3On > 0.5) {
+    vec2 d3 = (vXZ - uDet3.xy) / uDet3.zw;
+    if (d3.x > 0.0 && d3.y > 0.0 && d3.x < 1.0 && d3.y < 1.0) {
+      float e = smoothstep(0.0, 0.12, min(min(d3.x, d3.y), min(1.0 - d3.x, 1.0 - d3.y)));
+      base = mix(base, sharp(uDetail3, d3, 1.0 / 1024.0, 0.45), e);
     }
   }
   if (uDet2On > 0.5) {
@@ -220,8 +230,10 @@ float contour(){
   return max(1.0 - smoothstep(0.0, w, f), (1.0 - smoothstep(0.0, wm, major)) * 1.0) * (1.0 - smoothstep(0.0, 1.0, vDist / (uFogFar * 0.6)));
 }
 void main(){
+  // the high-resolution patch is drawn on its own; the cell mesh leaves a hole under it
+  if (uHoleOn > 0.5 && vXZ.x > uHole.x && vXZ.x < uHole.z && vXZ.y > uHole.y && vXZ.y < uHole.w) discard;
   vec3 n = normalize(vNormal);
-  float diff = clamp(dot(n, normalize(uSun)), 0.0, 1.0);
+  float diff = clamp(dot(n, normalize(uSun)), 0.0, 1.0) * vShadow;
   float fill = clamp(dot(n, normalize(vec3(-0.6, 0.5, 0.4))), 0.0, 1.0);
   float shade = 0.3 + 0.7 * diff + 0.15 * fill;
   float t = clamp((vH - uHRange.x) / max(1.0, uHRange.y - uHRange.x), 0.0, 1.0);
@@ -262,6 +274,9 @@ void main(){
     col = mix(col, vec3(0.35, 0.95, 1.0), clamp(ring + inside, 0.0, 1.0));
   }
   float f = clamp(vDist / uFogFar, 0.0, 1.0);
+  // haze that settles in the valleys, thicker with distance
+  float valley = 1.0 - smoothstep(uHRange.x, uHRange.x + (uHRange.y - uHRange.x) * 0.35, vH);
+  col = mix(col, uFog, valley * 0.28 * smoothstep(0.05, 0.6, f));
   // the cell ends after ~27 km: melt its edge into the horizon instead of cutting it
   float edge = smoothstep(0.86, 1.0, max(abs(vXZ.x), abs(vXZ.y)) / uHalf);
   gl_FragColor = vec4(mix(col, uFog, clamp(f * f + edge, 0.0, 1.0)), 1.0 - edge * 0.85);
@@ -296,6 +311,11 @@ void main(){
 }`;
 
 interface Geo { p: number[]; n: number[]; c: number[]; t: number[]; i: number[] }
+/** A regular height grid: n x n samples (m), spacing `res` m, first sample at world (x0, z0). */
+interface TGrid { h: Float32Array; n: number; res: number; x0: number; z0: number }
+const DEM_URL = (z: number, x: number, y: number) => `https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${x}/${y}.png`;
+const DEM_Z = 13; // ~17 m per pixel at Oman's latitude, resampled from SRTM (~30 m) and other open DEMs
+const HI_N = 256;
 const geo = (): Geo => ({ p: [], n: [], c: [], t: [], i: [] });
 /** Append an oriented box: centre (cx, cz) on the ground, y from y0 to y1, half sizes hx, hz, rotated by `ang` (rad). */
 function addBox(g: Geo, cx: number, cz: number, y0: number, y1: number, hx: number, hz: number, ang: number, col: number[], uv: number[], bottom = false) {
@@ -405,13 +425,27 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
   const half = size / 2;
   // G: the grid we draw and fly on (finer when available); heights/slope/px/resM stay the analysis grid
   const G = draw ?? { heights, px, resM };
+  // live high-resolution patch (SRTM ~30 m terrain tiles) around the drone, when loaded
+  const hiRef = useRef<TGrid | null>(null);
   let hmin = Infinity, hmax = -Infinity;
   for (const h of G.heights) { if (h < hmin) hmin = h; if (h > hmax) hmax = h; }
   const evRef = useRef(onEvent);
   evRef.current = onEvent;
 
   const clampXZ = (v: number) => Math.min(half, Math.max(-half, v));
-  const groundAt = (x: number, z: number) => {
+  const groundAt = (x: number, z: number): number => {
+    const hp = hiRef.current;
+    if (hp) {
+      const fx = (x - hp.x0) / hp.res, fy = (z - hp.z0) / hp.res;
+      if (fx >= 0 && fy >= 0 && fx < hp.n - 1.001 && fy < hp.n - 1.001) {
+        const x0 = Math.floor(fx), y0 = Math.floor(fy), ddx = fx - x0, ddy = fy - y0;
+        const hh = (xx: number, yy: number) => hp.h[yy * hp.n + xx];
+        return (hh(x0, y0) * (1 - ddx) + hh(x0 + 1, y0) * ddx) * (1 - ddy) + (hh(x0, y0 + 1) * (1 - ddx) + hh(x0 + 1, y0 + 1) * ddx) * ddy;
+      }
+    }
+    return groundBase(x, z);
+  };
+  const groundBase = (x: number, z: number) => {
     // x east, z south (world), pixel row 0 = north edge
     const fx = Math.min(G.px - 1.001, Math.max(0, (x + half) / G.resM));
     const fy = Math.min(G.px - 1.001, Math.max(0, (z + half) / G.resM));
@@ -457,6 +491,8 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
     lens: lens as Lens, satReady: false, shoot: false, zoom: 1,
     det: null as null | { cx: number; cz: number; loading: boolean },
     det2: null as null | { cx: number; cz: number; loading: boolean },
+    det3: null as null | { cx: number; cz: number; loading: boolean },
+    sunEl: 38, sunAz: 120, sunDirty: 0, hiAt: null as null | [number, number], hiLoading: false,
     cam: 'fpv' as CamMode, holdAgl: null as number | null, goto: null as null | [number, number], sens: 1,
     padPrev: [] as boolean[], pad: false, bld: 0,
     ray: { eye: [0, 0, 0], dir: [0, 0, -1], tH: 1, aspect: 1 } as { eye: number[]; dir: number[]; tH: number; aspect: number },
@@ -568,6 +604,7 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
     },
     photo: () => { st.current.shoot = true; },
     setCam: (c: CamMode) => { st.current.cam = c; },
+    setSun: (elDeg: number, azDeg: number) => { const s = st.current; s.sunEl = elDeg; s.sunAz = azDeg; s.sunDirty = performance.now(); },
     setAltitude: (aglM: number) => {
       const s = st.current;
       s.holdAgl = aglM;
@@ -593,55 +630,77 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
       dfStep: null, flightSec: 0, maxAgl: 0, landings: 0, distM: 0, df: { a: [sx, sz], b: null, heading: 0, n: 0 },
     });
 
-    // ----- mesh (on the drawing grid G) -----
-    const gp = G.px, gr = G.resM, gh = G.heights;
-    const gslope = gp === px ? slope : slopeField(gh, gp, gr);
-    const n = gp * gp;
-    const pos = new Float32Array(n * 3);
-    const nor = new Float32Array(n * 3);
-    const uv = new Float32Array(n * 2);
-    const sl = new Float32Array(n);
-    const ro = new Float32Array(n);
-    const cov = new Float32Array(n * 3).fill(0.55);
-    const wat = new Float32Array(n);
+    // ----- terrain: the whole cell (G), plus a live high-resolution patch around the drone -----
     const [latN, lonW] = toLatLon(cell, -half, half);
     const [latS, lonE] = toLatLon(cell, half, -half);
     const tx0 = Math.floor(tileX(lonW, SAT_Z)), tx1 = Math.floor(tileX(lonE, SAT_Z));
     const ty0 = Math.floor(tileY(latN, SAT_Z)), ty1 = Math.floor(tileY(latS, SAT_Z));
     const tw = tx1 - tx0 + 1, th = ty1 - ty0 + 1;
-    const rr = Math.max(1, Math.round(217 / gr)); // roughness window ~650 m whatever the grid
-    for (let y = 0; y < gp; y++) for (let x = 0; x < gp; x++) {
-      const i = y * gp + x;
-      const wx = x * gr - half, wz = y * gr - half;
-      pos[i * 3] = wx; pos[i * 3 + 1] = gh[i] * EX; pos[i * 3 + 2] = wz;
-      const hl = gh[y * gp + Math.max(0, x - 1)], hr = gh[y * gp + Math.min(gp - 1, x + 1)];
-      const hu = gh[Math.max(0, y - 1) * gp + x], hd = gh[Math.min(gp - 1, y + 1) * gp + x];
-      const nx = -(hr - hl) * EX / (2 * gr), nz = -(hd - hu) * EX / (2 * gr);
-      const l = Math.hypot(nx, 1, nz);
-      nor[i * 3] = nx / l; nor[i * 3 + 1] = 1 / l; nor[i * 3 + 2] = nz / l;
-      sl[i] = gslope[i];
-      let lo = Infinity, hi = -Infinity;
-      for (let dy = -rr; dy <= rr; dy++) for (let dx = -rr; dx <= rr; dx++) {
-        const v = gh[Math.min(gp - 1, Math.max(0, y + dy)) * gp + Math.min(gp - 1, Math.max(0, x + dx))];
-        if (v < lo) lo = v; if (v > hi) hi = v;
+    interface Arrays { pos: Float32Array; nor: Float32Array; sl: Float32Array; ro: Float32Array; uv: Float32Array; cov: Float32Array; wat: Float32Array; sh: Float32Array; idx: Uint16Array }
+    /** Vertex arrays for a regular height grid whose first sample sits at world (x0, z0). */
+    const buildArrays = (g: TGrid): Arrays => {
+      const { h: gh, n: gp, res: gr, x0, z0 } = g;
+      const gslope = slopeField(gh, gp, gr);
+      const n = gp * gp;
+      const a: Arrays = {
+        pos: new Float32Array(n * 3), nor: new Float32Array(n * 3), sl: new Float32Array(n), ro: new Float32Array(n),
+        uv: new Float32Array(n * 2), cov: new Float32Array(n * 3).fill(0.55), wat: new Float32Array(n), sh: new Float32Array(n).fill(1),
+        idx: new Uint16Array((gp - 1) * (gp - 1) * 6),
+      };
+      const rr = Math.max(1, Math.round(217 / gr)); // roughness window ~650 m whatever the grid
+      for (let y = 0; y < gp; y++) for (let x = 0; x < gp; x++) {
+        const i = y * gp + x;
+        const wx = x0 + x * gr, wz = z0 + y * gr;
+        a.pos[i * 3] = wx; a.pos[i * 3 + 1] = gh[i] * EX; a.pos[i * 3 + 2] = wz;
+        const hl = gh[y * gp + Math.max(0, x - 1)], hr = gh[y * gp + Math.min(gp - 1, x + 1)];
+        const hu = gh[Math.max(0, y - 1) * gp + x], hd = gh[Math.min(gp - 1, y + 1) * gp + x];
+        const nx = -(hr - hl) * EX / (2 * gr), nz = -(hd - hu) * EX / (2 * gr);
+        const l = Math.hypot(nx, 1, nz);
+        a.nor[i * 3] = nx / l; a.nor[i * 3 + 1] = 1 / l; a.nor[i * 3 + 2] = nz / l;
+        a.sl[i] = gslope[i];
+        let lo = Infinity, hi = -Infinity;
+        for (let dy = -rr; dy <= rr; dy += rr) for (let dx = -rr; dx <= rr; dx += rr) {
+          const v = gh[Math.min(gp - 1, Math.max(0, y + dy)) * gp + Math.min(gp - 1, Math.max(0, x + dx))];
+          if (v < lo) lo = v; if (v > hi) hi = v;
+        }
+        a.ro[i] = hi - lo;
+        if (layers) {
+          const bx = Math.min(px - 1, Math.max(0, Math.round((wx + half) / resM)));
+          const by = Math.min(px - 1, Math.max(0, Math.round((wz + half) / resM)));
+          const bi = by * px + bx;
+          const cc = COVER_RGB[layers.cover[bi]] ?? [0.55, 0.55, 0.55];
+          a.cov[i * 3] = cc[0]; a.cov[i * 3 + 1] = cc[1]; a.cov[i * 3 + 2] = cc[2];
+          a.wat[i] = layers.water[bi];
+        }
+        const [la, lo2] = toLatLon(cell, wx, -wz);
+        a.uv[i * 2] = (tileX(lo2, SAT_Z) - tx0) / tw;
+        a.uv[i * 2 + 1] = (tileY(la, SAT_Z) - ty0) / th;
       }
-      ro[i] = hi - lo;
-      if (layers) {
-        const bi = Math.round((y * (px - 1)) / (gp - 1)) * px + Math.round((x * (px - 1)) / (gp - 1));
-        const cc = COVER_RGB[layers.cover[bi]] ?? [0.55, 0.55, 0.55];
-        cov[i * 3] = cc[0]; cov[i * 3 + 1] = cc[1]; cov[i * 3 + 2] = cc[2];
-        wat[i] = layers.water[bi];
+      let k = 0;
+      for (let y = 0; y < gp - 1; y++) for (let x = 0; x < gp - 1; x++) {
+        const q = y * gp + x, b2 = q + 1, c = q + gp, d = c + 1;
+        a.idx[k++] = q; a.idx[k++] = c; a.idx[k++] = b2; a.idx[k++] = b2; a.idx[k++] = c; a.idx[k++] = d;
       }
-      const [la, lo2] = toLatLon(cell, wx, -wz);
-      uv[i * 2] = (tileX(lo2, SAT_Z) - tx0) / tw;
-      uv[i * 2 + 1] = (tileY(la, SAT_Z) - ty0) / th;
-    }
-    const idx = new Uint16Array((gp - 1) * (gp - 1) * 6);
-    let k = 0;
-    for (let y = 0; y < gp - 1; y++) for (let x = 0; x < gp - 1; x++) {
-      const a = y * gp + x, b = a + 1, c = a + gp, d = c + 1;
-      idx[k++] = a; idx[k++] = c; idx[k++] = b; idx[k++] = b; idx[k++] = c; idx[k++] = d;
-    }
+      return a;
+    };
+    /** Real cast shadows: from every vertex, march toward the sun over the terrain; blocked -> in shadow. */
+    const castShadows = (a: Arrays) => {
+      const el = (s.sunEl * Math.PI) / 180, az = (s.sunAz * Math.PI) / 180;
+      const dx = Math.sin(az), dz = -Math.cos(az), rise = Math.tan(el);
+      const nV = a.sh.length;
+      for (let i = 0; i < nV; i++) {
+        const x = a.pos[i * 3], z = a.pos[i * 3 + 2], y0 = a.pos[i * 3 + 1] / EX;
+        let lit = 1;
+        for (let d = 60; d < 9000; d += d < 1200 ? 60 : 180) {
+          const xs = x + dx * d, zs = z + dz * d;
+          if (Math.abs(xs) > half || Math.abs(zs) > half) break;
+          const over = groundAt(xs, zs) - (y0 + rise * d);
+          if (over > 0) { lit = over > 25 ? 0.32 : 1 - (0.68 * over) / 25; break; }
+          if (y0 + rise * d > hmax + 50) break;
+        }
+        a.sh[i] = lit;
+      }
+    };
 
     const prog = gl.createProgram()!;
     try {
@@ -652,36 +711,56 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
     }
     gl.linkProgram(prog);
     gl.useProgram(prog);
-    const tAttrs: { b: WebGLBuffer; loc: number; size: number }[] = [];
-    const attr = (name: string, data: Float32Array, size2: number) => {
-      const b = gl.createBuffer()!;
-      gl.bindBuffer(gl.ARRAY_BUFFER, b);
-      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-      const loc = gl.getAttribLocation(prog, name);
-      if (loc < 0) return;
-      tAttrs.push({ b, loc, size: size2 });
+    interface TMesh { attrs: { b: WebGLBuffer; loc: number; size: number; name: string }[]; ib: WebGLBuffer; count: number; arrays: Arrays }
+    const uploadTerrain = (a: Arrays): TMesh => {
+      const attrs: TMesh['attrs'] = [];
+      const add = (name: string, data: Float32Array, size2: number) => {
+        const b = gl.createBuffer()!;
+        gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+        const loc = gl.getAttribLocation(prog, name);
+        if (loc >= 0) attrs.push({ b, loc, size: size2, name });
+      };
+      add('aPos', a.pos, 3); add('aNormal', a.nor, 3); add('aSlope', a.sl, 1); add('aRough', a.ro, 1); add('aUv', a.uv, 2);
+      add('aCover', a.cov, 3); add('aWater', a.wat, 1); add('aShadow', a.sh, 1);
+      const ib2 = gl.createBuffer()!;
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib2);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, a.idx, gl.STATIC_DRAW);
+      return { attrs, ib: ib2, count: a.idx.length, arrays: a };
     };
-    attr('aPos', pos, 3); attr('aNormal', nor, 3); attr('aSlope', sl, 1); attr('aRough', ro, 1); attr('aUv', uv, 2); attr('aCover', cov, 3); attr('aWater', wat, 1);
-    const ib = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idx, gl.STATIC_DRAW);
+    const updateShadowBuf = (m: TMesh) => {
+      const at = m.attrs.find((x) => x.name === 'aShadow');
+      if (!at) return;
+      gl.bindBuffer(gl.ARRAY_BUFFER, at.b);
+      gl.bufferData(gl.ARRAY_BUFFER, m.arrays.sh, gl.STATIC_DRAW);
+    };
+    const freeTerrain = (m: TMesh | null) => { if (!m) return; m.attrs.forEach((x) => gl.deleteBuffer(x.b)); gl.deleteBuffer(m.ib); };
     const maxAttr = gl.getParameter(gl.MAX_VERTEX_ATTRIBS) as number;
-    const bindTerrain = () => {
+    const bindMesh = (m: TMesh) => {
       gl.useProgram(prog);
       for (let i = 0; i < maxAttr; i++) gl.disableVertexAttribArray(i);
-      for (const a of tAttrs) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, a.b);
-        gl.enableVertexAttribArray(a.loc);
-        gl.vertexAttribPointer(a.loc, a.size, gl.FLOAT, false, 0, 0);
+      for (const x of m.attrs) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, x.b);
+        gl.enableVertexAttribArray(x.loc);
+        gl.vertexAttribPointer(x.loc, x.size, gl.FLOAT, false, 0, 0);
       }
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.ib);
     };
-    bindTerrain();
+    const baseArrays = buildArrays({ h: G.heights, n: G.px, res: G.resM, x0: -half, z0: -half });
+    castShadows(baseArrays);
+    const baseMesh = uploadTerrain(baseArrays);
+    let hiMesh: TMesh | null = null;
+    bindMesh(baseMesh);
     const U = (nm: string) => gl.getUniformLocation(prog, nm);
+    const uHole = U('uHole'), uHoleOn = U('uHoleOn');
     const uMvp = U('uMvp'), uEye = U('uEye'), uLens = U('uLens'), uHR = U('uHRange'), uSun = U('uSun'),
       uFog = U('uFog'), uFogFar = U('uFogFar'), uScan = U('uScan'), uScanT = U('uScanT');
     gl.uniform2f(uHR, hmin * EX, hmax * EX);
-    gl.uniform3f(uSun, 0.55, 0.75, -0.35);
+    const sunVec = () => {
+      const el = (s.sunEl * Math.PI) / 180, az = (s.sunAz * Math.PI) / 180;
+      return [Math.sin(az) * Math.cos(el), Math.sin(el), -Math.cos(az) * Math.cos(el)];
+    };
+    { const sv = sunVec(); gl.uniform3f(uSun, sv[0], sv[1], sv[2]); }
     gl.uniform1f(uFogFar, size * 1.15);
     gl.uniform1f(U('uHalf'), half);
     gl.uniform1f(U('uEx'), EX);
@@ -790,20 +869,30 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D, det2Tex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([120, 110, 90, 255]));
+    const det3Tex = gl.createTexture()!;
+    gl.activeTexture(gl.TEXTURE3);
+    gl.bindTexture(gl.TEXTURE_2D, det3Tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([120, 110, 90, 255]));
     gl.activeTexture(gl.TEXTURE0);
     gl.uniform1i(U('uTex'), 0);
     gl.uniform1i(U('uDetail'), 1);
     gl.uniform1i(U('uDetail2'), 2);
+    gl.uniform1i(U('uDetail3'), 3);
+    const uDet3 = U('uDet3'), uDet3On = U('uDet3On');
+    gl.uniform1f(uDet3On, 0);
     const uDet = U('uDet'), uDetOn = U('uDetOn'), uDet2 = U('uDet2'), uDet2On = U('uDet2On'), uTexel = U('uTexel'), uSatOk = U('uSatOk');
     gl.uniform1f(uDetOn, 0);
     gl.uniform1f(uDet2On, 0);
     gl.uniform1f(uSatOk, 0);
-    const texel = [1 / 1024, 1 / 1024, 1 / 1024];
+    const texel = [1 / 1024, 1 / 2048, 1 / 1024];
     gl.uniform3f(uTexel, texel[0], texel[1], texel[2]);
     let cancelled = false;
     s.satReady = false;
     s.det = null;
     s.det2 = null;
+    s.det3 = null;
+    s.hiAt = null;
+    hiRef.current = null;
     (async () => {
       try {
         const W = Math.min(maxTex, pot(tw * 256)), H = Math.min(maxTex, pot(th * 256));
@@ -829,37 +918,91 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
     })();
     /** Sharper imagery in a 4 x 4 tile patch around the drone, reloaded as it flies on: zoom 15 (~4 m) and,
      *  when the drone is low, zoom 17 (~1 m, where Esri has it) right underneath. */
-    const loadPatch = async (level: 1 | 2, x: number, z: number) => {
-      const key = level === 1 ? 'det' : 'det2';
+    const loadPatch = async (level: 1 | 2 | 3, x: number, z: number) => {
+      const key = level === 1 ? 'det' : level === 2 ? 'det2' : 'det3';
       const cur = s[key];
       if (!s.satReady || cur?.loading) return;
       s[key] = { cx: x, cz: z, loading: true };
-      const Z = level === 1 ? DET_Z : DET2_Z;
+      const Z = level === 1 ? DET_Z : level === 2 ? DET2_Z : 16;
+      const N = level === 1 ? 8 : 4; // tiles per side: 8 x 8 at zoom 15 (~9 km), 4 x 4 at 16 and 17
       try {
         const [la, lo] = toLatLon(cell, x, -z);
         const fx = tileX(lo, Z), fy = tileY(la, Z);
-        const x0 = Math.round(fx) - 2, y0 = Math.round(fy) - 2;
+        const x0 = Math.round(fx) - N / 2, y0 = Math.round(fy) - N / 2;
         const c = document.createElement('canvas');
-        c.width = c.height = 1024;
+        c.width = c.height = N * 256;
         const g = c.getContext('2d')!;
-        await Promise.all(Array.from({ length: 16 }, (_, i) => loadTile(TILE_URL(Z, y0 + Math.floor(i / 4), x0 + (i % 4)))
-          .then((img) => g.drawImage(img, (i % 4) * 256, Math.floor(i / 4) * 256))));
+        await Promise.all(Array.from({ length: N * N }, (_, i) => loadTile(TILE_URL(Z, y0 + Math.floor(i / N), x0 + (i % N)))
+          .then((img) => g.drawImage(img, (i % N) * 256, Math.floor(i / N) * 256)).catch(() => undefined)));
         if (cancelled) return;
         // tile corners -> world metres (x east, z south) through the same small-area mapping as the mesh
-        const lon0 = (x0 / 2 ** Z) * 360 - 180, lon1 = ((x0 + 4) / 2 ** Z) * 360 - 180;
+        const lon0 = (x0 / 2 ** Z) * 360 - 180, lon1 = ((x0 + N) / 2 ** Z) * 360 - 180;
         const latAt = (ty: number) => (Math.atan(Math.sinh(Math.PI * (1 - (2 * ty) / 2 ** Z))) * 180) / Math.PI;
-        const lat0 = latAt(y0), lat1 = latAt(y0 + 4);
+        const lat0 = latAt(y0), lat1 = latAt(y0 + N);
         const kx = 111_320 * Math.cos((cell.lat * Math.PI) / 180);
         const wx0 = (lon0 - cell.lon) * kx, wx1 = (lon1 - cell.lon) * kx;
         const wz0 = -(lat0 - cell.lat) * 111_320, wz1 = -(lat1 - cell.lat) * 111_320;
-        gl.activeTexture(level === 1 ? gl.TEXTURE1 : gl.TEXTURE2);
-        upload(level === 1 ? detTex : det2Tex, c);
+        gl.useProgram(prog);
+        gl.activeTexture(level === 1 ? gl.TEXTURE1 : level === 2 ? gl.TEXTURE2 : gl.TEXTURE3);
+        upload(level === 1 ? detTex : level === 2 ? det2Tex : det3Tex, c);
         gl.activeTexture(gl.TEXTURE0);
-        gl.uniform4f(level === 1 ? uDet : uDet2, wx0, wz0, wx1 - wx0, wz1 - wz0);
-        gl.uniform1f(level === 1 ? uDetOn : uDet2On, 1);
+        gl.uniform4f(level === 1 ? uDet : level === 2 ? uDet2 : uDet3, wx0, wz0, wx1 - wx0, wz1 - wz0);
+        gl.uniform1f(level === 1 ? uDetOn : level === 2 ? uDet2On : uDet3On, 1);
         s[key] = { cx: x, cz: z, loading: false };
       } catch {
         s[key] = { cx: x, cz: z, loading: false }; // keep what we have; try again after moving on
+      }
+    };
+    /** Sharper terrain around the drone: open terrain tiles (Terrarium PNG on AWS, built from NASA SRTM and other
+     *  open DEMs), resampled to a 256 x 256 grid (~35 m) over ~9 km; its outer 10 % blends into the cell mesh. */
+    const loadHi = async (x: number, z: number) => {
+      if (s.hiLoading) return;
+      s.hiLoading = true;
+      try {
+        const [la, lo] = toLatLon(cell, x, -z);
+        const X0 = Math.round(tileX(lo, DEM_Z)) - 1, Y0 = Math.round(tileY(la, DEM_Z)) - 1;
+        const c = document.createElement('canvas');
+        c.width = c.height = 512;
+        const g = c.getContext('2d', { willReadFrequently: true })!;
+        await Promise.all([0, 1, 2, 3].map((i) => loadTile(DEM_URL(DEM_Z, X0 + (i % 2), Y0 + Math.floor(i / 2)))
+          .then((img) => g.drawImage(img, (i % 2) * 256, Math.floor(i / 2) * 256))));
+        if (cancelled) return;
+        const d = g.getImageData(0, 0, 512, 512).data; // throws if the tiles came without CORS
+        const dem = (gx: number, gy: number) => {
+          const cx = Math.min(511, Math.max(0, gx)), cy = Math.min(511, Math.max(0, gy));
+          const i = (Math.floor(cy) * 512 + Math.floor(cx)) * 4;
+          return d[i] * 256 + d[i + 1] + d[i + 2] / 256 - 32768;
+        };
+        const kx = 111_320 * Math.cos((cell.lat * Math.PI) / 180);
+        const lon0 = (X0 / 2 ** DEM_Z) * 360 - 180, lon1 = ((X0 + 2) / 2 ** DEM_Z) * 360 - 180;
+        const side = Math.min((lon1 - lon0) * kx, 9000);
+        const res = side / (HI_N - 1);
+        const ox = x - side / 2, oz = z - side / 2;
+        const h = new Float32Array(HI_N * HI_N);
+        const edge = HI_N * 0.1;
+        for (let j = 0; j < HI_N; j++) for (let i = 0; i < HI_N; i++) {
+          const wx = ox + i * res, wz = oz + j * res;
+          const base = groundBase(wx, wz);
+          const [pla, plo] = toLatLon(cell, wx, -wz);
+          const gx = (tileX(plo, DEM_Z) - X0) * 256, gy = (tileY(pla, DEM_Z) - Y0) * 256;
+          const x0 = Math.floor(gx), y0 = Math.floor(gy), fx = gx - x0, fy = gy - y0;
+          let v = (dem(x0, y0) * (1 - fx) + dem(x0 + 1, y0) * fx) * (1 - fy) + (dem(x0, y0 + 1) * (1 - fx) + dem(x0 + 1, y0 + 1) * fx) * fy;
+          if (!Number.isFinite(v) || v < -500 || Math.abs(wx) > half || Math.abs(wz) > half) v = base;
+          const t = Math.min(1, Math.min(i, j, HI_N - 1 - i, HI_N - 1 - j) / edge);
+          h[j * HI_N + i] = base + (v - base) * t * t * (3 - 2 * t);
+        }
+        const grid: TGrid = { h, n: HI_N, res, x0: ox, z0: oz };
+        hiRef.current = grid;
+        const arrays = buildArrays(grid);
+        castShadows(arrays);
+        freeTerrain(hiMesh);
+        hiMesh = uploadTerrain(arrays);
+        s.hiAt = [x, z];
+        bldAt = null; // re-seat the buildings on the sharper ground
+      } catch {
+        s.hiAt = [x, z]; // tiles unreachable here: keep the cell terrain, try again after moving on
+      } finally {
+        s.hiLoading = false;
       }
     };
 
@@ -1158,9 +1301,20 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
       const wantsSat = (s.lens === 'satellite' || s.lens === 'hazard') && s.satReady;
       if (wantsSat && camAlt - ground < 2500 && (!s.det || Math.hypot(s.x - s.det.cx, s.z - s.det.cz) > 1300)) void loadPatch(1, s.x, s.z);
       if (wantsSat && camAlt - ground < 700 && (!s.det2 || Math.hypot(s.x - s.det2.cx, s.z - s.det2.cz) > 300)) void loadPatch(2, s.x, s.z);
+      if (wantsSat && camAlt - ground < 1500 && (!s.det3 || Math.hypot(s.x - s.det3.cx, s.z - s.det3.cz) > 600)) void loadPatch(3, s.x, s.z);
+      if (camAlt - ground < 4000 && (!s.hiAt || Math.hypot(s.x - s.hiAt[0], s.z - s.hiAt[1]) > 2500)) void loadHi(s.x, s.z);
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-      bindTerrain();
+      bindMesh(baseMesh);
+      if (s.sunDirty && now - s.sunDirty > 200) {
+        // the sun moved: recompute the cast shadows (cell and patch) and the light direction
+        s.sunDirty = 0;
+        castShadows(baseMesh.arrays); updateShadowBuf(baseMesh);
+        if (hiMesh) { castShadows(hiMesh.arrays); updateShadowBuf(hiMesh); }
+        const sv = sunVec();
+        gl.uniform3f(uSun, sv[0], sv[1], sv[2]);
+        bindMesh(baseMesh);
+      }
       const mvp = mul(proj, view);
       gl.uniformMatrix4fv(uMvp, false, mvp);
       gl.uniform3f(uEye, eye[0], eye[1], eye[2]);
@@ -1172,14 +1326,28 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
         gl.uniform1f(uScanT, tt <= 1 ? tt : -1);
         if (tt > 1) s.scan = null;
       } else gl.uniform1f(uScanT, -1);
-      gl.drawElements(gl.TRIANGLES, idx.length, gl.UNSIGNED_SHORT, 0);
+      const hp = hiRef.current;
+      if (hiMesh && hp) {
+        const m2 = hp.res * HI_N * 0.1; // the outer 10 % of the patch blends into the cell mesh
+        gl.uniform4f(uHole, hp.x0 + m2, hp.z0 + m2, hp.x0 + hp.res * (hp.n - 1) - m2, hp.z0 + hp.res * (hp.n - 1) - m2);
+        gl.uniform1f(uHoleOn, 1);
+      } else gl.uniform1f(uHoleOn, 0);
+      gl.enable(gl.POLYGON_OFFSET_FILL);
+      gl.polygonOffset(1, 4); // the patch wins where both meshes overlap
+      gl.drawElements(gl.TRIANGLES, baseMesh.count, gl.UNSIGNED_SHORT, 0);
+      gl.disable(gl.POLYGON_OFFSET_FILL);
+      if (hiMesh && hp) {
+        gl.uniform1f(uHoleOn, 0);
+        bindMesh(hiMesh);
+        gl.drawElements(gl.TRIANGLES, hiMesh.count, gl.UNSIGNED_SHORT, 0);
+      }
 
       // buildings near the drone, and the drone itself in chase view
       if (bOk) {
         gl.useProgram(bprog);
         gl.uniformMatrix4fv(BU('uMvp'), false, mvp);
         gl.uniform3f(BU('uEye'), eye[0], eye[1], eye[2]);
-        gl.uniform3f(BU('uSun'), 0.55, 0.75, -0.35);
+        { const sv = sunVec(); gl.uniform3f(BU('uSun'), sv[0], sv[1], sv[2]); }
         gl.uniform3f(BU('uFog'), fog[0], fog[1], fog[2]);
         gl.uniform1f(BU('uFogFar'), size * 1.15);
         gl.uniform1i(BU('uTex'), 0);
@@ -1308,6 +1476,9 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
       canvas.removeEventListener('dblclick', dbl);
       mini.removeEventListener('dblclick', miniDbl);
       freeMesh(bldMesh);
+      freeTerrain(hiMesh);
+      freeTerrain(baseMesh);
+      hiRef.current = null;
       canvas.removeEventListener('pointerdown', pd);
       canvas.removeEventListener('pointermove', pm);
       canvas.removeEventListener('pointerup', pu);
