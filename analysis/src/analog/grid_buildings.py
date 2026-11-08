@@ -2,8 +2,9 @@
 
     python -m analog.grid_buildings   # -> web/public/grid/bld_NN.bin + data/processed/grid/buildings.json
 
-Source: Microsoft Global ML Building Footprints (https://github.com/microsoft/GlobalMLBuildingFootprints,
-ODbL 1.0), polygons detected by machine learning in Bing Maps imagery, some with an estimated height.
+Source: Overture Maps Foundation buildings theme (ODbL 1.0), which merges OpenStreetMap, Microsoft Global ML
+Building Footprints, Google Open Buildings and Esri Community Maps; heights come from OpenStreetMap (height or
+building:levels x 3 m) where mappers recorded them. Falls back to Microsoft's own files if Overture is unreachable.
 
 Each footprint is reduced to its oriented bounding rectangle (centre, length, width, angle) in the cell's
 local metres (x east, z south from the cell centre), so the drone can draw it as a simple 3D block where it
@@ -63,21 +64,42 @@ def oriented_box(ring: list[list[float]], lat0: float, lon0: float) -> tuple[flo
     return cx, cz, length, width, ang
 
 
-def main() -> None:
-    grid = json.loads(OUT_FILE.read_text(encoding="utf-8"))
-    cells = [c for c in grid["cells"] if c.get("heightmap")]
-    h = CELL_DEG / 2
+def overture_features(bbox: tuple[float, float, float, float]):
+    """(ring, height m or -1, source dataset) for every Overture building whose bbox lies in `bbox`."""
+    import subprocess
+
+    import duckdb
+
+    out = subprocess.run(["aws", "s3", "ls", "--no-sign-request", "s3://overturemaps-us-west-2/release/"],
+                         capture_output=True, text=True, check=True).stdout
+    release = sorted(l.split()[-1].strip("/") for l in out.splitlines() if l.strip().startswith("PRE"))[-1]
+    print("Overture release", release)
+    con = duckdb.connect()
+    for q in ("INSTALL spatial", "LOAD spatial", "INSTALL httpfs", "LOAD httpfs", "SET s3_region='us-west-2'"):
+        con.execute(q)
+    x0, y0, x1, y1 = bbox
+    rows = con.execute(f"""
+        SELECT ST_AsGeoJSON(geometry), height, num_floors, sources[1].dataset
+        FROM read_parquet('s3://overturemaps-us-west-2/release/{release}/theme=buildings/type=building/*', hive_partitioning=1)
+        WHERE bbox.xmin > {x0} AND bbox.xmax < {x1} AND bbox.ymin > {y0} AND bbox.ymax < {y1}
+    """).fetchall()
+    print(len(rows), "Overture buildings in the bbox")
+    for gj, height, floors, src in rows:
+        g = json.loads(gj)
+        ring = g["coordinates"][0] if g["type"] == "Polygon" else g["coordinates"][0][0]
+        hgt = float(height) if height else float(floors) * 3.0 if floors else -1.0
+        yield ring, hgt, src or "?"
+    global SOURCE
+    SOURCE = f"Overture Maps Foundation buildings, release {release} (ODbL 1.0): OpenStreetMap, Microsoft, Google, Esri"
+
+
+SOURCE = "Microsoft Global ML Building Footprints (ODbL 1.0), " + LINKS
+
+
+def microsoft_features():
     rows = list(csv.DictReader(io.StringIO(get(LINKS).decode("utf-8"))))
-    print("columns:", list(rows[0].keys()) if rows else None)
-    locs = sorted({r.get("Location", "") for r in rows})
-    print(len(locs), "locations; Gulf-like:", [l for l in locs if any(k in l.lower() for k in ("oman", "arab", "emirat", "yemen", "saudi", "qatar", "bahrain", "kuwait"))])
     urls = [r["Url"] for r in rows if r.get("Location", "").strip().lower() in ("sultanateofoman", "oman")]
-    print(len(urls), "Oman files")
-    # index cells by (floor(lat/CELL), floor(lon/CELL)) for a fast lookup
-    key = lambda la, lo: (math.floor(la / CELL_DEG), math.floor(lo / CELL_DEG))  # noqa: E731
-    by_key = {key(c["lat"], c["lon"]): c for c in cells}
-    per_cell: dict[str, list[tuple]] = defaultdict(list)
-    total = with_h = 0
+    print(len(urls), "Microsoft files for Oman")
     for u in urls:
         for line in gzip.decompress(get(u)).decode("utf-8").splitlines():
             if not line.strip():
@@ -85,16 +107,38 @@ def main() -> None:
             f = json.loads(line)
             geom = f["geometry"]
             ring = geom["coordinates"][0] if geom["type"] == "Polygon" else geom["coordinates"][0][0]
-            lo = sum(p[0] for p in ring) / len(ring)
-            la = sum(p[1] for p in ring) / len(ring)
-            c = by_key.get(key(la, lo))
-            if c is None or abs(la - c["lat"]) > h or abs(lo - c["lon"]) > h:
-                continue
-            cx, cz, length, width, ang = oriented_box(ring, c["lat"], c["lon"])
-            hgt = float((f.get("properties") or {}).get("height") or -1)
-            total += 1
-            with_h += hgt > 0
-            per_cell[c["id"]].append((cx, cz, length, width, ang, hgt))
+            yield ring, float((f.get("properties") or {}).get("height") or -1), "Microsoft"
+
+
+def main() -> None:
+    grid = json.loads(OUT_FILE.read_text(encoding="utf-8"))
+    cells = [c for c in grid["cells"] if c.get("heightmap")]
+    h = CELL_DEG / 2
+    key = lambda la, lo: (math.floor(la / CELL_DEG), math.floor(lo / CELL_DEG))  # noqa: E731
+    by_key = {key(c["lat"], c["lon"]): c for c in cells}
+    per_cell: dict[str, list[tuple]] = defaultdict(list)
+    total = with_h = 0
+    sources: dict[str, int] = defaultdict(int)
+    lats = [c["lat"] for c in cells]
+    lons = [c["lon"] for c in cells]
+    bbox = (min(lons) - h, min(lats) - h, max(lons) + h, max(lats) + h)
+    try:
+        feats = list(overture_features(bbox))
+    except Exception as e:  # noqa: BLE001
+        print("Overture unavailable, using Microsoft:", str(e)[:300])
+        feats = list(microsoft_features())
+    for ring, hgt, src in feats:
+        lo = sum(p[0] for p in ring) / len(ring)
+        la = sum(p[1] for p in ring) / len(ring)
+        c = by_key.get(key(la, lo))
+        if c is None or abs(la - c["lat"]) > h or abs(lo - c["lon"]) > h or len(ring) < 4:
+            continue
+        cx, cz, length, width, ang = oriented_box(ring, c["lat"], c["lon"])
+        total += 1
+        with_h += hgt > 0
+        sources[src] += 1
+        per_cell[c["id"]].append((cx, cz, length, width, ang, hgt))
+    print(dict(sources))
     print(total, "buildings in the grid,", with_h, "with a height estimate")
     index: dict[str, Any] = {}
     per = ATLAS_SIDE * ATLAS_SIDE
@@ -111,7 +155,7 @@ def main() -> None:
             if items:
                 index[c["id"]] = {"file": name, "offset": off, "count": len(items)}
         (OUT_DIR / name).write_bytes(buf.getvalue())
-    meta = {"source": "Microsoft Global ML Building Footprints (ODbL 1.0), " + LINKS, "total": total, "with_height": with_h,
+    meta = {"source": SOURCE, "by_dataset": dict(sources), "total": total, "with_height": with_h,
             "layout": "<hhHHBB: x m, z m, length dm, width dm, angle deg, height 0.5 m (0 = unknown)", "cells": index}
     text = json.dumps(meta, separators=(",", ":")) + "\n"
     BLD_FILE.write_text(text, encoding="utf-8")
