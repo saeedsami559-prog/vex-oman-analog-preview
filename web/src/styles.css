@@ -1421,3 +1421,36 @@ ul.plain { padding-inline-start: 18px; margin: 0; }
 .scout-screen { height: 580px; min-height: 0; position: sticky; top: 76px; }
 @media (max-width: 980px) { .scout-screen { height: 460px; position: relative; top: 0; } }
 .log-photos img, .photo-strip img { aspect-ratio: 16 / 10; object-fit: cover; }
+/* cockpit layout v2: full-width screen, control bar, two panels below (no empty space) */
+.scout-cockpit { display: flex; flex-direction: column; gap: 12px; align-items: stretch; }
+.scout-screen { height: min(68vh, 640px); position: relative; top: 0; }
+.cockpit-bar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.cockpit-bar .lens-row, .cockpit-bar .action-row { flex-wrap: wrap; }
+.cockpit-bar .action-row .btn { flex: 0 0 auto; padding-inline: 14px; }
+.cockpit-bar .action-row + .action-row { padding-inline-start: 14px; border-inline-start: 1px solid var(--border); }
+.cockpit-notes:empty { display: none; }
+.cockpit-notes p { margin: 0 0 4px; }
+.cockpit-panels { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 16px; align-items: start; }
+.cockpit-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.decision.empty { border-style: dashed; }
+.decision.empty .verdict { margin-bottom: 4px; }
+.photo-strip.empty { padding: 12px 14px; border: 1px dashed var(--border); border-radius: 10px; }
+.photo-strip.empty p { margin: 0; }
+@media (max-width: 980px) {
+  .cockpit-panels { grid-template-columns: 1fr; }
+  .cockpit-bar .action-row + .action-row { padding-inline-start: 0; border-inline-start: 0; }
+  .scout-screen { height: 62vh; min-height: 380px; }
+}
+/* phones: smaller mini-map, HUD clear of it, sticks above the bottom HUD */
+@media (max-width: 600px) {
+  .drone-mini { width: 92px; height: 92px; right: 8px; top: 44px; }
+  .hud-top { right: 0; border-bottom-right-radius: 0 !important; }
+  .scout-screen .hud { font-size: 0.68rem; gap: 2px 8px; padding: 5px 8px; }
+  .joystick { width: 88px; height: 88px; }
+  .joystick i { width: 34px; height: 34px; margin: -17px 0 0 -17px; }
+  .takeoff-btn { top: 34%; }
+  .df-step { top: 40px; font-size: 0.74rem; max-width: 90%; white-space: normal; text-align: center; }
+  .cockpit-bar .btn { font-size: 0.8rem; }
+}
+@media (pointer: coarse) and (max-width: 600px) { .drone-joys { bottom: 64px; padding: 0 8px; } }
+.page.scout, .page.log { overflow-x: clip; }

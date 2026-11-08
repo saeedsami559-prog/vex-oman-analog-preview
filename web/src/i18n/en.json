@@ -851,7 +851,7 @@
     "cls_warn": "caution",
     "cls_fail": "hazard",
     "cls_null": "",
-    "scan": "Scan 2 km around the drone",
+    "scan": "Scan 2 km",
     "autoOn": "Autopilot: on",
     "autoOff": "Autopilot survey",
     "mark": "Mark spot",
@@ -989,7 +989,10 @@
       "altFar": "The closest place where both opinions say yes is {km} km away (AI {p}%, every rule passes)."
     },
     "valMars": "Why Mars is harder: the places experts chose for Mars are very different from each other (lava caves, an acidic river, cold and hot deserts), so 'looking like them' is a weaker signal for Mars than for the Moon, where the chosen places are mostly dry volcanic and impact fields. That is why VEX Scout shows the AI next to the rules and never alone.",
-    "viewFail": "The 3D view could not start in this browser. The map, the decision and the AI opinion still work; try reloading the page."
+    "viewFail": "The 3D view could not start in this browser. The map, the decision and the AI opinion still work; try reloading the page.",
+    "decisionTitle": "Decision",
+    "decisionHint": "Take off, fly over the ground you want to check and press \"Scan 2 km around the drone\": the rules return GO / CONDITIONAL / NO-GO here, next to the AI opinion.",
+    "photoHint": "No photos yet: press \"Take photo\" (or P) while flying. Photos are saved with their coordinates in the mission log."
   },
   "log": {
     "kicker": "VEX Scout · mission log",

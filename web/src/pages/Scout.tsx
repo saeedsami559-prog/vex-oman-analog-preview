@@ -399,7 +399,7 @@ export default function Scout() {
               )}
             </div>
 
-            <aside className="scout-side">
+            <div className="cockpit-bar">
               <div className="lens-row" role="group" aria-label={t('scout.lens')}>
                 {lenses.map((l) => (
                   <button key={l} type="button" className={`btn small ${lens === l ? 'primary' : 'ghost'} ${l === 'hazard' ? 'hz' : ''}`} onClick={() => setLens(l)} disabled={l === 'satellite' && satFail}>
@@ -407,26 +407,6 @@ export default function Scout() {
                   </button>
                 ))}
               </div>
-              {lens === 'slope' && (
-                <p className="small slope-key">
-                  <i className="k pass" /> &lt; {SAFE_DEG}° · <i className="k warn" /> {SAFE_DEG}–{HAZARD_DEG}° · <i className="k fail" /> &gt; {HAZARD_DEG}°
-                </p>
-              )}
-              {lens === 'hazard' && (
-                <p className="small slope-key hazard-key">
-                  <i className="k safest" /> {t('scout.hz_safest')} · <i className="k pass" /> {t('scout.hz_safe')} · <i className="k warn" /> {t('scout.hz_caution')} · <i className="k fail" /> {t('scout.hz_hazard')}
-                  <br /><span className="muted">{t('scout.hzNote')}</span>
-                </p>
-              )}
-              {satFail && <p className="small muted">{t('scout.satFail')}</p>}
-
-              {tel && (
-                <dl className="readings">
-                  <div><dt>{t('scout.rGround')}</dt><dd>{num(tel.ground)} m</dd></div>
-                  <div><dt>{t('scout.rSlope')}</dt><dd className={`lvl-${cls}`}>{num(tel.slope, 1)}° · {t(`scout.cls_${cls}`)}</dd></div>
-                </dl>
-              )}
-
               <div className="action-row">
                 {landed ? (
                   <button type="button" className="btn primary" onClick={() => { drone.current?.takeOff(); focusView(); }} disabled={!hm}>{t('scout.takeOff')}</button>
@@ -443,9 +423,32 @@ export default function Scout() {
                 <button type="button" className="btn ghost" onClick={doMark} disabled={!hm}>{t('scout.mark')}{marks ? ` (${num(marks)})` : ''}</button>
                 <button type="button" className="btn ghost" onClick={doExport} disabled={!hm}>{t('scout.export')}</button>
               </div>
+            </div>
+            <div className="cockpit-notes">
+              {lens === 'slope' && (
+                <p className="small slope-key">
+                  <i className="k pass" /> &lt; {SAFE_DEG}° · <i className="k warn" /> {SAFE_DEG}–{HAZARD_DEG}° · <i className="k fail" /> &gt; {HAZARD_DEG}°
+                </p>
+              )}
+              {lens === 'hazard' && (
+                <p className="small slope-key hazard-key">
+                  <i className="k safest" /> {t('scout.hz_safest')} · <i className="k pass" /> {t('scout.hz_safe')} · <i className="k warn" /> {t('scout.hz_caution')} · <i className="k fail" /> {t('scout.hz_hazard')}
+                  <br /><span className="muted">{t('scout.hzNote')}</span>
+                </p>
+              )}
+              {satFail && <p className="small muted">{t('scout.satFail')}</p>}
               {auto === 'dragonfly' && <p className="small note">{t('scout.dfExplain')}</p>}
+            </div>
 
-              {scan && (
+            <div className="cockpit-panels">
+              <div className="cockpit-col">
+                {tel && (
+                <dl className="readings">
+                  <div><dt>{t('scout.rGround')}</dt><dd>{num(tel.ground)} m</dd></div>
+                  <div><dt>{t('scout.rSlope')}</dt><dd className={`lvl-${cls}`}>{num(tel.slope, 1)}° · {t(`scout.cls_${cls}`)}</dd></div>
+                </dl>
+              )}
+                {scan && (
                 <div className={`decision ${scan.decision.verdict}`}>
                   <p className="verdict">{t(`scout.v_${scan.decision.verdict}`)}</p>
                   <ul>
@@ -462,15 +465,8 @@ export default function Scout() {
                   </p>
                 </div>
               )}
-
-              {grid.ai && (
-                <div className="ai-wrap">
-                  <p className="small muted">{scan ? t('scout.ai.afterScan') : t('scout.ai.beforeScan')}</p>
-                  <AiExplain grid={grid} cell={sel} body={body} ranks={ranks} total={ranked.length} verdict={scan?.decision.verdict ?? null} onGo={pick} />
-                </div>
-              )}
-
-              {photos.length > 0 && (
+                {!scan && <div className="decision empty"><p className="verdict">{t('scout.decisionTitle')}</p><p className="small muted">{t('scout.decisionHint')}</p></div>}
+                {photos.length > 0 && (
                 <div className="photo-strip">
                   <p className="small"><strong>{t('scout.photos', { n: num(photos.length), max: num(MAX_PHOTOS) })}</strong></p>
                   <div>
@@ -480,15 +476,24 @@ export default function Scout() {
                   </div>
                 </div>
               )}
-              {saved && <p className="small muted">{t('scout.savedToLog')} <Link to="/log">{t('scout.openLog')}</Link></p>}
-
-              <details className="controls-help">
+                {photos.length === 0 && <div className="photo-strip empty"><p className="small muted">{t('scout.photoHint')}</p></div>}
+                {saved && <p className="small muted">{t('scout.savedToLog')} <Link to="/log">{t('scout.openLog')}</Link></p>}
+                <details className="controls-help">
                 <summary>{t('scout.howTo')}</summary>
                 <p className="small">{t('scout.keys')}</p>
                 <p className="small">{t('scout.touch')}</p>
                 <p className="small">{t('scout.realism')}</p>
               </details>
-            </aside>
+              </div>
+              <div className="cockpit-col">
+                {grid.ai && (
+                <div className="ai-wrap">
+                  <p className="small muted">{scan ? t('scout.ai.afterScan') : t('scout.ai.beforeScan')}</p>
+                  <AiExplain grid={grid} cell={sel} body={body} ranks={ranks} total={ranked.length} verdict={scan?.decision.verdict ?? null} onGo={pick} />
+                </div>
+              )}
+              </div>
+            </div>
           </div>
         </section>
       )}
