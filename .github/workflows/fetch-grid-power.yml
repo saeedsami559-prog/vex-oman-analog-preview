@@ -1,0 +1,24 @@
+name: Fetch NASA POWER for grid cells
+on:
+  push:
+    branches: [gridpower]
+permissions:
+  contents: write
+jobs:
+  power:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python tools/fetch_grid_power.py
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B gridpower-results
+          git add data/processed/grid/nasa_power
+          git commit -m "NASA POWER raw responses for grid cells"
+          git push -f origin gridpower-results
