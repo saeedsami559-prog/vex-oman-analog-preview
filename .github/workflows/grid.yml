@@ -1,0 +1,27 @@
+name: VEX Scout - screen Oman cell by cell
+on:
+  push:
+    branches: [grid]
+permissions:
+  contents: write
+jobs:
+  grid:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "numpy>=2.1" "pyyaml>=6.0" "rasterio>=1.4" shapely pillow
+      - name: Fetch and score the grid
+        working-directory: analysis
+        run: PYTHONPATH=src python -m analog.grid fetch
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B grid-results
+          git add data/processed/grid web/public/data/oman_grid.json web/public/grid
+          git commit -m "VEX Scout grid results"
+          git push -f origin grid-results
