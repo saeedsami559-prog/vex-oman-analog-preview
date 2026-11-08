@@ -4,7 +4,7 @@ import type { Localized } from '../types';
  * One job per page. The home page directory and the "Continue exploring" links at the end of each page
  * are built from this list, so every page says what only it does and points onward instead of repeating.
  */
-export type PageId = 'explorer' | 'scout' | 'atlas' | 'minerals' | 'methodology' | 'sources' | 'mission' | 'about' | 'present';
+export type PageId = 'explorer' | 'scout' | 'log' | 'atlas' | 'minerals' | 'methodology' | 'sources' | 'mission' | 'about' | 'present';
 
 export interface PageInfo {
   id: PageId;
@@ -15,6 +15,7 @@ export interface PageInfo {
 export const PAGES: PageInfo[] = [
   { id: 'explorer', to: '/explorer', job: { en: 'Compare any Omani site with any Mars or Moon target, change the weights, or start from a target and find its best Omani analog.', ar: 'قارن أي موقع عُماني بأي هدف على المريخ أو القمر، وغيّر الأوزان، أو ابدأ من الهدف وابحث عن أقرب موقع عُماني له.' } },
   { id: 'scout', to: '/scout', job: { en: 'VEX Scout: screen all of Oman for Mars and Moon terrain, then fly a virtual drone over any cell, scan it and get a GO / NO-GO.', ar: 'VEX Scout: مسح عُمان كلها بحثاً عن تضاريس تشبه المريخ والقمر، ثم الطيران بدرون افتراضي فوق أي مربع ومسحه والحصول على قرار جاهز أو غير جاهز.' } },
+  { id: 'log', to: '/log', job: { en: 'The mission log: every drone flight with its route, photos, decision and the AI\'s explanation of why a place suits a Moon or Mars rehearsal (or why not), ready to print.', ar: 'سجل البعثة: كل رحلة درون بمسارها وصورها وقرارها، وشرح الذكاء الاصطناعي لماذا يناسب المكان تدريباً للقمر أو المريخ أو لماذا لا يناسب، جاهز للطباعة.' } },
   { id: 'atlas', to: '/atlas', job: { en: "Oman among the world's analog sites: challenge categories, a new cave candidate, field climate and NASA's Moon base regions.", ar: 'عُمان بين المواقع المماثلة في العالم: فئات التحدي، ومرشّح كهف جديد، ومناخ العمل الميداني، ومناطق قاعدة القمر لدى ناسا.' } },
   { id: 'minerals', to: '/minerals', job: { en: 'What serpentine, carbonate, chloride and olivine are, why they matter on Mars, and how strongly each site shows them.', ar: 'ما السربنتين والكربونات والكلوريد والأوليفين، ولماذا تهم على المريخ، وما قوة ظهورها في كل موقع.' } },
   { id: 'methodology', to: '/methodology', job: { en: 'The formula, the validation, the weight sensitivity test and the limits behind every score.', ar: 'المعادلة والتحقق واختبار حساسية الأوزان والحدود وراء كل درجة.' } },
@@ -27,7 +28,8 @@ export const PAGES: PageInfo[] = [
 /** Where each page sends the reader next. Keys are page ids, plus 'site' for site pages. */
 export const NEXT: Record<PageId | 'site', PageId[]> = {
   explorer: ['scout', 'atlas'],
-  scout: ['mission', 'explorer'],
+  scout: ['log', 'mission'],
+  log: ['scout', 'mission'],
   atlas: ['mission', 'explorer'],
   minerals: ['explorer', 'sources'],
   methodology: ['sources', 'explorer'],

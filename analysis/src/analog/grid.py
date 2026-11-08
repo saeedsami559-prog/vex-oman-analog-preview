@@ -281,8 +281,10 @@ def score(raw: dict[str, Any]) -> dict[str, Any]:
 
 
 def write_scores() -> dict[str, Any]:
+    from .scout_ai import enrich
+
     raw = json.loads(RAW_FILE.read_text(encoding="utf-8"))
-    out = score(raw)
+    out = enrich(score(raw))
     OUT_FILE.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
     WEB_FILE.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(OUT_FILE, WEB_FILE)

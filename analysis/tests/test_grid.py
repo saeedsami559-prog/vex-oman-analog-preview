@@ -28,7 +28,9 @@ def test_cell_ids_are_unique_and_stable():
 
 @pytest.mark.skipif(not grid.RAW_FILE.exists(), reason="grid not fetched yet")
 def test_committed_grid_matches_the_raw_measurements():
-    out = grid.score(json.loads(grid.RAW_FILE.read_text(encoding="utf-8")))
+    from analog.scout_ai import enrich
+
+    out = enrich(grid.score(json.loads(grid.RAW_FILE.read_text(encoding="utf-8"))))
     committed = json.loads(grid.OUT_FILE.read_text(encoding="utf-8"))
     assert committed == json.loads(json.dumps(out))
     assert grid.WEB_FILE.read_text(encoding="utf-8") == grid.OUT_FILE.read_text(encoding="utf-8")

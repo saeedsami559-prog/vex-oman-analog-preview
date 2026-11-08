@@ -18,6 +18,7 @@ const NAV = [
   { to: '/', key: 'home', end: true },
   { to: '/explorer', key: 'explorer' },
   { to: '/scout', key: 'scout' },
+  { to: '/log', key: 'log' },
   { to: '/atlas', key: 'atlas' },
   { to: '/minerals', key: 'minerals' },
   { to: '/methodology', key: 'methodology' },

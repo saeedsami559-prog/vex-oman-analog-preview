@@ -27,6 +27,60 @@ export interface ScoutCell {
   mars_rank?: number;
   moon_rank?: number;
   heightmap: { px: number; res_m: number; size_km: number; atlas: string; col: number; row: number } | null;
+  /** Share (%) of the cell's 217 m heightmap pixels with slope < SAFE_DEG (written by analog.scout_ai). */
+  safe_pct?: number | null;
+  /** NASA POWER climatology at the cell centre (analog.scout_ai). */
+  env?: CellEnv | null;
+  /** The AI second opinion per body (analog.scout_ai). */
+  ai?: Partial<Record<Body, CellAi>>;
+}
+
+export interface CellEnv {
+  rain_mm: number;
+  rh: number;
+  t_range: number;
+  t2m: number;
+  t2m_monthly: number[];
+  wind_ms: number;
+  wind_monthly: number[];
+  coolest: number[];
+  aridity: number;
+  dry_air: number;
+  thermal_swing: number;
+  index: number;
+}
+
+export interface CellAi {
+  /** 0..100: mean similarity to the 3 nearest example sites. */
+  p: number;
+  /** Ids of the 3 nearest example sites, nearest first. */
+  nn: string[];
+  /** Signed z-score difference per feature (cell - neighbours), in AiModel.features order. */
+  z: number[];
+  rank: number;
+}
+
+export interface AiExample {
+  id: string;
+  name: Localized;
+  lat: number;
+  lon: number;
+  x: number[];
+}
+
+export interface AiModel {
+  features: string[];
+  k: number;
+  mean: number[];
+  std: number[];
+  examples: Record<Body, AiExample[]>;
+  validation: Record<Body, {
+    leave_one_out: { id: string; p: number; beats_pct: number }[];
+    omani_sites: { id: string; cell: string; p: number; rank: number }[];
+    cells: number;
+    median_p: number;
+  }>;
+  note: string;
 }
 
 export interface ScoutGrid {
@@ -39,10 +93,12 @@ export interface ScoutGrid {
     landcover_source: string;
     criteria: string;
     heightmap_encoding: string;
+    climate_source?: string;
   };
   targets: { id: string; body: 'mars' | 'moon'; name: Localized }[];
   sites: { id: string; lat: number; lon: number; cell: string | null }[];
   cells: ScoutCell[];
+  ai?: AiModel;
 }
 
 export type Body = 'mars' | 'moon';
