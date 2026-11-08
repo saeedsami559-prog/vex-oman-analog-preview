@@ -15,9 +15,20 @@ export interface SitePhoto {
 }
 
 export const photoUrl = (p: SitePhoto) => `https://images-assets.nasa.gov/image/${p.nasaId}/${p.nasaId}${p.file}`;
+/** Web-sized copy stored with the site (public/photos), so the photo shows even when images-assets.nasa.gov is unreachable. */
+export const photoLocal = (siteId: string) => `${import.meta.env.BASE_URL}photos/${siteId}.jpg`;
 export const photoPage = (p: SitePhoto) => `https://images.nasa.gov/details/${encodeURIComponent(p.nasaId)}`;
 
 export const SITE_PHOTOS: Record<string, SitePhoto> = {
+  sau008_on_mars: {
+    nasaId: 'PIA26520',
+    file: '~medium.jpg',
+    credit: 'NASA/JPL-Caltech',
+    caption: {
+      en: 'On Mars: the SHERLOC calibration target on NASA\'s Perseverance rover, photographed by its WATSON camera. In its top row is a slice of the Martian meteorite Sayh al Uhaymir 008, found in Oman.',
+      ar: 'على المريخ: هدف معايرة جهاز SHERLOC على المسبار Perseverance التابع لناسا، صوّرته كاميرا WATSON. في صفه العلوي شريحة من النيزك المريخي صيح العهيمر 008 الذي عُثر عليه في عُمان.',
+    },
+  },
   dhofar_amadee18: {
     nasaId: 'iss069e003275',
     file: '~medium.jpg',
