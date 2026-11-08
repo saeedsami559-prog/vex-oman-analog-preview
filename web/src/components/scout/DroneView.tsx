@@ -410,7 +410,7 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
   useEffect(() => {
     const canvas = canvasRef.current!;
     const gl = canvas.getContext('webgl', { antialias: true });
-    if (!gl) return;
+    if (!gl || gl.isContextLost()) return;
     const s = st.current;
     // start on the ground, on the safest spot near the south of the cell
     const [sx, sz] = findLz(0, half * 0.55, 3000);
@@ -461,8 +461,12 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
     }
 
     const prog = gl.createProgram()!;
-    gl.attachShader(prog, compile(gl, gl.VERTEX_SHADER, VS));
-    gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, FS));
+    try {
+      gl.attachShader(prog, compile(gl, gl.VERTEX_SHADER, VS));
+      gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, FS));
+    } catch {
+      return; // no WebGL here: leave the screen empty instead of taking the whole page down
+    }
     gl.linkProgram(prog);
     gl.useProgram(prog);
     const attr = (name: string, data: Float32Array, size2: number) => {

@@ -988,7 +988,8 @@
       "altGo": "Fly there",
       "altFar": "The closest place where both opinions say yes is {km} km away (AI {p}%, every rule passes)."
     },
-    "valMars": "Why Mars is harder: the places experts chose for Mars are very different from each other (lava caves, an acidic river, cold and hot deserts), so 'looking like them' is a weaker signal for Mars than for the Moon, where the chosen places are mostly dry volcanic and impact fields. That is why VEX Scout shows the AI next to the rules and never alone."
+    "valMars": "Why Mars is harder: the places experts chose for Mars are very different from each other (lava caves, an acidic river, cold and hot deserts), so 'looking like them' is a weaker signal for Mars than for the Moon, where the chosen places are mostly dry volcanic and impact fields. That is why VEX Scout shows the AI next to the rules and never alone.",
+    "viewFail": "The 3D view could not start in this browser. The map, the decision and the AI opinion still work; try reloading the page."
   },
   "log": {
     "kicker": "VEX Scout · mission log",

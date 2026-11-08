@@ -12,6 +12,7 @@ import { AI_HIGH, AI_LOW } from '../lib/scoutAi';
 import { MAX_PHOTOS, pathKm, saveFlight, type FlightRecord, type Photo } from '../lib/missionLog';
 import DroneView, { type AutoMode, type DroneEvent, type DroneHandle, type Lens, type ScanResult, type Telemetry } from '../components/scout/DroneView';
 import AiExplain from '../components/scout/AiExplain';
+import SafeBox from '../components/common/SafeBox';
 import ContinueExploring from '../components/common/ContinueExploring';
 
 /** Colour for a 0..1 screening score: dark blue (low) -> teal -> amber -> red (high). */
@@ -48,7 +49,7 @@ export default function Scout() {
   const [colorBy, setColorBy] = useState<'rules' | 'ai'>('rules');
   const [marsTarget, setMarsTarget] = useState<string | null>(null); // null = each cell's best Mars target
   const [sel, setSel] = useState<ScoutCell | null>(null);
-  const [hm, setHm] = useState<{ heights: Float32Array; slope: Float32Array; px: number; resM: number } | null>(null);
+  const [hm, setHm] = useState<{ id: string; heights: Float32Array; slope: Float32Array; px: number; resM: number } | null>(null);
   const [hmErr, setHmErr] = useState(false);
   const [lens, setLens] = useState<Lens>('satellite');
   const [satFail, setSatFail] = useState(false);
@@ -125,7 +126,7 @@ export default function Scout() {
     setSaved(false);
     const resM = sel.heightmap.res_m;
     loadHeightmap(sel)
-      .then(({ heights, px }) => alive && setHm({ heights, px, resM, slope: slopeField(heights, px, resM) }))
+      .then(({ heights, px }) => alive && setHm({ id: sel.id, heights, px, resM, slope: slopeField(heights, px, resM) }))
       .catch(() => alive && setHmErr(true));
     return () => {
       alive = false;
@@ -335,8 +336,10 @@ export default function Scout() {
 
           <div className="scout-cockpit">
             <div className="scout-screen">
-              {hm ? (
+              {hm && hm.id === sel.id ? (
+                <SafeBox key={sel.id} fallback={<p className="center-msg">{t('scout.viewFail')}</p>}>
                 <DroneView
+                  key={sel.id}
                   ref={drone}
                   cell={sel}
                   heights={hm.heights}
@@ -350,6 +353,7 @@ export default function Scout() {
                   onEvent={onEvent}
                   onSatelliteFail={() => { setSatFail(true); setLens((l) => (l === 'satellite' ? 'relief' : l)); }}
                 />
+                </SafeBox>
               ) : (
                 <p className="center-msg">{hmErr ? t('scout.noHeight') : t('common.loading')}</p>
               )}
