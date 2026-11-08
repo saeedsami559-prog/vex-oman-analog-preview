@@ -200,6 +200,7 @@ def score(raw: dict[str, Any]) -> dict[str, Any]:
     targets = prepare_sites(load_yaml("target_sites.yaml")["sites"], base)
     config = scoring_config(base, earth + targets)
     feats = features_of(config)
+    scales = config.get("feature_scale") or {}
     common = config["common_terrain_scale_m"]
     mars = [t for t in targets if t["body"] == "mars"]
     moon = [t for t in targets if t["body"] == "moon"]
@@ -213,7 +214,9 @@ def score(raw: dict[str, Any]) -> dict[str, Any]:
     for c in raw["cells"]:
         if "slope_deg" not in c:
             continue
-        cell_raw = {f: c.get(f) for f in feats}
+        # A perfectly flat cell (open water, a salt flat) can measure exactly 0 roughness or relief;
+        # log-scaled features need a positive value, so 0 is read as "below 1 mm" (clamped to the range anyway).
+        cell_raw = {f: (max(c[f], 1e-3) if scales.get(f) == "log10" and c.get(f) is not None else c.get(f)) for f in feats}
         m = {t["id"]: vs(cell_raw, t) for t in mars}
         best = max((k for k in m if m[k] is not None), key=lambda k: m[k], default=None)
         cells.append({
@@ -271,7 +274,8 @@ def main() -> None:
     args = ap.parse_args()
     if args.step == "fetch":
         fetch()
-    write_scores()
+    else:
+        write_scores()
 
 
 if __name__ == "__main__":
