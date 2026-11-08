@@ -1233,3 +1233,16 @@ html[data-theme='light'] .twin-label strong, html[data-theme='light'] .twin-labe
 .vex-logo { flex: none; width: 120px; height: auto; border-radius: 12px; display: block; box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35); }
 @media print { .brand-mark { box-shadow: none; } }
 .slide-logo { width: min(260px, 40vw); height: auto; border-radius: 16px; margin-bottom: 18px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45); }
+
+/* ---- environmental analog index ---- */
+.env-index { margin: 16px 0 8px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); }
+.env-index-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.env-index-head h4 { margin: 0; font-size: 0.95rem; }
+.env-index-head strong { font-size: 1.3rem; color: var(--accent-2); }
+.env-index-row { display: grid; grid-template-columns: 9rem 1fr 3rem; gap: 10px; align-items: center; font-size: 0.86rem; margin: 4px 0; }
+.env-index .bar, .bar.inline { display: inline-block; height: 7px; border-radius: 4px; background: var(--grid); overflow: hidden; vertical-align: middle; }
+.env-index .bar { width: 100%; }
+.bar.inline { width: 70px; }
+.env-index .bar i, .bar.inline i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--accent)); border-radius: 4px; }
+.env-rank tr.is-oman th { color: var(--accent-2); }
+.env-rank .pill { margin-inline-start: 6px; }

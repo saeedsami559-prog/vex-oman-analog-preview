@@ -1,5 +1,5 @@
 import { useI18n } from '../../i18n';
-import { ltr, meanOver, monthNames, monthRange, periodYears, type EnvData, type EnvSite } from '../../lib/environment';
+import { envRanking, ltr, meanOver, monthNames, monthRange, periodYears, type EnvData, type EnvSite } from '../../lib/environment';
 
 interface Props {
   env: EnvData;
@@ -84,6 +84,29 @@ export default function EnvironmentPanel({ env, site, demRange, quotedElevation 
           </div>
         ))}
       </dl>
+
+      {site.derived.env_index && (() => {
+        const ei = site.derived.env_index!;
+        const rank = envRanking(env);
+        const pos = rank.findIndex((r) => r.id === site.id) + 1;
+        return (
+          <div className="env-index">
+            <div className="env-index-head">
+              <h4>{t('env.indexTitle')}</h4>
+              <strong>{num(ei.index * 100)}%</strong>
+              <span className="muted small">{t('env.indexRank', { n: num(pos), of: num(rank.length) })}</span>
+            </div>
+            {(['aridity', 'dry_air', 'thermal_swing'] as const).map((k) => (
+              <div key={k} className="env-index-row">
+                <span>{t(`env.f_${k}`)}</span>
+                <span className="bar"><i style={{ width: `${ei[k] * 100}%` }} /></span>
+                <span className="nowrap">{num(ei[k] * 100)}%</span>
+              </div>
+            ))}
+            <p className="muted small">{t('env.indexNote')}</p>
+          </div>
+        );
+      })()}
 
       <p className="note small">
         {t('env.grid', { cell: num(site.cell_elevation_m) })}{' '}

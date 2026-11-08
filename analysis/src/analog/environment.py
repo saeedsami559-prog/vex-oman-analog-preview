@@ -1,4 +1,4 @@
-"""Field-environment context from NASA POWER (shown on the site, NOT part of the similarity score).
+"""Field environment from NASA POWER, and the environmental analog index (kept apart from the similarity score).
 
     python -m analog.environment
 
@@ -14,9 +14,13 @@ Each raw file is the unmodified JSON answer to:
       ?parameters=T2M,T2M_MAX,T2M_MIN,T2M_RANGE,PRECTOTCORR,ALLSKY_SFC_SW_DWN,RH2M,WS2M
       &community=RE&longitude=<lon>&latitude=<lat>&format=JSON
 
-Only two things are derived here, both from the NASA values and nothing else:
+Derived here, from the NASA values and nothing else:
   - precipitation per year  = PRECTOTCORR ANN (mm/day) x 365
   - the coolest three consecutive months (wrapping Dec -> Jan) by mean T2M
+  - the environmental analog index (see env_index): how far a site's surface climate goes toward the
+    three conditions an Earth site can share with Mars and the Moon - no rain, dry air and a large
+    day-night temperature swing. It is reported next to the similarity index, never merged into it,
+    so terrain/mineral scores stay comparable with earlier runs.
 
 POWER values describe a coarse grid cell (about 0.5 deg x 0.625 deg for MERRA-2 meteorology, 1 deg for
 solar), not the exact point. The cell elevation POWER reports is kept so the website can show the gap.
@@ -42,10 +46,38 @@ API_URL = (
     "?parameters=" + ",".join(PARAMETERS) + "&community=RE&longitude={lon}&latitude={lat}&format=JSON"
 )
 
-# Sites with a NASA POWER file. Scored sites come from config/sites.yaml; the candidate is listed in the
-# Analog Atlas (web/src/lib/atlas.ts) and is not scored.
+# Sites with a NASA POWER file. Scored sites come from config/earth_sites.yaml; the others are the
+# candidate and world analog sites of config/benchmark_sites.yaml, included when their raw file exists.
 SCORED = ["samail_ophiolite", "umm_as_samim", "sharqiya_sands", "dhofar_amadee18", "jebel_shams"]
 CANDIDATES = ["majlis_al_jinn"]
+BENCHMARK_CONFIG = REPO_DIR / "analysis" / "config" / "benchmark_sites.yaml"
+
+# Environmental analog index: each factor runs 0 (Earth-like) to 1 (as far as Earth climate goes toward
+# Mars/Moon conditions). Mars and the Moon have no rain, almost no water vapour and day-night swings of
+# tens to hundreds of degrees; Earth's driest deserts approach the first two and reach ~20 C swings.
+ARID_MM = 250.0   # annual rain at or above this (the semi-arid boundary used in aridity classes) scores 0
+SWING_C = 20.0    # mean daily range at or above this scores 1 (the top of Earth's desert range)
+INDEX_WEIGHTS = {"aridity": 1 / 3, "dry_air": 1 / 3, "thermal_swing": 1 / 3}
+
+
+def benchmark_ids() -> list[str]:
+    """Ids from benchmark_sites.yaml (minus the candidates already listed) in file order."""
+    import yaml
+
+    cfg = yaml.safe_load(BENCHMARK_CONFIG.read_text(encoding="utf-8"))
+    sites = cfg["sites"] if isinstance(cfg, dict) else cfg
+    return [s["id"] for s in sites if s["id"] not in CANDIDATES]
+
+
+def env_index(precip_mm: float, rh_pct: float, t_range_c: float) -> dict[str, float]:
+    """Environmental analog index from annual rain (mm), mean relative humidity (%) and mean daily range (C)."""
+    parts = {
+        "aridity": 1 - min(max(precip_mm, 0.0), ARID_MM) / ARID_MM,
+        "dry_air": 1 - min(max(rh_pct, 0.0), 100.0) / 100,
+        "thermal_swing": min(max(t_range_c, 0.0), SWING_C) / SWING_C,
+    }
+    index = sum(INDEX_WEIGHTS[k] * v for k, v in parts.items())
+    return {**{k: round(v, 3) for k, v in parts.items()}, "index": round(index, 3)}
 
 
 def coolest_window(t2m: list[float], length: int = 3) -> list[int]:
@@ -72,6 +104,7 @@ def summarise(site_id: str, raw: dict[str, Any]) -> dict[str, Any]:
     return {
         "id": site_id,
         "scored": site_id in SCORED,
+        "role": "scored" if site_id in SCORED else "candidate" if site_id in CANDIDATES else "benchmark",
         "lat": lat,
         "lon": lon,
         "cell_elevation_m": cell_elev,
@@ -80,6 +113,7 @@ def summarise(site_id: str, raw: dict[str, Any]) -> dict[str, Any]:
         "derived": {
             "precip_mm_per_year": round(annual["PRECTOTCORR"] * 365),
             "coolest_months": coolest_window(monthly["T2M"]),
+            "env_index": env_index(annual["PRECTOTCORR"] * 365, annual["RH2M"], annual["T2M_RANGE"]),
         },
         "request_url": API_URL.format(lon=lon, lat=lat),
     }
@@ -88,7 +122,8 @@ def summarise(site_id: str, raw: dict[str, Any]) -> dict[str, Any]:
 def build() -> dict[str, Any]:
     sites = []
     header = units = None
-    for site_id in SCORED + CANDIDATES:
+    extra = [b for b in benchmark_ids() if (RAW_DIR / f"{b}.json").exists()]
+    for site_id in SCORED + CANDIDATES + extra:
         path = RAW_DIR / f"{site_id}.json"
         with open(path, encoding="utf-8") as fh:
             raw = json.load(fh)
@@ -111,6 +146,15 @@ def build() -> dict[str, Any]:
             "home": "https://power.larc.nasa.gov/",
             "raw_files": "data/processed/environment/nasa_power/",
         },
+        "env_index": {
+            "factors": {
+                "aridity": f"1 - min(rain, {ARID_MM:g} mm/yr) / {ARID_MM:g}",
+                "dry_air": "1 - RH2M / 100",
+                "thermal_swing": f"min(T2M_RANGE, {SWING_C:g} C) / {SWING_C:g}",
+            },
+            "weights": INDEX_WEIGHTS,
+            "note": "Reported next to the similarity index, not merged into it.",
+        },
         "parameters": units,
         "months": MONTHS,
         "sites": sites,
@@ -127,7 +171,7 @@ def main() -> None:
     shutil.copyfile(OUT_FILE, WEB_FILE)
     for s in out["sites"]:
         months = ",".join(MONTHS[i] for i in s["derived"]["coolest_months"])
-        print(f"{s['id']:<18} T2M {s['annual']['T2M']:>5} C  rain {s['derived']['precip_mm_per_year']:>4} mm/yr  coolest {months}")
+        print(f"{s['id']:<22} T2M {s['annual']['T2M']:>5} C  rain {s['derived']['precip_mm_per_year']:>4} mm/yr  env {s['derived']['env_index']['index']:.2f}  coolest {months}")
     print(f"wrote {OUT_FILE.relative_to(REPO_DIR)} and {WEB_FILE.relative_to(REPO_DIR)}")
 
 

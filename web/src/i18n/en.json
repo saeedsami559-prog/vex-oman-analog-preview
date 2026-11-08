@@ -523,8 +523,8 @@
       ],
       [
         "Environmental conditions",
-        "NASA POWER climatology (2001–2025) on every Omani site page, the Atlas and the mission season; shown, not scored",
-        "partial"
+        "NASA POWER climatology (2001–2025) for all 21 Earth sites, plus an environmental analog index (no rain, dry air, day–night swing) on every site page and ranked in the Atlas: Umm as Samim is 2nd of 21, after the Atacama",
+        "done"
       ],
       [
         "Mars landing sites",
@@ -533,13 +533,13 @@
       ],
       [
         "Permanent Moon base locations",
-        "Lunar south pole (Shackleton rim) scored on terrain; Apollo and Artemis training sites (Meteor Crater, Kilbourne Hole, Ries, Sudbury and more) ranked as Moon analogs; NASA's nine Artemis III regions listed in the Atlas",
-        "partial"
+        "Lunar south pole (Shackleton rim) compared on LOLA terrain, the property measured at the pole; Jebel Shams ranks first of all sites; Apollo and Artemis training sites (Meteor Crater, Kilbourne Hole, Ries, Sudbury and more) ranked as Moon analogs; NASA's nine Artemis III regions in the Atlas",
+        "done"
       ],
       [
         "Analog types: deserts, polar regions, volcanic terrain, caves",
-        "Analog Atlas: which types Oman covers (scored or candidate) and world benchmarks for the rest",
-        "partial"
+        "All four covered in the Analog Atlas with sources: deserts, mountains and a cave in Oman; volcanic fields scored worldwide; polar sites (Haughton, Svalbard, Antarctic Dry Valleys) described from published NASA sources because NASADEM stops at 60° N",
+        "done"
       ],
       [
         "Similarity and clustering methods",
@@ -772,7 +772,15 @@
     "ctxTitle": "Context data: NASA POWER",
     "ctxText": "Temperature, rain, sunlight, humidity and wind for each Omani site from NASA's POWER Climatology API (January 2001 – December 2025). They are shown on site pages, the Analog Atlas and the mission plan. They are not scored. The six raw API responses are kept unchanged in the repository.",
     "ctxAtlas": "Compare the sites in the Atlas",
-    "sunVal": "{v}/day"
+    "sunVal": "{v}/day",
+    "indexTitle": "Environmental analog index",
+    "indexRank": "#{n} of {of} Earth sites",
+    "indexNote": "From NASA POWER only: no rain (0 % at 250 mm/yr or more), dry air (1 − humidity) and a large day–night swing (100 % at 20 °C or more), averaged. Mars and the Moon have no rain, almost no water vapour and far larger swings; Earth's driest deserts come closest. Shown next to the similarity score, not merged into it.",
+    "f_aridity": "No rain",
+    "f_dry_air": "Dry air",
+    "f_thermal_swing": "Day–night swing",
+    "indexRankTitle": "Environmental analog index: all 21 Earth sites",
+    "indexIntro": "How far each site's climate goes toward Mars and Moon surface conditions, from the same NASA POWER climatology (2001–2025) for every site. Omani sites rank high because they are among the driest places on the list."
   },
   "common": {
     "continue": "Continue exploring",

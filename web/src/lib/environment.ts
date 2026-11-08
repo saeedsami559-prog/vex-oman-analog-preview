@@ -15,9 +15,13 @@ export interface EnvSite {
   cell_elevation_m: number;
   monthly: Record<PowerParam, number[]>;
   annual: Record<PowerParam, number>;
-  derived: { precip_mm_per_year: number; coolest_months: number[] };
+  role?: 'scored' | 'candidate' | 'benchmark';
+  derived: { precip_mm_per_year: number; coolest_months: number[]; env_index?: EnvIndex };
   request_url: string;
 }
+
+/** Environmental analog index: 0 = Earth-like climate, 1 = as far as Earth goes toward Mars/Moon conditions. */
+export interface EnvIndex { aridity: number; dry_air: number; thermal_swing: number; index: number }
 
 export interface EnvData {
   source: {
@@ -92,3 +96,8 @@ export const periodYears = (period: string) => {
   const y = period.match(/\b(19|20)\d{2}\b/g);
   return y && y.length >= 2 ? `${y[0]}–${y[y.length - 1]}` : period;
 };
+
+/** Sites with an environmental analog index, highest first. */
+export function envRanking(env: EnvData | null): EnvSite[] {
+  return (env?.sites ?? []).filter((s) => s.derived.env_index).sort((a, b) => b.derived.env_index!.index - a.derived.env_index!.index);
+}

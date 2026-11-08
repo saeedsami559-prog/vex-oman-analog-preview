@@ -7,7 +7,7 @@ import { ARTEMIS_REGIONS, ARTEMIS_SOURCES, BENCHMARKS, CATEGORIES, OMAN_CANDIDAT
 import { findSite, useDataset } from '../lib/data';
 import { meanMarsSimilarity } from '../lib/analysis';
 import { similarity } from '../lib/similarity';
-import { ENV_URL, ltr, meanOver, monthNames, monthRange, periodYears, useEnvironment } from '../lib/environment';
+import { ENV_URL, envRanking, ltr, meanOver, monthNames, monthRange, periodYears, useEnvironment } from '../lib/environment';
 import ContinueExploring from '../components/common/ContinueExploring';
 import PageToc from '../components/common/PageToc';
 
@@ -311,7 +311,7 @@ export default function Atlas() {
                 </tr>
               </thead>
               <tbody>
-                {env.sites.map((e) => {
+                {env.sites.filter((e) => e.role !== 'benchmark').map((e) => {
                   const scoredSite = findSite(data, e.id);
                   const cand = OMAN_CANDIDATES.find((c) => c.id === e.id);
                   const T = e.monthly.T2M;
@@ -342,6 +342,44 @@ export default function Atlas() {
             </table>
           </div>
           <p className="note small">{t('env.atlasNote')}</p>
+
+          <h3 id="env-index">{t('env.indexRankTitle')}</h3>
+          <p className="muted">{t('env.indexIntro')}</p>
+          <div className="table-wrap">
+            <table className="table env-rank">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>{t('sources.colSite')}</th>
+                  <th>{t('env.rain')}</th>
+                  <th>{t('env.humidity')}</th>
+                  <th>{t('env.dailyRange')}</th>
+                  <th>{t('env.indexTitle')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {envRanking(env).map((e, i) => {
+                  const site = findSite(data, e.id);
+                  const oman = e.role !== 'benchmark';
+                  return (
+                    <tr key={e.id} className={oman ? 'is-oman' : ''}>
+                      <td>{num(i + 1)}</td>
+                      <th scope="row">
+                        {site ? <Link to={`/site/${e.id}`}>{loc(site.name)}</Link> : e.id}
+                        {oman && <span className="pill soft small">{t('explorer.groupOman')}</span>}
+                      </th>
+                      <td className="nowrap">{t('env.rainVal', { mm: num(e.derived.precip_mm_per_year) })}</td>
+                      <td>{num(e.annual.RH2M)}%</td>
+                      <td>{ltr(`${num(e.annual.T2M_RANGE, 1)} °C`)}</td>
+                      <td className="nowrap">
+                        <span className="bar inline"><i style={{ width: `${e.derived.env_index!.index * 100}%` }} /></span> {num(e.derived.env_index!.index * 100)}%
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
           <p className="muted small">
             {t('env.source', { api: env.source.api, period: periodYears(env.source.period) })}{' '}
             <a href={ENV_URL} download="oman-analog-explorer-environment.json">{t('env.download')}</a>

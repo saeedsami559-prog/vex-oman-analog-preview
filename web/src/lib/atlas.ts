@@ -96,6 +96,16 @@ export const BENCHMARKS: AtlasSite[] = [
     source: { label: 'NASA Technical Reports Server: analog field tests (AMASE 2007)', url: 'https://ntrs.nasa.gov/api/citations/20080010736/downloads/20080010736.pdf' },
   },
   {
+    id: 'dry_valleys',
+    name: { en: 'McMurdo Dry Valleys', ar: 'الوديان الجافة في ماكموردو' },
+    place: { en: 'Victoria Land, Antarctica', ar: 'أرض فيكتوريا، القارة القطبية الجنوبية' },
+    lat: -77.5, lon: 161.5, approx: true,
+    categories: ['polar', 'desert'], bodies: ['mars'],
+    programme: { en: 'NASA Mars Phoenix analog studies', ar: 'دراسات ناسا المماثلة لمهمة فينيكس على المريخ' },
+    what: { en: 'The largest ice-free area of Antarctica, extremely cold and dry, with dry permafrost; NASA calls it perhaps the landscape most like Mars and the best Earth analog for the Phoenix landing site.', ar: 'أكبر منطقة خالية من الجليد في القارة القطبية الجنوبية، شديدة البرودة والجفاف مع تربة متجمدة جافة؛ تصفها ناسا بأنها ربما أشبه المناظر بالمريخ وأفضل نظير أرضي لموقع هبوط فينيكس.' },
+    source: { label: 'NASA NTRS: McMurdo Dry Valleys, a Mars Phoenix mission analog (2010)', url: 'https://ntrs.nasa.gov/citations/20100003844' },
+  },
+  {
     id: 'supramonte',
     name: { en: 'Supramonte karst caves', ar: 'كهوف سوبرامونتي الكارستية' },
     place: { en: 'Sardinia, Italy', ar: 'سردينيا، إيطاليا' },
