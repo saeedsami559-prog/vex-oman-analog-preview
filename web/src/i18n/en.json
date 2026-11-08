@@ -986,9 +986,11 @@
       "env": "NASA POWER: {rain} mm rain a year, {rh}% humidity, wind {wind} m/s. Best months for fieldwork (coolest): {months}.",
       "alt": "Better place nearby: {km} km away, AI {p}% and every rule passes.",
       "altGo": "Fly there",
-      "altFar": "The closest place where both opinions say yes is {km} km away (AI {p}%, every rule passes).",
+      "altFar": "The closest place the AI likes ({p}%) is {km} km away; every rule passes there except the distance from Muscat, so expect CONDITIONAL.",
       "note_flood": "Wadi channels: Landsat saw surface water on {v}% of this area since 1984 (JRC); watch for flash floods after rain",
-      "lst": "Ground temperature (NASA MODIS, 2024): up to {hot} °C by day in the hottest month, down to {cold} °C at night in the coldest."
+      "lst": "Ground temperature (NASA MODIS, 2024): up to {hot} °C by day in the hottest month, down to {cold} °C at night in the coldest.",
+      "altBothFar": "The closest place where both opinions say yes and every rule passes is {km} km away (AI {p}%).",
+      "altRules": "Nearest place where every rule passes (a GO before flying): {km} km away. The AI rates it {p}%, so the two opinions differ there."
     },
     "valMars": "Why Mars is harder: the places experts chose for Mars are very different from each other (lava caves, an acidic river, cold and hot deserts), so 'looking like them' is a weaker signal for Mars than for the Moon, where the chosen places are mostly dry volcanic and impact fields. That is why VEX Scout shows the AI next to the rules and never alone.",
     "viewFail": "The 3D view could not start in this browser. The map, the decision and the AI opinion still work; try reloading the page.",
@@ -1031,7 +1033,10 @@
     "padHelp": "Game controller (Xbox / PlayStation): left stick climb and turn, right stick move and slide, A take off / land, B return home, X photo, Y scan, LB/RB tilt the camera, LT/RT zoom, Start changes the camera.",
     "sun": "Sun (time of day)",
     "cine": "Cinematic view (V)",
-    "cineHint": "Cinematic view: press V or Esc to bring the instruments back"
+    "cineHint": "Cinematic view: press V or Esc to bring the instruments back",
+    "missionHelp": "Squares where every rule passes for the Moon (nearest first) - fly to one:",
+    "missionKm": "{km} km from here",
+    "missionTip": "Tip: the scan checks a 2 km circle around the drone. Fly over flat ground (green in the Safety lens, blue/green in the Hazard map) before you scan, away from towns and wadis."
   },
   "log": {
     "kicker": "VEX Scout · mission log",

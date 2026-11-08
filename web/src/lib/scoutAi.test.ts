@@ -64,5 +64,14 @@ describe('alternative', () => {
     expect(alt.cell.id).toBe('near');
     expect(alt.km).toBeCloseTo(kmBetween(here, near), 6);
     expect(alt.km).toBeGreaterThan(30);
+    expect(alt.kind).toBe('both');
+  });
+  it('falls back to a GO the AI does not like, and never offers a far place as if it were a GO', () => {
+    const here = cell({ id: 'here', ai: { moon: { p: 20, nn: [], z: [0, 0, 0, 0, 0, 0], rank: 300 } } });
+    const goLowAi = cell({ id: 'go', lat: 23.5, ai: { moon: { p: 10, nn: [], z: [0, 0, 0, 0, 0, 0], rank: 400 } } });
+    const farAi = cell({ id: 'far', lat: 23.2, km_muscat: 700 });
+    const ranks = new Map([['here', 300], ['go', 2], ['far', 1]]);
+    expect(alternative(here, [here, farAi, goLowAi], 'moon', ranks, 400)!.kind).toBe('rules');
+    expect(alternative(here, [here, farAi], 'moon', ranks, 400)!.kind).toBe('far');
   });
 });

@@ -8,7 +8,7 @@ import {
   decide, GRID_URL, HAZARD_DEG, loadBuildings, loadCellLayers, loadHdHeightmap, loadHeightmap, ranksFor, SAFE_DEG, scoreOf, slopeClass, slopeField, toKml,
   useCellLayers, useScoutGrid, WORLDCOVER, type Body, type Decision, type ScoutCell,
 } from '../lib/scout';
-import { AI_HIGH, AI_LOW } from '../lib/scoutAi';
+import { AI_HIGH, AI_LOW, goCells } from '../lib/scoutAi';
 import { MAX_PHOTOS, pathKm, saveFlight, type FlightRecord, type Photo } from '../lib/missionLog';
 import DroneView, { COVER_RGB, type AutoMode, type DroneEvent, type DroneHandle, type Lens, type ScanResult, type Telemetry } from '../components/scout/DroneView';
 import AiExplain from '../components/scout/AiExplain';
@@ -628,7 +628,22 @@ export default function Scout() {
             {t('scout.missionStart')}
           </button>
         )}
-        {mission && !mission.done && <p className="note">{t('scout.missionGoing')}</p>}
+        {mission && !mission.done && (
+          <>
+            <p className="note">{t('scout.missionGoing')}</p>
+            <p className="small"><strong>{t('scout.missionHelp')}</strong></p>
+            <div className="mission-picks">
+              {goCells(sel ?? { lat: 23.6, lon: 58.4 }, grid.cells, ranks, ranked.length).map(({ cell: c, km }) => (
+                <button key={c.id} type="button" className="cell-card" onClick={() => pick(c)}>
+                  <img className="cell-thumb" src={thumb(c.lat, c.lon)} alt="" loading="lazy" />
+                  <span className="top-name"><b>{placeOf(c.lat, c.lon) ?? c.id}</b><small>{t('scout.missionKm', { km: num(Math.round(km)) })}</small></span>
+                  <strong>{t('scout.v_go').split(':')[0]}</strong>
+                </button>
+              ))}
+            </div>
+            <p className="small muted">{t('scout.missionTip')}</p>
+          </>
+        )}
         {mission?.done && (
           <p className="decision go verdict-inline">
             {t('scout.missionDone', { s: num(Math.round((mission.done - mission.start) / 1000)) })}

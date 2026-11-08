@@ -94,7 +94,7 @@ export default function AiExplain({ grid, cell, body, ranks, total, verdict, onG
 
       {alt && (
         <div className="ai-alt">
-          <p className="small">{t(alt.km <= NEAR_KM ? 'scout.ai.alt' : 'scout.ai.altFar', { km: num(Math.round(alt.km)), p: num(alt.cell.ai![body]!.p) })}</p>
+          <p className="small">{t(alt.kind === 'both' ? (alt.km <= NEAR_KM ? 'scout.ai.alt' : 'scout.ai.altBothFar') : alt.kind === 'rules' ? 'scout.ai.altRules' : 'scout.ai.altFar', { km: num(Math.round(alt.km)), p: num(alt.cell.ai?.[body]?.p ?? 0) })}</p>
           {onGo && <button type="button" className="btn small primary" onClick={() => onGo(alt.cell)}>{t('scout.ai.altGo')}</button>}
         </div>
       )}

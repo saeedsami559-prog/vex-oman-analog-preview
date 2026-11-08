@@ -1561,3 +1561,7 @@ ul.plain { padding-inline-start: 18px; margin: 0; }
 .scout-screen.cine .drone-reticle, .scout-screen.cine .df-step, .scout-screen.cine .takeoff-btn, .scout-screen.cine .drone-alert { display: none !important; }
 .scout-screen.cine::before { content: ''; position: absolute; inset: 0; z-index: 5; pointer-events: none; box-shadow: inset 0 46px 0 #000, inset 0 -46px 0 #000; }
 .sens.sun input { width: 130px; accent-color: #ffb547; }
+.mission-picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin: 8px 0; }
+.mission-picks .cell-card { display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 6px 10px 6px 6px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(70,170,95,0.45); color: var(--text); font: inherit; cursor: pointer; text-align: start; }
+.mission-picks .cell-card:hover { background: rgba(70,170,95,0.12); }
+.mission-picks .cell-card strong { color: #6fd38c; }

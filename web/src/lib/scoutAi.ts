@@ -84,20 +84,42 @@ export function preVerdict(cell: ScoutCell, rank: number | undefined, total: num
   return decide(cell, rank, total, cell.safe_pct / 100).verdict;
 }
 
-/** The nearest other cell where both opinions say yes: rules GO (whole cell) and AI high. */
+export type AltKind = 'both' | 'rules' | 'far';
+
+/**
+ * A better place to fly to, in this order of preference:
+ *  'both'  the nearest cell where every rule passes (whole cell, distance included) AND the AI says yes
+ *  'rules' the nearest cell where every rule passes (a GO before flying), whatever the AI says
+ *  'far'   the nearest cell where the AI says yes and every rule except the distance from Muscat passes
+ */
 export function alternative(
   cell: ScoutCell, cells: ScoutCell[], body: Body, ranks: Map<string, number>, total: number,
-): { cell: ScoutCell; km: number } | null {
-  let best: { cell: ScoutCell; km: number } | null = null;
-  for (const c of cells) {
-    if (c.id === cell.id) continue;
-    const ai = c.ai?.[body];
-    if (!ai || aiLevel(ai.p) !== 'high' || c.safe_pct == null) continue;
-    // every rule passes; distance from Muscat is a cost, not a reason to skip a nearby place
-    const d = decide(c, ranks.get(c.id), total, c.safe_pct / 100);
-    if (d.criteria.some((x) => x.key !== 'access' && x.level !== 'pass')) continue;
-    const km = kmBetween(cell, c);
-    if (!best || km < best.km) best = { cell: c, km };
-  }
-  return best;
+): { cell: ScoutCell; km: number; kind: AltKind } | null {
+  const pick = (ok: (c: ScoutCell) => boolean) => {
+    let best: { cell: ScoutCell; km: number } | null = null;
+    for (const c of cells) {
+      if (c.id === cell.id || c.safe_pct == null || !ok(c)) continue;
+      const km = kmBetween(cell, c);
+      if (!best || km < best.km) best = { cell: c, km };
+    }
+    return best;
+  };
+  const rules = (c: ScoutCell, skipAccess: boolean) =>
+    decide(c, ranks.get(c.id), total, (c.safe_pct ?? 0) / 100).criteria.every((x) => x.level === 'pass' || (skipAccess && x.key === 'access'));
+  const aiHigh = (c: ScoutCell) => !!c.ai?.[body] && aiLevel(c.ai[body]!.p) === 'high';
+  const both = pick((c) => aiHigh(c) && rules(c, false));
+  if (both) return { ...both, kind: 'both' };
+  const r = pick((c) => rules(c, false));
+  if (r) return { ...r, kind: 'rules' };
+  const far = pick((c) => aiHigh(c) && rules(c, true));
+  return far ? { ...far, kind: 'far' } : null;
+}
+
+/** Cells that are a GO before flying (every rule passes on the whole cell), nearest to `from` first. */
+export function goCells(from: { lat: number; lon: number }, cells: ScoutCell[], ranks: Map<string, number>, total: number, n = 3) {
+  return cells
+    .filter((c) => c.safe_pct != null && decide(c, ranks.get(c.id), total, c.safe_pct / 100).verdict === 'go')
+    .map((c) => ({ cell: c, km: kmBetween(from, c) }))
+    .sort((a, b) => a.km - b.km)
+    .slice(0, n);
 }
