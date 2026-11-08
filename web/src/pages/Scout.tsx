@@ -169,6 +169,11 @@ export default function Scout() {
     };
   }, [sel, persist, cellLayers]);
 
+  // save the open flight every 15 s while flying, so nothing is lost if the tab is closed
+  useEffect(() => {
+    const id = window.setInterval(() => { if (flight.current) persist(); }, 15000);
+    return () => window.clearInterval(id);
+  }, [persist]);
   // V toggles the cinematic view (no HUD), Esc leaves it
   useEffect(() => {
     const key = (e: KeyboardEvent) => {

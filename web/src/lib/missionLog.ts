@@ -68,7 +68,20 @@ function store(list: FlightRecord[]): boolean {
   return false;
 }
 
+/** A flight with nothing in it: under 30 s of drone time, under 200 m flown, no photo, no scan, no marker. */
+export const isEmptyFlight = (f: FlightRecord) =>
+  f.droneSeconds < 30 && f.distanceKm < 0.2 && !f.photos.length && !f.scan && !f.markers.length;
+
+/** Drop empty flights from the log (they carry no information). Returns how many were removed. */
+export function pruneEmpty(): number {
+  const list = loadLog();
+  const keep = list.filter((f) => !isEmptyFlight(f));
+  if (keep.length !== list.length) store(keep);
+  return list.length - keep.length;
+}
+
 export function saveFlight(f: FlightRecord): boolean {
+  if (isEmptyFlight(f)) { deleteFlight(f.id); return false; }
   const list = loadLog().filter((x) => x.id !== f.id);
   return store([{ ...f, updated: Date.now() }, ...list]);
 }

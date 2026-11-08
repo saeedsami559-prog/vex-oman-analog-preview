@@ -1090,7 +1090,8 @@
     "c_human": "Human footprint",
     "c_rain": "Rain a year",
     "c_km": "From Muscat",
-    "c_relief": "Relief"
+    "c_relief": "Relief",
+    "sMarkers": "Markers"
   },
   "places": {
     "at": "{place}",

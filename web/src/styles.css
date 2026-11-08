@@ -1565,3 +1565,13 @@ ul.plain { padding-inline-start: 18px; margin: 0; }
 .mission-picks .cell-card { display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 6px 10px 6px 6px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(70,170,95,0.45); color: var(--text); font: inherit; cursor: pointer; text-align: start; }
 .mission-picks .cell-card:hover { background: rgba(70,170,95,0.12); }
 .mission-picks .cell-card strong { color: #6fd38c; }
+/* mission log: the flight list scrolls inside its own panel and the report stays in view, so no empty band */
+@media (min-width: 981px) {
+  .log-grid { align-items: start; }
+  .log-list { position: sticky; top: 76px; max-height: calc(100vh - 96px); display: flex; flex-direction: column; }
+  .log-list ul { overflow-y: auto; flex: 1 1 auto; min-height: 0; padding-inline-end: 4px; margin-bottom: 10px; }
+  .log-report { position: sticky; top: 76px; }
+}
+.log-list ul::-webkit-scrollbar { width: 6px; } .log-list ul::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+.log-report { background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.012)); }
+.log-list li > button:hover { background: rgba(255,255,255,0.03); border-radius: 8px; }

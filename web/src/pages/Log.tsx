@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { findSite, useDataset } from '../lib/data';
 import { ranksFor, toKml, useCellLayers, useScoutGrid, type ScoutCell } from '../lib/scout';
-import { clearLog, deleteFlight, loadLog, type FlightRecord } from '../lib/missionLog';
+import { clearLog, deleteFlight, loadLog, pruneEmpty, type FlightRecord } from '../lib/missionLog';
 import AiExplain, { monthSpan } from '../components/scout/AiExplain';
 import ContinueExploring from '../components/common/ContinueExploring';
 import { describePlace, usePlaces } from '../lib/places';
@@ -13,7 +13,7 @@ import { describePlace, usePlaces } from '../lib/places';
 const mmss = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
 
 function useLog(): FlightRecord[] {
-  const [log, setLog] = useState<FlightRecord[]>(loadLog);
+  const [log, setLog] = useState<FlightRecord[]>(() => { pruneEmpty(); return loadLog(); });
   useEffect(() => {
     const re = () => setLog(loadLog());
     window.addEventListener('vex-log', re);
@@ -133,6 +133,7 @@ function FlightReport({ f, cell, date }: { f: FlightRecord; cell: ScoutCell | nu
         <div><span>{t('log.sWind')}</span><strong>{f.windMs != null ? `${num(f.windMs, 1)} m/s` : '–'}</strong></div>
         <div><span>{t('log.sPhotos')}</span><strong>{num(f.photos.length)}</strong></div>
         <div><span>{t('log.sLandings')}</span><strong>{num(f.landings)}</strong></div>
+        <div><span>{t('log.sMarkers')}</span><strong>{num(f.markers.length)}</strong></div>
         <div><span>{t('log.sMode')}</span><strong>{t(`log.mode_${f.mode}`)}</strong></div>
       </div>
 
