@@ -986,13 +986,38 @@
       "env": "NASA POWER: {rain} mm rain a year, {rh}% humidity, wind {wind} m/s. Best months for fieldwork (coolest): {months}.",
       "alt": "Better place nearby: {km} km away, AI {p}% and every rule passes.",
       "altGo": "Fly there",
-      "altFar": "The closest place where both opinions say yes is {km} km away (AI {p}%, every rule passes)."
+      "altFar": "The closest place where both opinions say yes is {km} km away (AI {p}%, every rule passes).",
+      "note_flood": "Wadi channels: Landsat saw surface water on {v}% of this area since 1984 (JRC); watch for flash floods after rain",
+      "lst": "Ground temperature (NASA MODIS, 2024): up to {hot} °C by day in the hottest month, down to {cold} °C at night in the coldest."
     },
     "valMars": "Why Mars is harder: the places experts chose for Mars are very different from each other (lava caves, an acidic river, cold and hot deserts), so 'looking like them' is a weaker signal for Mars than for the Moon, where the chosen places are mostly dry volcanic and impact fields. That is why VEX Scout shows the AI next to the rules and never alone.",
     "viewFail": "The 3D view could not start in this browser. The map, the decision and the AI opinion still work; try reloading the page.",
     "decisionTitle": "Decision",
     "decisionHint": "Take off, fly over the ground you want to check and press \"Scan 2 km around the drone\": the rules return GO / CONDITIONAL / NO-GO here, next to the AI opinion.",
-    "photoHint": "No photos yet: press \"Take photo\" (or P) while flying. Photos are saved with their coordinates in the mission log."
+    "photoHint": "No photos yet: press \"Take photo\" (or P) while flying. Photos are saved with their coordinates in the mission log.",
+    "radarLabel": "Map of Oman: the drone, cities and governorates. Wheel to zoom, drag to move, click a square to fly there.",
+    "radarOpen": "Open the map (M)",
+    "radarClose": "Close the map (Esc)",
+    "radarFollow": "Follow the drone",
+    "radarHint": "Mouse wheel or pinch to zoom · drag to move · click a square to fly there · M or Esc to close",
+    "openSite": "Open the site page",
+    "overSea": "Over the sea",
+    "lens_cover": "Ground cover",
+    "hz_flood": "wadi channel: surface water seen here by Landsat (flash-flood risk)",
+    "c_flood": "Wadi / flood channels in scan",
+    "coverNote": "ESA WorldCover 2021 (10 m, sampled per ~217 m pixel); blue = surface water seen by Landsat 1984–2021 (JRC Global Surface Water), the stronger the more often. Landsat only sees water that is there when it passes, so a dry wadi that floods for a few hours may not show: absence of blue is not proof of safety.",
+    "coverMissing": "Ground-cover layer not published for this cell yet.",
+    "lc_trees": "trees",
+    "lc_shrub": "shrubs",
+    "lc_grass": "grass",
+    "lc_crops": "crops",
+    "lc_built": "buildings",
+    "lc_bare": "bare / sand",
+    "lc_snow": "snow",
+    "lc_water": "water",
+    "lc_wetland": "wetland",
+    "lc_mangrove": "mangroves",
+    "lc_moss": "moss"
   },
   "log": {
     "kicker": "VEX Scout · mission log",
@@ -1047,5 +1072,9 @@
     "c_rain": "Rain a year",
     "c_km": "From Muscat",
     "c_relief": "Relief"
+  },
+  "places": {
+    "at": "{place}",
+    "near": "{km} km from {place}"
   }
 }

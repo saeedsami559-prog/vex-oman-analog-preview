@@ -1,18 +1,22 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { MapContainer, Rectangle, TileLayer, Tooltip, CircleMarker } from 'react-leaflet';
+import { MapContainer, Rectangle, TileLayer, Tooltip, CircleMarker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { findSite, useDataset } from '../lib/data';
 import {
-  decide, GRID_URL, HAZARD_DEG, loadHeightmap, ranksFor, SAFE_DEG, scoreOf, slopeClass, slopeField, toKml,
-  useScoutGrid, type Body, type Decision, type ScoutCell,
+  decide, GRID_URL, HAZARD_DEG, loadCellLayers, loadHdHeightmap, loadHeightmap, ranksFor, SAFE_DEG, scoreOf, slopeClass, slopeField, toKml,
+  useCellLayers, useScoutGrid, WORLDCOVER, type Body, type Decision, type ScoutCell,
 } from '../lib/scout';
 import { AI_HIGH, AI_LOW } from '../lib/scoutAi';
 import { MAX_PHOTOS, pathKm, saveFlight, type FlightRecord, type Photo } from '../lib/missionLog';
-import DroneView, { type AutoMode, type DroneEvent, type DroneHandle, type Lens, type ScanResult, type Telemetry } from '../components/scout/DroneView';
+import DroneView, { COVER_RGB, type AutoMode, type DroneEvent, type DroneHandle, type Lens, type ScanResult, type Telemetry } from '../components/scout/DroneView';
 import AiExplain from '../components/scout/AiExplain';
+import OmanRadar from '../components/scout/OmanRadar';
+import Icon from '../components/scout/Icon';
+import { describePlace, usePlaces } from '../lib/places';
 import SafeBox from '../components/common/SafeBox';
+import { photoLocal } from '../lib/photos';
 import ContinueExploring from '../components/common/ContinueExploring';
 
 /** Colour for a 0..1 screening score: dark blue (low) -> teal -> amber -> red (high). */
@@ -39,17 +43,28 @@ function aiHeat(p: number | null): string {
 }
 
 const mmss = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
+/** Esri World Imagery tile (z10, ~35 km) containing a point: a satellite thumbnail for a cell card. */
+const thumb = (lat: number, lon: number, z = 10) => {
+  const n = 2 ** z;
+  const x = Math.floor(((lon + 180) / 360) * n);
+  const r = (lat * Math.PI) / 180;
+  const y = Math.floor(((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * n);
+  return `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
+};
+
 const compass = (h: number) => ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(h / 45) % 8];
 
 export default function Scout() {
   const { t, loc, num } = useI18n();
   const data = useDataset();
   const { grid, failed } = useScoutGrid();
+  const places = usePlaces();
   const [body, setBody] = useState<Body>('moon');
   const [colorBy, setColorBy] = useState<'rules' | 'ai'>('rules');
   const [marsTarget, setMarsTarget] = useState<string | null>(null); // null = each cell's best Mars target
   const [sel, setSel] = useState<ScoutCell | null>(null);
-  const [hm, setHm] = useState<{ id: string; heights: Float32Array; slope: Float32Array; px: number; resM: number } | null>(null);
+  const [hm, setHm] = useState<{ id: string; heights: Float32Array; slope: Float32Array; px: number; resM: number; draw: { heights: Float32Array; px: number; resM: number } | null; layers: { cover: Uint8Array; water: Uint8Array } | null } | null>(null);
+  const cellLayers = useCellLayers();
   const [hmErr, setHmErr] = useState(false);
   const [lens, setLens] = useState<Lens>('satellite');
   const [satFail, setSatFail] = useState(false);
@@ -125,15 +140,24 @@ export default function Scout() {
     setAlert(null);
     setSaved(false);
     const resM = sel.heightmap.res_m;
-    loadHeightmap(sel)
-      .then(({ heights, px }) => alive && setHm({ id: sel.id, heights, px, resM, slope: slopeField(heights, px, resM) }))
+    const extra = cellLayers?.cells[sel.id];
+    Promise.all([
+      loadHeightmap(sel),
+      extra?.hd ? loadHdHeightmap(sel, extra.hd.px).catch(() => null) : Promise.resolve(null),
+      extra?.landcover_pct ? loadCellLayers(sel).catch(() => null) : Promise.resolve(null),
+    ])
+      .then(([{ heights, px }, hd, lay]) => alive && setHm({
+        id: sel.id, heights, px, resM, slope: slopeField(heights, px, resM),
+        draw: hd && extra?.hd ? { heights: hd, px: extra.hd.px, resM: extra.hd.res_m } : null,
+        layers: lay,
+      }))
       .catch(() => alive && setHmErr(true));
     return () => {
       alive = false;
       persist();
       flight.current = null;
     };
-  }, [sel, persist]);
+  }, [sel, persist, cellLayers]);
 
   useEffect(() => {
     const bye = () => persist();
@@ -165,7 +189,7 @@ export default function Scout() {
   const doScan = () => {
     if (!drone.current || !sel) return;
     const result = drone.current.scan();
-    const decision = decide(sel, ranks.get(sel.id), ranked.length, result.safe);
+    const decision = decide(sel, ranks.get(sel.id), ranked.length, result.safe, result.water);
     setScan({ result, decision });
     const f = ensureFlight(sel);
     f.scan = { verdict: decision.verdict, safe: Math.round(result.safe * 100), meanSlope: Math.round(result.meanSlope * 10) / 10 };
@@ -200,6 +224,7 @@ export default function Scout() {
     setTimeout(() => viewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
 
+  const placeOf = (lat: number, lon: number, land = false) => describePlace(places, lat, lon, t, loc, land);
   const target = data.targets.find((x) => x.id === (tgt ?? sel?.mars_best));
   const marsTargets = data.targets.filter((x) => x.body === 'mars');
   const moonT = data.targets.find((x) => x.body === 'moon');
@@ -207,7 +232,7 @@ export default function Scout() {
   const nearSiteObj = nearSite ? findSite(data, nearSite.id) : null;
   const cls = tel ? slopeClass(tel.slope) : null;
   const landed = !tel || tel.phase === 'landed';
-  const lenses: Lens[] = ['satellite', 'relief', 'hazard', 'slope', 'mars'];
+  const lenses: Lens[] = ['satellite', 'relief', 'hazard', 'cover', 'slope', 'mars'];
 
   return (
     <div className="page scout">
@@ -253,7 +278,7 @@ export default function Scout() {
       <section className="scout-grid">
         <div className="panel scout-map">
           <h2>{aiOn ? t('scout.mapTitleAi', { body: t(`scout.body_${body}`) }) : t('scout.mapTitle', { body: t(`scout.body_${body}`) })}</h2>
-          <MapContainer center={[20.6, 56.5]} zoom={6} minZoom={5} maxZoom={10} scrollWheelZoom={false} className="scout-leaflet">
+          <MapContainer center={[20.6, 56.5]} zoom={6} minZoom={5} maxZoom={13} scrollWheelZoom wheelPxPerZoomLevel={90} className="scout-leaflet">
             <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" attribution="Esri, Maxar, Earthstar Geographics" />
             {grid.cells.map((c) => {
               const v = score(c);
@@ -268,6 +293,7 @@ export default function Scout() {
                   eventHandlers={{ click: () => pick(c) }}
                 >
                   <Tooltip direction="top">
+                    {places && <><b>{placeOf(c.lat, c.lon)}</b><br /></>}
                     {aiOn
                       ? t('scout.cellTipAi', { p: p == null ? '–' : num(p), rank: num(c.ai?.[body]?.rank ?? 0), n: num(ranked.length) })
                       : t('scout.cellTip', { score: v == null ? '–' : num(v * 100), rank: num(ranks.get(c.id) ?? 0), n: num(ranked.length) })}
@@ -278,8 +304,13 @@ export default function Scout() {
             {grid.sites.map((s) => {
               const site = findSite(data, s.id);
               return (
-                <CircleMarker key={s.id} center={[s.lat, s.lon]} radius={5} pathOptions={{ color: '#0b0f17', weight: 1.5, fillColor: '#ffffff', fillOpacity: 1 }}>
+                <CircleMarker key={s.id} center={[s.lat, s.lon]} radius={6} pathOptions={{ color: '#0b0f17', weight: 1.5, fillColor: '#ffffff', fillOpacity: 1 }}>
                   <Tooltip>{site ? loc(site.name) : s.id}</Tooltip>
+                  <Popup className="site-pop" maxWidth={260}>
+                    <img src={photoLocal(s.id)} alt={site ? loc(site.name) : s.id} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                    <strong>{site ? loc(site.name) : s.id}</strong>
+                    <Link to={`/site/${s.id}`}>{t('scout.openSite')}</Link>
+                  </Popup>
                 </CircleMarker>
               );
             })}
@@ -300,8 +331,12 @@ export default function Scout() {
               const site = s ? findSite(data, s.id) : null;
               return (
                 <li key={c.id}>
-                  <button type="button" className={sel?.id === c.id ? 'active' : ''} onClick={() => pick(c)}>
-                    <span className="nowrap" dir="ltr">{num(c.lat, 2)}° N, {num(c.lon, 2)}° E</span>
+                  <button type="button" className={`cell-card ${sel?.id === c.id ? 'active' : ''}`} onClick={() => pick(c)}>
+                    <img className="cell-thumb" src={thumb(c.lat, c.lon)} alt="" loading="lazy" />
+                    <span className="top-name">
+                      <b>{placeOf(c.lat, c.lon) ?? `${num(c.lat, 2)}° N, ${num(c.lon, 2)}° E`}</b>
+                      <small className="nowrap" dir="ltr">{num(c.lat, 2)}° N, {num(c.lon, 2)}° E</small>
+                    </span>
                     {site && <span className="pill soft small">{loc(site.name)}</span>}
                     <strong>{aiOn ? num(c.ai![body]!.p) : num((score(c) ?? 0) * 100)}%</strong>
                   </button>
@@ -317,7 +352,7 @@ export default function Scout() {
         <section className="scout-flight" ref={viewRef}>
           <div className="scout-flight-head">
             <h2>
-              {t('scout.flightTitle')} · <span className="nowrap" dir="ltr">{num(sel.lat, 2)}° N, {num(sel.lon, 2)}° E</span>
+              {t('scout.flightTitle')} · {placeOf(sel.lat, sel.lon) ?? ''} <small className="muted nowrap coords-inline" dir="ltr">{num(sel.lat, 2)}° N, {num(sel.lon, 2)}° E</small>
             </h2>
             <p className="muted small">
               {t('scout.cellFacts', {
@@ -349,6 +384,8 @@ export default function Scout() {
                   lens={lens}
                   body={body}
                   wind={wind}
+                  draw={hm.draw}
+                  layers={hm.layers}
                   onTelemetry={(x) => { setTel(x); if (!x.auto && auto) setAuto(false); }}
                   onEvent={onEvent}
                   onSatelliteFail={() => { setSatFail(true); setLens((l) => (l === 'satellite' ? 'relief' : l)); }}
@@ -375,6 +412,7 @@ export default function Scout() {
                     <span><b>ASL</b> {num(Math.round(tel.altMsl))} m</span>
                     <span><b>{t('scout.gimbal')}</b> {Math.round(tel.gimbal)}°</span>
                     {tel.wind != null && <span><b>{t('scout.windShort')}</b> {num(tel.wind, 1)} m/s</span>}
+                    {tel.zoom > 1.05 && <span><b>ZOOM</b> {num(tel.zoom, 1)}×</span>}
                     {tel.footprintM && <span><b>{t('scout.fpShort')}</b> {num(Math.round(tel.footprintM[0]))}×{num(Math.round(tel.footprintM[1]))} m</span>}
                     <span className="muted">{tel.lat.toFixed(4)}°N {tel.lon.toFixed(4)}°E · ×10</span>
                   </div>
@@ -384,6 +422,18 @@ export default function Scout() {
                     </div>
                   )}
                 </>
+              )}
+              {places && hm && (
+                <OmanRadar
+                  places={places}
+                  cells={grid.cells}
+                  cellDeg={grid.method.cell_deg}
+                  colorOf={(c) => (aiOn ? aiHeat(c.ai?.[body]?.p ?? null) : heat(score(c)))}
+                  sel={sel}
+                  drone={tel ? { lat: tel.lat, lon: tel.lon, heading: tel.heading } : null}
+                  hereLabel={tel ? placeOf(tel.lat, tel.lon, true) : placeOf(sel.lat, sel.lon)}
+                  onPick={pick}
+                />
               )}
               {alert && <div className="drone-alert">{alert}</div>}
               {tel && tel.battery <= 0 && tel.phase === 'landed' && (
@@ -400,7 +450,8 @@ export default function Scout() {
             </div>
 
             <div className="cockpit-bar">
-              <div className="lens-row" role="group" aria-label={t('scout.lens')}>
+              <div className="lens-row seg-lens" role="group" aria-label={t('scout.lens')}>
+                <span className="deck-label"><Icon name="layers" size={16} /></span>
                 {lenses.map((l) => (
                   <button key={l} type="button" className={`btn small ${lens === l ? 'primary' : 'ghost'} ${l === 'hazard' ? 'hz' : ''}`} onClick={() => setLens(l)} disabled={l === 'satellite' && satFail}>
                     {t(`scout.lens_${l}`)}
@@ -409,19 +460,19 @@ export default function Scout() {
               </div>
               <div className="action-row">
                 {landed ? (
-                  <button type="button" className="btn primary" onClick={() => { drone.current?.takeOff(); focusView(); }} disabled={!hm}>{t('scout.takeOff')}</button>
+                  <button type="button" className="btn primary" onClick={() => { drone.current?.takeOff(); focusView(); }} disabled={!hm}><Icon name="takeoff" />{t('scout.takeOff')}</button>
                 ) : (
-                  <button type="button" className="btn ghost" onClick={() => { drone.current?.land(); setAuto(false); focusView(); }}>{t('scout.land')}</button>
+                  <button type="button" className="btn ghost" onClick={() => { drone.current?.land(); setAuto(false); focusView(); }}><Icon name="land" />{t('scout.land')}</button>
                 )}
-                <button type="button" className="btn ghost" onClick={() => { drone.current?.returnHome(); focusView(); }} disabled={!hm || landed}>{t('scout.rth')}</button>
-                <button type="button" className="btn ghost" onClick={() => drone.current?.photo()} disabled={!hm}>{t('scout.photo')}</button>
-                <button type="button" className="btn primary" onClick={doScan} disabled={!hm}>{t('scout.scan')}</button>
+                <button type="button" className="btn ghost" onClick={() => { drone.current?.returnHome(); focusView(); }} disabled={!hm || landed}><Icon name="home" />{t('scout.rth')}</button>
+                <button type="button" className="btn ghost" onClick={() => drone.current?.photo()} disabled={!hm}><Icon name="camera" />{t('scout.photo')}</button>
+                <button type="button" className="btn primary" onClick={doScan} disabled={!hm}><Icon name="scan" />{t('scout.scan')}</button>
               </div>
               <div className="action-row">
-                <button type="button" className={`btn ${auto === 'survey' ? 'primary' : 'ghost'}`} onClick={() => setMode('survey')} disabled={!hm}>{auto === 'survey' ? t('scout.autoOn') : t('scout.autoOff')}</button>
-                <button type="button" className={`btn ${auto === 'dragonfly' ? 'primary' : 'ghost'}`} onClick={() => setMode('dragonfly')} disabled={!hm}>{auto === 'dragonfly' ? t('scout.dfOn') : t('scout.dfOff')}</button>
-                <button type="button" className="btn ghost" onClick={doMark} disabled={!hm}>{t('scout.mark')}{marks ? ` (${num(marks)})` : ''}</button>
-                <button type="button" className="btn ghost" onClick={doExport} disabled={!hm}>{t('scout.export')}</button>
+                <button type="button" className={`btn ${auto === 'survey' ? 'primary' : 'ghost'}`} onClick={() => setMode('survey')} disabled={!hm}><Icon name="route" />{auto === 'survey' ? t('scout.autoOn') : t('scout.autoOff')}</button>
+                <button type="button" className={`btn ${auto === 'dragonfly' ? 'primary' : 'ghost'}`} onClick={() => setMode('dragonfly')} disabled={!hm}><Icon name="hop" />{auto === 'dragonfly' ? t('scout.dfOn') : t('scout.dfOff')}</button>
+                <button type="button" className="btn ghost" onClick={doMark} disabled={!hm}><Icon name="flag" />{t('scout.mark')}{marks ? ` (${num(marks)})` : ''}</button>
+                <button type="button" className="btn ghost" onClick={doExport} disabled={!hm}><Icon name="download" />{t('scout.export')}</button>
               </div>
             </div>
             <div className="cockpit-notes">
@@ -434,6 +485,17 @@ export default function Scout() {
                 <p className="small slope-key hazard-key">
                   <i className="k safest" /> {t('scout.hz_safest')} · <i className="k pass" /> {t('scout.hz_safe')} · <i className="k warn" /> {t('scout.hz_caution')} · <i className="k fail" /> {t('scout.hz_hazard')}
                   <br /><span className="muted">{t('scout.hzNote')}</span>
+                </p>
+              )}
+              {lens === 'hazard' && hm?.layers && (
+                <p className="small slope-key"><i className="k flood" /> {t('scout.hz_flood')}</p>
+              )}
+              {lens === 'cover' && (
+                <p className="small slope-key cover-key">
+                  {[60, 20, 30, 10, 40, 50, 80, 95].map((c) => (
+                    <span key={c}><i className="k" style={{ background: `rgb(${COVER_RGB[c].map((v) => Math.round(v * 255)).join(',')})` }} /> {t(`scout.lc_${WORLDCOVER[c].key}`)} </span>
+                  ))}
+                  <br /><span className="muted">{hm?.layers ? t('scout.coverNote') : t('scout.coverMissing')}</span>
                 </p>
               )}
               {satFail && <p className="small muted">{t('scout.satFail')}</p>}
@@ -489,7 +551,7 @@ export default function Scout() {
                 {grid.ai && (
                 <div className="ai-wrap">
                   <p className="small muted">{scan ? t('scout.ai.afterScan') : t('scout.ai.beforeScan')}</p>
-                  <AiExplain grid={grid} cell={sel} body={body} ranks={ranks} total={ranked.length} verdict={scan?.decision.verdict ?? null} onGo={pick} />
+                  <AiExplain grid={grid} cell={sel} body={body} ranks={ranks} total={ranked.length} verdict={scan?.decision.verdict ?? null} onGo={pick} layers={cellLayers?.cells[sel.id] ?? null} />
                 </div>
               )}
               </div>

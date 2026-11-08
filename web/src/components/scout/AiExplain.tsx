@@ -1,5 +1,5 @@
 import { useI18n } from '../../i18n';
-import type { Body, ScoutCell, ScoutGrid, Verdict } from '../../lib/scout';
+import type { Body, CellLayerStats, ScoutCell, ScoutGrid, Verdict } from '../../lib/scout';
 import { alternative, confidence, explain, type Reason } from '../../lib/scoutAi';
 
 /** Above this distance the 'better place' is not called nearby. */
@@ -21,10 +21,11 @@ interface Props {
   verdict?: Verdict | null;
   onGo?: (c: ScoutCell) => void;
   compact?: boolean;
+  layers?: CellLayerStats | null;
 }
 
 /** The AI second opinion for one cell: score, why it matches, why it does not, and a better place nearby. */
-export default function AiExplain({ grid, cell, body, ranks, total, verdict, onGo, compact }: Props) {
+export default function AiExplain({ grid, cell, body, ranks, total, verdict, onGo, compact, layers }: Props) {
   const { t, loc, num, lang } = useI18n();
   const aiTotal = grid.cells.filter((c) => c.ai?.[body]).length;
   const ex = explain(cell, body, grid.ai, aiTotal);
@@ -70,6 +71,9 @@ export default function AiExplain({ grid, cell, body, ranks, total, verdict, onG
             {ex.notes.filter((n) => n.key === 'footprint' || n.key === 'steep' || n.key === 'hazard').map((n) => (
               <li key={n.key}>{t(`scout.ai.note_${n.key}`, { v: num(n.value, 1) })}</li>
             ))}
+            {layers?.water_any_pct != null && layers.water_any_pct >= 1 && (
+              <li>{t('scout.ai.note_flood', { v: num(layers.water_any_pct, 1) })}</li>
+            )}
           </ul>
         </div>
       )}
@@ -86,6 +90,7 @@ export default function AiExplain({ grid, cell, body, ranks, total, verdict, onG
           {t('scout.ai.env', { rain: num(env.rain_mm), rh: num(env.rh), wind: num(env.wind_ms, 1), months: monthSpan(env.coolest, lang) })}
         </p>
       )}
+      {!compact && lstText(layers, t, num)}
 
       {alt && (
         <div className="ai-alt">
@@ -95,4 +100,12 @@ export default function AiExplain({ grid, cell, body, ranks, total, verdict, onG
       )}
     </div>
   );
+}
+
+/** Ground (not air) temperature from MODIS: hottest-month day and coldest-month night. */
+function lstText(l: CellLayerStats | null | undefined, t: (k: string, v?: Record<string, string | number>) => string, num: (n: number, d?: number) => string) {
+  const day = (l?.lst_day ?? []).filter((v): v is number => v != null);
+  const night = (l?.lst_night ?? []).filter((v): v is number => v != null);
+  if (!day.length || !night.length) return null;
+  return <p className="small muted ai-env">{t('scout.ai.lst', { hot: num(Math.max(...day), 0), cold: num(Math.min(...night), 0) })}</p>;
 }

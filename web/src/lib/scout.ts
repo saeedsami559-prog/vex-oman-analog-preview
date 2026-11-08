@@ -172,6 +172,89 @@ export async function loadHeightmap(cell: ScoutCell): Promise<{ heights: Float32
   return { heights: decodeTerrarium(g.getImageData(0, 0, px, px).data, px * px), px };
 }
 
+export interface CellLayerStats {
+  landcover_pct?: Record<string, number>;
+  water_any_pct?: number;
+  water_seasonal_pct?: number;
+  water_permanent_pct?: number;
+  hd?: { px: number; res_m: number };
+  lst_day?: (number | null)[];
+  lst_night?: (number | null)[];
+}
+
+export interface CellLayersFile {
+  sources: Record<string, string>;
+  cells: Record<string, CellLayerStats>;
+}
+
+export const LAYERS_URL = `${import.meta.env.BASE_URL}data/cell_layers.json`;
+let layersCache: Promise<CellLayersFile | null> | null = null;
+
+/** Per-cell land cover, surface water, HD terrain and MODIS ground temperature (analysis/src/analog/grid_layers.py). */
+export function useCellLayers(): CellLayersFile | null {
+  const [s, setS] = useState<CellLayersFile | null>(null);
+  useEffect(() => {
+    let alive = true;
+    if (!layersCache) layersCache = fetch(LAYERS_URL).then((r) => (r.ok ? (r.json() as Promise<CellLayersFile>) : null)).catch(() => null);
+    layersCache.then((x) => alive && setS(x));
+    return () => {
+      alive = false;
+    };
+  }, []);
+  return s;
+}
+
+/** ESA WorldCover class codes and the colours the land-cover lens uses. */
+export const WORLDCOVER: Record<number, { key: string; color: [number, number, number] }> = {
+  10: { key: 'trees', color: [0, 100, 0] },
+  20: { key: 'shrub', color: [255, 187, 34] },
+  30: { key: 'grass', color: [255, 255, 76] },
+  40: { key: 'crops', color: [240, 150, 255] },
+  50: { key: 'built', color: [250, 0, 0] },
+  60: { key: 'bare', color: [180, 180, 180] },
+  70: { key: 'snow', color: [240, 240, 240] },
+  80: { key: 'water', color: [0, 100, 200] },
+  90: { key: 'wetland', color: [0, 150, 160] },
+  95: { key: 'mangrove', color: [0, 207, 117] },
+  100: { key: 'moss', color: [250, 230, 160] },
+};
+
+async function atlasCrop(name: string, col: number, row: number, px: number): Promise<Uint8ClampedArray> {
+  const img = await atlasImage(name);
+  const c = document.createElement('canvas');
+  c.width = c.height = px;
+  const g = c.getContext('2d', { willReadFrequently: true });
+  if (!g) throw new Error('no 2d context');
+  g.drawImage(img, col * px, row * px, px, px, 0, 0, px, px);
+  return g.getImageData(0, 0, px, px).data;
+}
+
+/** Land-cover class and water occurrence (0-100 %) per 128 px heightmap pixel, or null if not published. */
+export async function loadCellLayers(cell: ScoutCell): Promise<{ cover: Uint8Array; water: Uint8Array } | null> {
+  const hm = cell.heightmap;
+  if (!hm) return null;
+  try {
+    const d = await atlasCrop(hm.atlas.replace('atlas_', 'layers_'), hm.col, hm.row, hm.px);
+    const n = hm.px * hm.px;
+    const cover = new Uint8Array(n), water = new Uint8Array(n);
+    for (let i = 0; i < n; i++) { cover[i] = d[i * 4]; water[i] = d[i * 4 + 1]; }
+    return { cover, water };
+  } catch {
+    return null;
+  }
+}
+
+/** The 256 px (~109 m) heightmap used for drawing, or null if not published. */
+export async function loadHdHeightmap(cell: ScoutCell, px: number): Promise<Float32Array | null> {
+  const hm = cell.heightmap;
+  if (!hm) return null;
+  try {
+    return decodeTerrarium(await atlasCrop(hm.atlas.replace('atlas_', 'hd_'), hm.col, hm.row, px), px * px);
+  } catch {
+    return null;
+  }
+}
+
 /** Slope in degrees at every heightmap pixel (central differences, edges clamped). */
 export function slopeField(h: Float32Array, px: number, resM: number): Float32Array {
   const s = new Float32Array(px * px);
@@ -207,7 +290,7 @@ export function safeShare(slope: Float32Array, px: number, resM: number, cx = px
 }
 
 export interface Criterion {
-  key: 'science' | 'safety' | 'pristine' | 'access';
+  key: 'science' | 'safety' | 'pristine' | 'access' | 'flood';
   level: Level;
   value: string;
 }
@@ -223,9 +306,13 @@ export interface Decision {
  *  safety    share of the scanned ground below 10 deg: >= 40 % pass, >= 15 % warn, else fail
  *  pristine  built-up + cropland share (ESA WorldCover): < 1 % pass, < 5 % warn, else fail
  *  access    distance from Muscat: <= 450 km pass, else warn (remote is a cost, never a no-go)
+ *  flood     (when JRC surface water is published) water seen on >= 3 % of the scanned ground: warn
  * Verdict: any fail -> NO-GO; otherwise any warn -> CONDITIONAL; all pass -> GO.
  */
-export function decide(cell: ScoutCell, rank: number | undefined, totalRanked: number, safe: number): Decision {
+/** Share of scanned ground where JRC saw surface water at least once (1984-2021) that triggers a flood caution. */
+export const WATER_WARN = 0.03;
+
+export function decide(cell: ScoutCell, rank: number | undefined, totalRanked: number, safe: number, waterShare?: number | null): Decision {
   const pct = rank && totalRanked ? rank / totalRanked : 1;
   const human = (cell.built_pct ?? 0) + (cell.crop_pct ?? 0);
   const criteria: Criterion[] = [
@@ -238,6 +325,8 @@ export function decide(cell: ScoutCell, rank: number | undefined, totalRanked: n
     },
     { key: 'access', level: cell.km_muscat <= 450 ? 'pass' : 'warn', value: `${cell.km_muscat} km` },
   ];
+  // wadi / flood channels: any surface water seen by Landsat (JRC) on 3 % or more of the scanned ground is a caution
+  if (waterShare != null) criteria.push({ key: 'flood', level: waterShare >= WATER_WARN ? 'warn' : 'pass', value: `${Math.round(waterShare * 100)}%` });
   const verdict: Verdict = criteria.some((c) => c.level === 'fail') ? 'nogo' : criteria.some((c) => c.level === 'warn') ? 'conditional' : 'go';
   return { verdict, criteria };
 }

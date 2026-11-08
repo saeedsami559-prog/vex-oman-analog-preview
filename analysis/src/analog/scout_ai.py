@@ -195,6 +195,14 @@ def enrich(grid: dict[str, Any]) -> dict[str, Any]:
     model["note"] = ("k-nearest-neighbour similarity to places space agencies chose for analog work; "
                      "terrain from NASADEM, climate from NASA POWER. A second opinion next to the rule-based decision.")
     grid["ai"] = model
+    # where each cell is, in words (governorate + nearest town), when the place names have been built
+    from .places import WEB as PLACES_WEB, place_of
+
+    if PLACES_WEB.exists():
+        places = json.loads(PLACES_WEB.read_text(encoding="utf-8"))
+        for c in cells:
+            c["place"] = place_of(c["lat"], c["lon"], places)
+
     grid["method"]["climate_source"] = ("NASA POWER Climatology API (RE community), 2001-2025 monthly & annual, "
                                         "cell centre; POWER's native grid is coarser (0.5 x 0.625 deg) than the cells")
     return grid

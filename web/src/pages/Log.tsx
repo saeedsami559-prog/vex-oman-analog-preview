@@ -4,10 +4,11 @@ import 'leaflet/dist/leaflet.css';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { findSite, useDataset } from '../lib/data';
-import { ranksFor, toKml, useScoutGrid, type ScoutCell } from '../lib/scout';
+import { ranksFor, toKml, useCellLayers, useScoutGrid, type ScoutCell } from '../lib/scout';
 import { clearLog, deleteFlight, loadLog, type FlightRecord } from '../lib/missionLog';
 import AiExplain, { monthSpan } from '../components/scout/AiExplain';
 import ContinueExploring from '../components/common/ContinueExploring';
+import { describePlace, usePlaces } from '../lib/places';
 
 const mmss = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
 
@@ -35,8 +36,9 @@ function download(name: string, text: string, type: string) {
 }
 
 export default function Log() {
-  const { t, num, lang } = useI18n();
+  const { t, num, lang, loc } = useI18n();
   const log = useLog();
+  const places = usePlaces();
   const { grid } = useScoutGrid();
   const [openId, setOpenId] = useState<string | null>(null);
   const [cmp, setCmp] = useState<string[]>([]);
@@ -68,7 +70,8 @@ export default function Log() {
                 <li key={f.id} className={open?.id === f.id ? 'active' : ''}>
                   <button type="button" onClick={() => setOpenId(f.id)}>
                     <span className="log-when">{date(f.started)}</span>
-                    <span className="nowrap" dir="ltr">{num(f.lat, 2)}° N, {num(f.lon, 2)}° E</span>
+                    <span className="log-place">{describePlace(places, f.lat, f.lon, t, loc) ?? ''}</span>
+                    <span className="nowrap muted small" dir="ltr">{num(f.lat, 2)}° N, {num(f.lon, 2)}° E</span>
                     <span className="log-meta">
                       <span className={`dot ${f.body}`} /> {t(`scout.body_${f.body}`)} · {t(`log.mode_${f.mode}`)} · {mmss(f.droneSeconds)} · {num(f.distanceKm, 1)} km
                     </span>
@@ -97,7 +100,9 @@ export default function Log() {
 function FlightReport({ f, cell, date }: { f: FlightRecord; cell: ScoutCell | null; date: (ms: number) => string }) {
   const { t, num, lang, loc } = useI18n();
   const data = useDataset();
+  const places = usePlaces();
   const { grid } = useScoutGrid();
+  const cellLayers = useCellLayers();
   const ranks = useMemo(() => (grid ? ranksFor(grid.cells, f.body) : new Map<string, number>()), [grid, f.body]);
   const site = grid?.sites.find((s) => s.cell === f.cellId);
   const siteObj = site ? findSite(data, site.id) : null;
@@ -110,7 +115,8 @@ function FlightReport({ f, cell, date }: { f: FlightRecord; cell: ScoutCell | nu
       <div className="report-head">
         <div>
           <p className="kicker">{t('log.report')}</p>
-          <h2><span dir="ltr">{num(f.lat, 2)}° N, {num(f.lon, 2)}° E</span> · {t(`scout.body_${f.body}`)}</h2>
+          <h2>{describePlace(places, f.lat, f.lon, t, loc) ?? ''} · {t(`scout.body_${f.body}`)}</h2>
+          <p className="muted small" dir="ltr">{num(f.lat, 4)}° N, {num(f.lon, 4)}° E</p>
           <p className="muted small">{date(f.started)} · VEX Scout · {f.cellId}{siteObj ? ` · ${loc(siteObj.name)}` : ''}</p>
         </div>
         <div className="report-actions no-print">
@@ -176,7 +182,7 @@ function FlightReport({ f, cell, date }: { f: FlightRecord; cell: ScoutCell | nu
         <div>
           <h3>{t('log.whyTitle')}</h3>
           {grid && cell ? (
-            <AiExplain grid={grid} cell={cell} body={f.body} ranks={ranks} total={ranks.size} verdict={f.scan?.verdict ?? null} />
+            <AiExplain grid={grid} cell={cell} body={f.body} ranks={ranks} total={ranks.size} verdict={f.scan?.verdict ?? null} layers={cellLayers?.cells[f.cellId] ?? null} />
           ) : (
             <p className="muted small">{t('common.loading')}</p>
           )}
