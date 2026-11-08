@@ -1,0 +1,23 @@
+name: Fetch NASA POWER for benchmark sites
+on:
+  push:
+    branches: [power]
+permissions:
+  contents: write
+jobs:
+  power:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+      - run: python tools/fetch_power.py
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B power-results
+          git add data/processed/environment/nasa_power
+          git commit -m "NASA POWER raw responses for benchmark sites"
+          git push -f origin power-results
