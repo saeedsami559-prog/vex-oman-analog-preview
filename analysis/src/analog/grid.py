@@ -1,7 +1,9 @@
 """VEX Scout: screen the whole of Oman, cell by cell, for Mars and Moon terrain analogs.
 
     python -m analog.grid fetch     # NASA/ESA data -> data/processed/grid/cells_raw.json + heightmaps (needs network)
-    python -m analog.grid score     # cells_raw.json -> data/processed/grid/oman_grid.json + web copy (offline)
+    python -m analog.grid power     # NASA POWER climatology for every cell -> data/processed/grid/nasa_power_cells.json
+    python -m analog.grid score     # cells_raw.json -> data/processed/grid/oman_grid.json + web copy (offline,
+                                    # then analog.scout_ai adds the AI second opinion, safe ground and climate)
 
 The country is split into 0.25 deg x 0.25 deg cells (about 25-28 km on a side). For every cell that is at
 least 30 % land inside Oman's border (Natural Earth admin-0, 1:10m), the fetch step reads:
@@ -216,6 +218,36 @@ def pack(raw: dict[str, Any]) -> dict[str, Any]:
     return raw
 
 
+POWER_PARAMS = "T2M,T2M_RANGE,PRECTOTCORR,RH2M,WS10M,WS2M"
+POWER_URL = ("https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=" + POWER_PARAMS +
+             "&community=RE&longitude={lon}&latitude={lat}&format=JSON")
+
+
+def fetch_power() -> None:
+    """Raw NASA POWER climatology response for every cell centre, saved in one file keyed by cell id."""
+    import time
+
+    from .scout_ai import POWER_FILE
+
+    cells = json.loads(RAW_FILE.read_text(encoding="utf-8"))["cells"]
+    out: dict[str, Any] = json.loads(POWER_FILE.read_text(encoding="utf-8")) if POWER_FILE.exists() else {}
+    for c in cells:
+        if c["id"] in out:
+            continue
+        url = POWER_URL.format(lon=c["lon"], lat=c["lat"])
+        for _ in range(5):
+            try:
+                req = urllib.request.Request(url, headers={"User-Agent": "vex-oman-analog"})
+                out[c["id"]] = json.loads(urllib.request.urlopen(req, timeout=120).read())
+                break
+            except Exception as e:  # noqa: BLE001 - network hiccups: retry
+                print("retry", c["id"], e)
+                time.sleep(15)
+        time.sleep(1)
+    POWER_FILE.write_text(json.dumps(out, separators=(",", ":")) + "\n", encoding="utf-8")
+    print(f"NASA POWER saved for {len(out)} of {len(cells)} cells")
+
+
 # ---------- score (offline) ----------
 
 def score(raw: dict[str, Any]) -> dict[str, Any]:
@@ -296,10 +328,12 @@ def write_scores() -> dict[str, Any]:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("step", choices=["fetch", "pack", "score"])
+    ap.add_argument("step", choices=["fetch", "pack", "power", "score"])
     args = ap.parse_args()
     if args.step == "fetch":
         fetch()
+    elif args.step == "power":
+        fetch_power()
     elif args.step == "pack":  # one-off for grids fetched before packing existed
         raw = pack(json.loads(RAW_FILE.read_text(encoding="utf-8")))
         RAW_FILE.write_text(json.dumps(raw, indent=1), encoding="utf-8")

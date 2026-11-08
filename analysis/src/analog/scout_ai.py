@@ -45,7 +45,7 @@ from . import DATA_DIR, REPO_DIR
 from .environment import coolest_window, env_index
 from .grid import OUT_FILE, WEB_FILE, ATLAS_DIR, terrarium_decode
 
-# Raw NASA POWER responses for every cell centre, keyed by cell id (fetched by tools/fetch_grid_power.py).
+# Raw NASA POWER responses for every cell centre, keyed by cell id (python -m analog.grid power).
 POWER_FILE = DATA_DIR / "processed" / "grid" / "nasa_power_cells.json"
 SITES_FILE = REPO_DIR / "web" / "public" / "data" / "sites.json"
 ENV_FILE = REPO_DIR / "web" / "public" / "data" / "environment.json"
