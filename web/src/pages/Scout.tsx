@@ -225,7 +225,7 @@ export default function Scout() {
     const next = auto === m ? false : m;
     drone.current?.setAuto(next);
     setAuto(next);
-    if (next && sel) ensureFlight(sel).mode = next;
+    if (next && next !== 'goto' && sel) ensureFlight(sel).mode = next;
     focusView();
   };
   const pick = (c: ScoutCell) => {

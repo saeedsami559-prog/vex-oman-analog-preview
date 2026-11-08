@@ -1142,7 +1142,7 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
       }
       const upv = Math.abs(dir[1]) > 0.997 ? [-Math.sin(yawC), 0, -Math.cos(yawC)] : [0, 1, 0];
       const view = lookAt(eye, [eye[0] + dir[0], eye[1] + dir[1], eye[2] + dir[2]], upv);
-      s.ray = { eye, dir };
+      s.ray = { eye, dir, tH: s.ray.tH, aspect: s.ray.aspect };
       const aspect = canvas.width / Math.max(1, canvas.height);
       const tH = Math.tan((HFOV * Math.PI) / 360) / s.zoom;
       const vfov = 2 * Math.atan(tH / aspect);
