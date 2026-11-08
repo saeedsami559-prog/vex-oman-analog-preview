@@ -20,7 +20,8 @@ import type { Photo } from '../../lib/missionLog';
 
 export type Lens = 'relief' | 'slope' | 'mars' | 'satellite' | 'hazard' | 'cover';
 export type Phase = 'landed' | 'takeoff' | 'flying' | 'landing' | 'rth';
-export type AutoMode = false | 'survey' | 'dragonfly';
+export type AutoMode = false | 'survey' | 'dragonfly' | 'goto';
+export type CamMode = 'fpv' | 'chase';
 export type DfStep = 'out' | 'scan' | 'back' | 'land' | 'hop' | null;
 
 export interface Telemetry {
@@ -42,6 +43,10 @@ export interface Telemetry {
   wind: number | null;
   footprintM: [number, number] | null; // ground width x depth seen by the camera when looking down
   zoom: number; // camera zoom (1 = the 82 deg wide view)
+  cam: CamMode;
+  pad: boolean; // a game controller is connected
+  holdAgl: number | null;
+  buildings: number; // buildings drawn around the drone
   dfStep: DfStep;
   lzCount: number;
 }
@@ -78,6 +83,8 @@ export interface DroneHandle {
   returnHome: () => void;
   photo: () => void;
   stats: () => FlightStats;
+  setCam: (c: CamMode) => void;
+  setAltitude: (aglM: number) => void;
 }
 
 export type DroneEvent =
@@ -85,7 +92,8 @@ export type DroneEvent =
   | { type: 'landed'; safe: boolean; slope: number }
   | { type: 'rth'; reason: 'battery' | 'user' }
   | { type: 'lz'; marker: Marker }
-  | { type: 'photo'; photo: Photo };
+  | { type: 'photo'; photo: Photo }
+  | { type: 'scanRequest' };
 
 interface Props {
   cell: ScoutCell;
@@ -100,6 +108,10 @@ interface Props {
   draw?: { heights: Float32Array; px: number; resM: number } | null;
   /** Optional per-pixel land cover (WorldCover code) and surface-water occurrence (0-100), on the `px` grid. */
   layers?: { cover: Uint8Array; water: Uint8Array } | null;
+  /** Building footprints of the cell: 6 numbers each (x m, z m, length m, width m, angle deg, height m or 0). */
+  buildings?: Float32Array | null;
+  /** Control sensitivity, 0.5 (gentle) .. 1.5 (sporty). */
+  sens?: number;
   onTelemetry: (t: Telemetry) => void;
   onEvent?: (e: DroneEvent) => void;
   onSatelliteFail?: () => void;
@@ -160,19 +172,58 @@ void main(){
   gl_Position = uMvp * vec4(aPos, 1.0);
 }`;
 
-const FS = `
+const fsSource = (derivatives: boolean) => `${derivatives ? '#extension GL_OES_standard_derivatives : enable\n' : ''}
 precision mediump float;
 varying vec3 vNormal; varying float vSlope; varying float vRough; varying float vH; varying vec2 vUv; varying float vDist; varying vec2 vXZ; varying vec3 vCover; varying float vWater;
 uniform int uLens; uniform vec2 uHRange; uniform vec3 uSun; uniform vec3 uFog; uniform float uFogFar;
 uniform sampler2D uTex; uniform vec3 uScan; uniform float uScanT;
 uniform sampler2D uDetail; uniform vec4 uDet; uniform float uDetOn;
+uniform sampler2D uDetail2; uniform vec4 uDet2; uniform float uDet2On;
+uniform vec3 uTexel; uniform float uHalf; uniform float uContour; uniform float uSatOk; uniform float uEx;
 vec3 ramp(float t, vec3 a, vec3 b, vec3 c, vec3 d){
   return t < 0.33 ? mix(a, b, t / 0.33) : t < 0.66 ? mix(b, c, (t - 0.33) / 0.33) : mix(c, d, (t - 0.66) / 0.34);
+}
+// unsharp mask: the texel plus a little of its difference from its 4 neighbours
+vec3 sharp(sampler2D t, vec2 uv, float px, float k){
+  vec3 c = texture2D(t, uv).rgb;
+  vec3 b = (texture2D(t, uv + vec2(px, 0.0)).rgb + texture2D(t, uv - vec2(px, 0.0)).rgb + texture2D(t, uv + vec2(0.0, px)).rgb + texture2D(t, uv - vec2(0.0, px)).rgb) * 0.25;
+  return clamp(c + (c - b) * k, 0.0, 1.0);
+}
+vec3 satellite(){
+  vec3 base = sharp(uTex, vUv, uTexel.x, 0.35);
+  if (uDetOn > 0.5) {
+    vec2 du = (vXZ - uDet.xy) / uDet.zw;
+    if (du.x > 0.0 && du.y > 0.0 && du.x < 1.0 && du.y < 1.0) {
+      float e = smoothstep(0.0, 0.1, min(min(du.x, du.y), min(1.0 - du.x, 1.0 - du.y)));
+      base = mix(base, sharp(uDetail, du, uTexel.y, 0.45), e);
+    }
+  }
+  if (uDet2On > 0.5) {
+    vec2 d2 = (vXZ - uDet2.xy) / uDet2.zw;
+    if (d2.x > 0.0 && d2.y > 0.0 && d2.x < 1.0 && d2.y < 1.0) {
+      float e = smoothstep(0.0, 0.15, min(min(d2.x, d2.y), min(1.0 - d2.x, 1.0 - d2.y)));
+      base = mix(base, sharp(uDetail2, d2, uTexel.z, 0.5), e);
+    }
+  }
+  // gentle grading: a touch more contrast and colour, like a drone camera profile
+  base = (base - 0.5) * 1.1 + 0.52;
+  float l = dot(base, vec3(0.299, 0.587, 0.114));
+  return clamp(mix(vec3(l), base, 1.12), 0.0, 1.0);
+}
+float contour(){
+  if (uContour <= 0.0) return 0.0;
+  float h = vH / uEx;
+  float f = abs(fract(h / uContour + 0.5) - 0.5);
+  ${derivatives ? 'float w = fwidth(h / uContour) * 1.2;' : 'float w = 0.04;'}
+  float major = abs(fract(h / (uContour * 5.0) + 0.5) - 0.5);
+  ${derivatives ? 'float wm = fwidth(h / (uContour * 5.0)) * 1.6;' : 'float wm = 0.02;'}
+  return max(1.0 - smoothstep(0.0, w, f), (1.0 - smoothstep(0.0, wm, major)) * 1.0) * (1.0 - smoothstep(0.0, 1.0, vDist / (uFogFar * 0.6)));
 }
 void main(){
   vec3 n = normalize(vNormal);
   float diff = clamp(dot(n, normalize(uSun)), 0.0, 1.0);
-  float shade = 0.35 + 0.75 * diff;
+  float fill = clamp(dot(n, normalize(vec3(-0.6, 0.5, 0.4))), 0.0, 1.0);
+  float shade = 0.3 + 0.7 * diff + 0.15 * fill;
   float t = clamp((vH - uHRange.x) / max(1.0, uHRange.y - uHRange.x), 0.0, 1.0);
   vec3 col;
   if (uLens == 1) {
@@ -181,30 +232,29 @@ void main(){
   } else if (uLens == 2) {
     col = ramp(t, vec3(0.45, 0.20, 0.10), vec3(0.70, 0.33, 0.16), vec3(0.82, 0.48, 0.28), vec3(0.88, 0.70, 0.55)) * shade;
   } else if (uLens == 3) {
-    vec3 base = texture2D(uTex, vUv).rgb;
-    if (uDetOn > 0.5) {
-      vec2 du = (vXZ - uDet.xy) / uDet.zw;
-      if (du.x > 0.0 && du.y > 0.0 && du.x < 1.0 && du.y < 1.0) {
-        float edge = smoothstep(0.0, 0.08, min(min(du.x, du.y), min(1.0 - du.x, 1.0 - du.y)));
-        base = mix(base, texture2D(uDetail, du).rgb, edge);
-      }
-    }
-    col = base * (0.78 + 0.32 * diff);
+    col = satellite() * (0.8 + 0.3 * diff);
   } else if (uLens == 4) {
-    // hazard map in the style of the Jezero landing hazard map: blue safest, green safe, yellow caution, red hazard
-    float lvl = vSlope < 5.0 && vRough < 30.0 ? 0.0 : vSlope < ${SAFE_DEG.toFixed(1)} && vRough < 60.0 ? 1.0 : vSlope < ${HAZARD_DEG.toFixed(1)} ? 2.0 : 3.0;
-    col = lvl < 0.5 ? vec3(0.20, 0.48, 0.86) : lvl < 1.5 ? vec3(0.25, 0.72, 0.40) : lvl < 2.5 ? vec3(0.95, 0.78, 0.25) : vec3(0.90, 0.25, 0.22);
-    // wadi channels: JRC saw surface water here in at least 10 % of observations -> flash-flood hazard
-    if (vWater >= 10.0) col = mix(col, vec3(0.62, 0.32, 0.92), 0.85);
-    col *= 0.5 + 0.65 * diff;
+    // hazard map in the spirit of the Jezero landing hazard map: one continuous hazard score from slope and
+    // local roughness, blue safest -> green -> yellow -> red; wadi channels purple; the real ground shows through
+    float hz = max(clamp(vSlope / ${HAZARD_DEG.toFixed(1)}, 0.0, 1.0), clamp(vRough / 160.0, 0.0, 1.0));
+    vec3 hc = hz < 0.2 ? mix(vec3(0.16, 0.42, 0.90), vec3(0.20, 0.70, 0.45), hz / 0.2)
+            : hz < 0.4 ? mix(vec3(0.20, 0.70, 0.45), vec3(0.98, 0.82, 0.25), (hz - 0.2) / 0.2)
+            : mix(vec3(0.98, 0.82, 0.25), vec3(0.92, 0.18, 0.18), clamp((hz - 0.4) / 0.6, 0.0, 1.0));
+    if (vWater >= 10.0 && vWater < 75.0) hc = mix(hc, vec3(0.62, 0.32, 0.92), 0.85);
+    if (vWater >= 75.0) hc = vec3(0.10, 0.30, 0.62); // the sea or a permanent lake: water, not a wadi
+    vec3 ground = uSatOk > 0.5 ? satellite() : vec3(0.6);
+    col = mix(ground, hc, 0.62) * (0.62 + 0.5 * diff);
   } else if (uLens == 5) {
     // what is on the ground: ESA WorldCover classes, water occurrence from JRC on top
     col = vCover;
     if (vWater > 0.5) col = mix(col, vec3(0.10, 0.45, 0.95), clamp(0.25 + vWater / 100.0, 0.0, 1.0));
     col *= 0.6 + 0.55 * diff;
   } else {
-    col = ramp(t, vec3(0.80, 0.70, 0.52), vec3(0.72, 0.56, 0.38), vec3(0.55, 0.42, 0.32), vec3(0.78, 0.76, 0.74)) * shade;
+    // relief: hypsometric tint (low plains sand -> rock -> high summits pale) with two-light hillshade
+    col = ramp(t, vec3(0.86, 0.76, 0.56), vec3(0.74, 0.58, 0.40), vec3(0.56, 0.45, 0.36), vec3(0.86, 0.85, 0.83)) * shade;
+    if (vWater >= 75.0) col = vec3(0.12, 0.33, 0.58) * (0.8 + 0.2 * diff);
   }
+  if (uLens == 0 || uLens == 4) col = mix(col, uLens == 0 ? vec3(0.25, 0.17, 0.10) : vec3(0.1), contour() * 0.55);
   if (uScanT >= 0.0) {
     float d = distance(vXZ, uScan.xz);
     float ring = smoothstep(18.0, 0.0, abs(d - uScanT * uScan.y)) * (1.0 - uScanT);
@@ -212,8 +262,71 @@ void main(){
     col = mix(col, vec3(0.35, 0.95, 1.0), clamp(ring + inside, 0.0, 1.0));
   }
   float f = clamp(vDist / uFogFar, 0.0, 1.0);
+  // the cell ends after ~27 km: melt its edge into the horizon instead of cutting it
+  float edge = smoothstep(0.86, 1.0, max(abs(vXZ.x), abs(vXZ.y)) / uHalf);
+  gl_FragColor = vec4(mix(col, uFog, clamp(f * f + edge, 0.0, 1.0)), 1.0 - edge * 0.85);
+}`;
+
+// buildings and the drone model: flat-lit boxes; colour < 0 means "take the roof colour from the satellite image"
+const VSB = `
+attribute vec3 aP; attribute vec3 aN; attribute vec3 aC; attribute vec2 aT;
+uniform mat4 uMvp; uniform mat4 uModel; uniform vec3 uEye;
+varying vec3 vN; varying vec3 vC; varying vec2 vT; varying float vD;
+void main(){
+  vec4 w = uModel * vec4(aP, 1.0);
+  vN = (uModel * vec4(aN, 0.0)).xyz; vC = aC; vT = aT; vD = distance(w.xyz, uEye);
+  gl_Position = uMvp * w;
+}`;
+const FSB = `
+precision mediump float;
+varying vec3 vN; varying vec3 vC; varying vec2 vT; varying float vD;
+uniform sampler2D uTex; uniform float uUseTex; uniform vec3 uFlat; uniform vec3 uSun; uniform vec3 uFog; uniform float uFogFar;
+void main(){
+  vec3 n = normalize(vN);
+  float d = clamp(dot(n, normalize(uSun)), 0.0, 1.0);
+  vec3 base = vC;
+  if (vC.r < 0.0) {
+    vec3 tc = uUseTex > 0.5 ? texture2D(uTex, vT).rgb : uFlat;
+    // roofs keep the colour seen from orbit; walls are a lighter plaster tone of it
+    base = n.y > 0.5 ? clamp(tc * 1.1 + 0.05, 0.0, 1.0) : mix(tc, vec3(0.86, 0.80, 0.70), 0.5);
+  }
+  vec3 col = base * (0.42 + 0.62 * d + 0.14 * max(n.y, 0.0));
+  float f = clamp(vD / uFogFar, 0.0, 1.0);
   gl_FragColor = vec4(mix(col, uFog, f * f), 1.0);
 }`;
+
+interface Geo { p: number[]; n: number[]; c: number[]; t: number[]; i: number[] }
+const geo = (): Geo => ({ p: [], n: [], c: [], t: [], i: [] });
+/** Append an oriented box: centre (cx, cz) on the ground, y from y0 to y1, half sizes hx, hz, rotated by `ang` (rad). */
+function addBox(g: Geo, cx: number, cz: number, y0: number, y1: number, hx: number, hz: number, ang: number, col: number[], uv: number[], bottom = false) {
+  const c = Math.cos(ang), sn = Math.sin(ang);
+  const P = (u: number, v: number) => [cx + u * c - v * sn, cz + u * sn + v * c];
+  const q = [P(-hx, -hz), P(hx, -hz), P(hx, hz), P(-hx, hz)];
+  const face = (pts: number[][], nx: number, ny: number, nz: number) => {
+    const b = g.p.length / 3;
+    for (const pt of pts) { g.p.push(pt[0], pt[1], pt[2]); g.n.push(nx, ny, nz); g.c.push(col[0], col[1], col[2]); g.t.push(uv[0], uv[1]); }
+    g.i.push(b, b + 1, b + 2, b, b + 2, b + 3);
+  };
+  face([[q[0][0], y1, q[0][1]], [q[3][0], y1, q[3][1]], [q[2][0], y1, q[2][1]], [q[1][0], y1, q[1][1]]], 0, 1, 0);
+  if (bottom) face([[q[0][0], y0, q[0][1]], [q[1][0], y0, q[1][1]], [q[2][0], y0, q[2][1]], [q[3][0], y0, q[3][1]]], 0, -1, 0);
+  for (let k = 0; k < 4; k++) {
+    const a = q[k], b2 = q[(k + 1) % 4];
+    const ex = b2[0] - a[0], ez = b2[1] - a[1], l = Math.hypot(ex, ez) || 1;
+    face([[a[0], y0, a[1]], [b2[0], y0, b2[1]], [b2[0], y1, b2[1]], [a[0], y1, a[1]]], ez / l, 0, -ex / l);
+  }
+}
+/** A small quadcopter in local units (forward = -z), drawn enlarged so it reads on screen in chase view. */
+function droneModel(): Geo {
+  const g = geo();
+  const dark = [0.16, 0.18, 0.22], grey = [0.72, 0.75, 0.8], red = [0.95, 0.25, 0.2], white = [0.93, 0.95, 0.98];
+  addBox(g, 0, 0, -0.25, 0.25, 0.55, 0.85, 0, white, [0, 0], true);
+  addBox(g, 0, 0, 0.0, 0.12, 1.9, 0.12, Math.PI / 4, dark, [0, 0], true);
+  addBox(g, 0, 0, 0.0, 0.12, 1.9, 0.12, -Math.PI / 4, dark, [0, 0], true);
+  for (const [x, z] of [[1.34, 1.34], [-1.34, 1.34], [1.34, -1.34], [-1.34, -1.34]]) addBox(g, x, z, 0.14, 0.2, 0.75, 0.75, 0.3, grey, [0, 0], true);
+  addBox(g, 0, -0.95, -0.45, -0.12, 0.22, 0.2, 0, dark, [0, 0], true);
+  addBox(g, 0, -0.86, 0.05, 0.16, 0.12, 0.05, 0, red, [0, 0], true);
+  return g;
+}
 
 function compile(gl: WebGLRenderingContext, type: number, src: string) {
   const s = gl.createShader(type)!;
@@ -231,6 +344,7 @@ const tileY = (lat: number, z: number) => {
 };
 const SAT_Z = 13; // ~17 m per pixel over the whole cell
 const DET_Z = 15; // ~4 m per pixel in a 4 x 4 tile patch that follows the drone
+const DET2_Z = 17; // ~1 m per pixel in a 4 x 4 tile patch right under a low-flying drone
 const TILE_URL = (z: number, y: number, x: number) => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
 const loadTile = (src: string) => new Promise<HTMLImageElement>((res, rej) => {
   const img = new Image();
@@ -280,7 +394,7 @@ type Task =
   | { k: 'lz' };
 
 const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
-  { cell, heights, slope, px, resM, lens, body, wind, draw, layers, onTelemetry, onEvent, onSatelliteFail }, ref,
+  { cell, heights, slope, px, resM, lens, body, wind, draw, layers, buildings, sens = 1, onTelemetry, onEvent, onSatelliteFail }, ref,
 ) {
   const { t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -342,8 +456,13 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
     scan: null as null | { x: number; z: number; t0: number },
     lens: lens as Lens, satReady: false, shoot: false, zoom: 1,
     det: null as null | { cx: number; cz: number; loading: boolean },
+    det2: null as null | { cx: number; cz: number; loading: boolean },
+    cam: 'fpv' as CamMode, holdAgl: null as number | null, goto: null as null | [number, number], sens: 1,
+    padPrev: [] as boolean[], pad: false, bld: 0,
+    ray: { eye: [0, 0, 0], dir: [0, 0, -1], tH: 1, aspect: 1 } as { eye: number[]; dir: number[]; tH: number; aspect: number },
   });
   st.current.lens = lens;
+  st.current.sens = sens;
 
   const doScan = (): ScanResult => {
     const s = st.current;
@@ -361,7 +480,8 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
     let wet = 0;
     if (layers) {
       for (let y = 0; y < px; y++) for (let x = 0; x < px; x++) {
-        if ((x - cx) ** 2 + (y - cy) ** 2 <= r * r && layers.water[y * px + x] > 0) wet++;
+        const w = layers.water[y * px + x];
+        if ((x - cx) ** 2 + (y - cy) ** 2 <= r * r && w > 0 && w < 75) wet++; // seasonal water = wadi channels, not the sea
       }
     }
     const [lat, lon] = toLatLon(cell, s.x, -s.z);
@@ -447,6 +567,12 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
       evRef.current?.({ type: 'rth', reason: 'user' });
     },
     photo: () => { st.current.shoot = true; },
+    setCam: (c: CamMode) => { st.current.cam = c; },
+    setAltitude: (aglM: number) => {
+      const s = st.current;
+      s.holdAgl = aglM;
+      if (s.phase === 'landed') takeOff();
+    },
     stats: () => {
       const s = st.current;
       return { droneSeconds: s.flightSec, distanceKm: s.distM / 1000, batteryUsed: Math.max(0, s.batteryStart - s.battery), maxAglM: s.maxAgl, landings: s.landings };
@@ -520,32 +646,122 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
     const prog = gl.createProgram()!;
     try {
       gl.attachShader(prog, compile(gl, gl.VERTEX_SHADER, VS));
-      gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, FS));
+      gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, fsSource(!!gl.getExtension('OES_standard_derivatives'))));
     } catch {
       return; // no WebGL here: leave the screen empty instead of taking the whole page down
     }
     gl.linkProgram(prog);
     gl.useProgram(prog);
+    const tAttrs: { b: WebGLBuffer; loc: number; size: number }[] = [];
     const attr = (name: string, data: Float32Array, size2: number) => {
-      const b = gl.createBuffer();
+      const b = gl.createBuffer()!;
       gl.bindBuffer(gl.ARRAY_BUFFER, b);
       gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
       const loc = gl.getAttribLocation(prog, name);
       if (loc < 0) return;
-      gl.enableVertexAttribArray(loc);
-      gl.vertexAttribPointer(loc, size2, gl.FLOAT, false, 0, 0);
+      tAttrs.push({ b, loc, size: size2 });
     };
     attr('aPos', pos, 3); attr('aNormal', nor, 3); attr('aSlope', sl, 1); attr('aRough', ro, 1); attr('aUv', uv, 2); attr('aCover', cov, 3); attr('aWater', wat, 1);
     const ib = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idx, gl.STATIC_DRAW);
+    const maxAttr = gl.getParameter(gl.MAX_VERTEX_ATTRIBS) as number;
+    const bindTerrain = () => {
+      gl.useProgram(prog);
+      for (let i = 0; i < maxAttr; i++) gl.disableVertexAttribArray(i);
+      for (const a of tAttrs) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, a.b);
+        gl.enableVertexAttribArray(a.loc);
+        gl.vertexAttribPointer(a.loc, a.size, gl.FLOAT, false, 0, 0);
+      }
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
+    };
+    bindTerrain();
     const U = (nm: string) => gl.getUniformLocation(prog, nm);
     const uMvp = U('uMvp'), uEye = U('uEye'), uLens = U('uLens'), uHR = U('uHRange'), uSun = U('uSun'),
       uFog = U('uFog'), uFogFar = U('uFogFar'), uScan = U('uScan'), uScanT = U('uScanT');
     gl.uniform2f(uHR, hmin * EX, hmax * EX);
     gl.uniform3f(uSun, 0.55, 0.75, -0.35);
     gl.uniform1f(uFogFar, size * 1.15);
+    gl.uniform1f(U('uHalf'), half);
+    gl.uniform1f(U('uEx'), EX);
+    const relief = hmax - hmin;
+    gl.uniform1f(U('uContour'), relief > 1500 ? 100 : relief > 600 ? 50 : relief > 200 ? 20 : 10);
     gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.BLEND);
+    gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+    // ----- buildings (Microsoft footprints, drawn as blocks where they really stand) and the drone model -----
+    const bprog = gl.createProgram()!;
+    let bOk = true;
+    try {
+      gl.attachShader(bprog, compile(gl, gl.VERTEX_SHADER, VSB));
+      gl.attachShader(bprog, compile(gl, gl.FRAGMENT_SHADER, FSB));
+      gl.linkProgram(bprog);
+      bOk = !!gl.getProgramParameter(bprog, gl.LINK_STATUS);
+    } catch { bOk = false; }
+    const BU = (nm: string) => gl.getUniformLocation(bprog, nm);
+    const bLoc = { p: gl.getAttribLocation(bprog, 'aP'), n: gl.getAttribLocation(bprog, 'aN'), c: gl.getAttribLocation(bprog, 'aC'), t: gl.getAttribLocation(bprog, 'aT') };
+    const uintExt = gl.getExtension('OES_element_index_uint');
+    interface Mesh { b: WebGLBuffer[]; ib: WebGLBuffer; count: number; type: number }
+    const mkMesh = (g: Geo): Mesh => {
+      const mk = (a: number[]) => { const b = gl.createBuffer()!; gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(a), gl.STATIC_DRAW); return b; };
+      const b = [mk(g.p), mk(g.n), mk(g.c), mk(g.t)];
+      const big = g.p.length / 3 > 65535;
+      const ib2 = gl.createBuffer()!;
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib2);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, big ? new Uint32Array(g.i) : new Uint16Array(g.i), gl.STATIC_DRAW);
+      return { b, ib: ib2, count: g.i.length, type: big ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT };
+    };
+    const freeMesh = (m: Mesh | null) => { if (!m) return; m.b.forEach((b) => gl.deleteBuffer(b)); gl.deleteBuffer(m.ib); };
+    const drawMesh = (m: Mesh, model: Float32Array) => {
+      for (let i = 0; i < maxAttr; i++) gl.disableVertexAttribArray(i);
+      const sizes = [3, 3, 3, 2];
+      [bLoc.p, bLoc.n, bLoc.c, bLoc.t].forEach((loc, k) => {
+        if (loc < 0) return;
+        gl.bindBuffer(gl.ARRAY_BUFFER, m.b[k]);
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, sizes[k], gl.FLOAT, false, 0, 0);
+      });
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.ib);
+      gl.uniformMatrix4fv(BU('uModel'), false, model);
+      gl.drawElements(gl.TRIANGLES, m.count, m.type, 0);
+    };
+    const ID4 = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+    const droneMesh = bOk ? mkMesh(droneModel()) : null;
+    let bldMesh: Mesh | null = null;
+    let bldAt: [number, number] | null = null;
+    const BLD_R = 3500;
+    const BLD_MAX = uintExt ? 15000 : 3200;
+    const satUv = (wx: number, wz: number) => {
+      const [la, lo] = toLatLon(cell, wx, -wz);
+      return [(tileX(lo, SAT_Z) - tx0) / tw, (tileY(la, SAT_Z) - ty0) / th];
+    };
+    /** Blocks for the buildings within BLD_R of (cx, cz), nearest first. */
+    const buildBld = (cx: number, cz: number) => {
+      if (!buildings || !bOk) return;
+      const nB = buildings.length / 6;
+      const near: [number, number][] = [];
+      for (let i = 0; i < nB; i++) {
+        const d = Math.hypot(buildings[i * 6] - cx, buildings[i * 6 + 1] - cz);
+        if (d < BLD_R) near.push([d, i]);
+      }
+      near.sort((a, b) => a[0] - b[0]);
+      const g = geo();
+      for (const [, i] of near.slice(0, BLD_MAX)) {
+        const x = buildings[i * 6], z = buildings[i * 6 + 1], l = buildings[i * 6 + 2], w2 = buildings[i * 6 + 3];
+        const ang = (buildings[i * 6 + 4] * Math.PI) / 180, hData = buildings[i * 6 + 5];
+        if (l < 2 || w2 < 2) continue;
+        // height from the dataset when it has one; otherwise a typical Omani house: one storey, two for big footprints
+        const hgt = hData > 0 ? hData : l * w2 > 220 ? 7 : 4.5;
+        const gnd = Math.min(groundAt(x, z), groundAt(x + l / 2, z), groundAt(x - l / 2, z), groundAt(x, z + w2 / 2), groundAt(x, z - w2 / 2));
+        addBox(g, x, z, (gnd - 1) * EX, (gnd + hgt) * EX, l / 2, w2 / 2, ang, [-1, -1, -1], satUv(x, z));
+      }
+      freeMesh(bldMesh);
+      bldMesh = g.i.length ? mkMesh(g) : null;
+      bldAt = [cx, cz];
+      s.bld = Math.min(near.length, BLD_MAX);
+    };
 
     // ----- satellite drape: Esri World Imagery tiles composited on a canvas -----
     const maxTex = Math.min(gl.getParameter(gl.MAX_TEXTURE_SIZE) as number, 4096);
@@ -570,14 +786,24 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, detTex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([120, 110, 90, 255]));
+    const det2Tex = gl.createTexture()!;
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D, det2Tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([120, 110, 90, 255]));
     gl.activeTexture(gl.TEXTURE0);
     gl.uniform1i(U('uTex'), 0);
     gl.uniform1i(U('uDetail'), 1);
-    const uDet = U('uDet'), uDetOn = U('uDetOn');
+    gl.uniform1i(U('uDetail2'), 2);
+    const uDet = U('uDet'), uDetOn = U('uDetOn'), uDet2 = U('uDet2'), uDet2On = U('uDet2On'), uTexel = U('uTexel'), uSatOk = U('uSatOk');
     gl.uniform1f(uDetOn, 0);
+    gl.uniform1f(uDet2On, 0);
+    gl.uniform1f(uSatOk, 0);
+    const texel = [1 / 1024, 1 / 1024, 1 / 1024];
+    gl.uniform3f(uTexel, texel[0], texel[1], texel[2]);
     let cancelled = false;
     s.satReady = false;
     s.det = null;
+    s.det2 = null;
     (async () => {
       try {
         const W = Math.min(maxTex, pot(tw * 256)), H = Math.min(maxTex, pot(th * 256));
@@ -593,43 +819,51 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
         if (cancelled) return;
         gl.activeTexture(gl.TEXTURE0);
         upload(tex, c);
+        texel[0] = 1 / W;
+        gl.uniform3f(uTexel, texel[0], texel[1], texel[2]);
+        gl.uniform1f(uSatOk, 1);
         s.satReady = true;
       } catch {
         if (!cancelled) onSatelliteFail?.();
       }
     })();
-    /** Sharper imagery (zoom 15) in a 4 x 4 tile patch around the drone, reloaded as it flies on. */
-    const loadDetail = async (x: number, z: number) => {
-      if (!s.satReady || s.det?.loading) return;
-      s.det = { cx: x, cz: z, loading: true };
+    /** Sharper imagery in a 4 x 4 tile patch around the drone, reloaded as it flies on: zoom 15 (~4 m) and,
+     *  when the drone is low, zoom 17 (~1 m, where Esri has it) right underneath. */
+    const loadPatch = async (level: 1 | 2, x: number, z: number) => {
+      const key = level === 1 ? 'det' : 'det2';
+      const cur = s[key];
+      if (!s.satReady || cur?.loading) return;
+      s[key] = { cx: x, cz: z, loading: true };
+      const Z = level === 1 ? DET_Z : DET2_Z;
       try {
         const [la, lo] = toLatLon(cell, x, -z);
-        const fx = tileX(lo, DET_Z), fy = tileY(la, DET_Z);
+        const fx = tileX(lo, Z), fy = tileY(la, Z);
         const x0 = Math.round(fx) - 2, y0 = Math.round(fy) - 2;
         const c = document.createElement('canvas');
         c.width = c.height = 1024;
         const g = c.getContext('2d')!;
-        await Promise.all(Array.from({ length: 16 }, (_, i) => loadTile(TILE_URL(DET_Z, y0 + Math.floor(i / 4), x0 + (i % 4)))
+        await Promise.all(Array.from({ length: 16 }, (_, i) => loadTile(TILE_URL(Z, y0 + Math.floor(i / 4), x0 + (i % 4)))
           .then((img) => g.drawImage(img, (i % 4) * 256, Math.floor(i / 4) * 256))));
         if (cancelled) return;
         // tile corners -> world metres (x east, z south) through the same small-area mapping as the mesh
-        const lon0 = (x0 / 2 ** DET_Z) * 360 - 180, lon1 = ((x0 + 4) / 2 ** DET_Z) * 360 - 180;
-        const latAt = (ty: number) => (Math.atan(Math.sinh(Math.PI * (1 - (2 * ty) / 2 ** DET_Z))) * 180) / Math.PI;
+        const lon0 = (x0 / 2 ** Z) * 360 - 180, lon1 = ((x0 + 4) / 2 ** Z) * 360 - 180;
+        const latAt = (ty: number) => (Math.atan(Math.sinh(Math.PI * (1 - (2 * ty) / 2 ** Z))) * 180) / Math.PI;
         const lat0 = latAt(y0), lat1 = latAt(y0 + 4);
         const kx = 111_320 * Math.cos((cell.lat * Math.PI) / 180);
         const wx0 = (lon0 - cell.lon) * kx, wx1 = (lon1 - cell.lon) * kx;
         const wz0 = -(lat0 - cell.lat) * 111_320, wz1 = -(lat1 - cell.lat) * 111_320;
-        gl.activeTexture(gl.TEXTURE1);
-        upload(detTex, c);
+        gl.activeTexture(level === 1 ? gl.TEXTURE1 : gl.TEXTURE2);
+        upload(level === 1 ? detTex : det2Tex, c);
         gl.activeTexture(gl.TEXTURE0);
-        gl.uniform4f(uDet, wx0, wz0, wx1 - wx0, wz1 - wz0);
-        gl.uniform1f(uDetOn, 1);
-        s.det = { cx: x, cz: z, loading: false };
+        gl.uniform4f(level === 1 ? uDet : uDet2, wx0, wz0, wx1 - wx0, wz1 - wz0);
+        gl.uniform1f(level === 1 ? uDetOn : uDet2On, 1);
+        s[key] = { cx: x, cz: z, loading: false };
       } catch {
-        s.det = { cx: x, cz: z, loading: false }; // keep the base imagery; try again after moving on
+        s[key] = { cx: x, cz: z, loading: false }; // keep what we have; try again after moving on
       }
     };
 
+    const mini = miniRef.current!;
     // ----- input -----
     const down = (e: KeyboardEvent) => {
       const k2 = e.key.toLowerCase();
@@ -637,10 +871,11 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
       if (e.repeat) return;
       if (k2 === 't') { if (s.phase === 'landed') takeOff(); else { s.auto = false; s.tasks = []; s.phase = 'landing'; } return; }
       if (k2 === 'p') { s.shoot = true; return; }
+      if (k2 === 'c') { s.cam = s.cam === 'fpv' ? 'chase' : 'fpv'; return; }
       if (k2 === 'h' && s.phase !== 'landed') { s.auto = false; s.tasks = []; s.phase = 'rth'; s.rthReason = 'user'; evRef.current?.({ type: 'rth', reason: 'user' }); return; }
       s.keys.add(k2);
       if (['w', 's', 'a', 'd', 'q', 'e', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'pageup', 'pagedown'].includes(k2)) {
-        if (s.auto) { s.auto = false; s.tasks = []; s.dfStep = null; }
+        if (s.auto) { s.auto = false; s.tasks = []; s.dfStep = null; s.goto = null; }
         if (s.phase === 'landed' && ['e', 'pageup'].includes(k2)) takeOff();
       }
     };
@@ -662,19 +897,48 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
       s.zoom = Math.max(1, Math.min(6, s.zoom * Math.exp(-e.deltaY * 0.0015)));
     };
     canvas.addEventListener('wheel', wheel, { passive: false });
+    /** Double-click on the ground: fly there and hover. The pixel's ray is marched until it meets the terrain. */
+    const flyTo = (x: number, z: number) => {
+      s.goto = [clampXZ(x), clampXZ(z)];
+      s.tasks = []; s.dfStep = null;
+      s.auto = 'goto';
+      if (s.phase === 'landed') takeOff();
+    };
+    const dbl = (e: MouseEvent) => {
+      const r = canvas.getBoundingClientRect();
+      const nx = ((e.clientX - r.left) / r.width) * 2 - 1, ny = 1 - ((e.clientY - r.top) / r.height) * 2;
+      const { eye, dir, tH, aspect } = s.ray;
+      const tV = tH / aspect;
+      const rgt = [-dir[2], 0, dir[0]];
+      const rl = Math.hypot(rgt[0], rgt[2]) || 1;
+      rgt[0] /= rl; rgt[2] /= rl;
+      const upc = [rgt[1] * dir[2] - rgt[2] * dir[1], rgt[2] * dir[0] - rgt[0] * dir[2], rgt[0] * dir[1] - rgt[1] * dir[0]];
+      const d = [0, 1, 2].map((i) => dir[i] + rgt[i] * nx * tH + upc[i] * ny * tV);
+      const dl = Math.hypot(d[0], d[1], d[2]);
+      for (let t2 = 20; t2 < 40000; t2 += 20) {
+        const x = eye[0] + (d[0] / dl) * t2, y = eye[1] + (d[1] / dl) * t2, z = eye[2] + (d[2] / dl) * t2;
+        if (Math.abs(x) > half || Math.abs(z) > half) break;
+        if (y <= groundAt(x, z) * EX) { flyTo(x, z); return; }
+      }
+    };
+    canvas.addEventListener('dblclick', dbl);
+    const miniDbl = (e: MouseEvent) => {
+      const r = mini.getBoundingClientRect();
+      flyTo(((e.clientX - r.left) / r.width) * size - half, ((e.clientY - r.top) / r.height) * size - half);
+    };
     canvas.addEventListener('pointerdown', pd);
     canvas.addEventListener('pointermove', pm);
     canvas.addEventListener('pointerup', pu);
 
     // ----- loop -----
     let raf = 0, last = performance.now(), lastTel = 0;
-    const mini = miniRef.current!;
     const mg = mini.getContext('2d')!;
+    mini.addEventListener('dblclick', miniDbl);
     const base = document.createElement('canvas');
     base.width = base.height = px;
     const bg = base.getContext('2d')!;
     const im = bg.createImageData(px, px);
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < px * px; i++) {
       const cls = slopeClass(slope[i]);
       const tt = (heights[i] - hmin) / Math.max(1, hmax - hmin);
       const shade = 0.55 + 0.45 * tt;
@@ -719,6 +983,34 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
       let side = s.joyR[0];
       if (kd('r')) s.gimbal = Math.min(0.35, s.gimbal + dt * 0.9);
       if (kd('f')) s.gimbal = Math.max(-Math.PI / 2, s.gimbal - dt * 0.9);
+
+      // ---- game controller (Xbox / PlayStation layout, standard mapping), Mode 2 like a real drone remote ----
+      const pads = typeof navigator !== 'undefined' && navigator.getGamepads ? navigator.getGamepads() : [];
+      const pad = Array.from(pads || []).find((p2) => p2 && p2.connected) ?? null;
+      s.pad = !!pad;
+      if (pad) {
+        const dz = (v: number) => (Math.abs(v) < 0.12 ? 0 : v);
+        const ax = (i: number) => dz(pad.axes[i] ?? 0);
+        const any = ax(0) || ax(1) || ax(2) || ax(3);
+        if (any && s.auto) { s.auto = false; s.tasks = []; s.dfStep = null; s.goto = null; }
+        turn -= ax(0); climb -= ax(1); side += ax(2); fwd -= ax(3);
+        const btn = (i: number) => !!pad.buttons[i]?.pressed;
+        const edge = (i: number) => btn(i) && !s.padPrev[i];
+        if (edge(0)) { if (s.phase === 'landed') takeOff(); else { s.auto = false; s.tasks = []; s.phase = 'landing'; } }
+        if (edge(1) && s.phase !== 'landed') { s.auto = false; s.tasks = []; s.phase = 'rth'; s.rthReason = 'user'; evRef.current?.({ type: 'rth', reason: 'user' }); }
+        if (edge(2)) s.shoot = true;
+        if (edge(3)) evRef.current?.({ type: 'scanRequest' });
+        if (btn(4)) s.gimbal = Math.min(0.35, s.gimbal + dt * 0.9);
+        if (btn(5)) s.gimbal = Math.max(-Math.PI / 2, s.gimbal - dt * 0.9);
+        if (btn(6)) s.zoom = Math.max(1, s.zoom * Math.exp(-dt * 1.5));
+        if (btn(7)) s.zoom = Math.min(6, s.zoom * Math.exp(dt * 1.5));
+        if (edge(9)) s.cam = s.cam === 'fpv' ? 'chase' : 'fpv';
+        s.padPrev = pad.buttons.map((b) => b.pressed);
+        if (climb > 0.5 && s.phase === 'landed') takeOff();
+      }
+      // a manual climb or descent cancels the altitude preset
+      if (Math.abs(climb) > 0.1) s.holdAgl = null;
+      else if (s.holdAgl != null && s.phase === 'flying') climb = Math.max(-1, Math.min(1, (s.holdAgl - (s.alt - ground0)) / 80));
       if (s.phase === 'landed' && climb > 0.5) takeOff();
 
       // ---- battery safety: return home at 20 %, land wherever we are at 0 % ----
@@ -736,6 +1028,11 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
         const g = steer(s.home[0], s.home[1], Math.max(120, s.alt - ground0));
         fwd = g.fwd; turn = g.turn; side = 0; climb = g.climb;
         if (g.dist < 40) s.phase = 'landing';
+      } else if (s.auto === 'goto' && s.goto && s.phase === 'flying') {
+        // click-to-fly: go to the double-clicked point and hover there
+        const g = steer(s.goto[0], s.goto[1], Math.max(80, s.holdAgl ?? s.alt - ground0));
+        fwd = g.fwd; turn = g.turn; climb = g.climb; side = 0;
+        if (g.dist < 40) { s.auto = false; s.goto = null; }
       } else if (s.auto === 'survey' && s.wp.length && s.phase === 'flying') {
         const [gx, gz] = s.wp[s.wpi];
         const g = steer(gx, gz, CRUISE);
@@ -784,11 +1081,11 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
       if (s.phase === 'landed') { fwd = 0; side = 0; climb = 0; turn = 0; }
 
       // ---- physics: smoothed velocities (inertia), 10x time ----
-      const maxV = 160 * boost; // simulated m/s = 16 m/s real
+      const maxV = 160 * boost * (s.auto ? 1 : s.sens); // simulated m/s = 16 m/s real
       const k1 = Math.min(1, dt * 1.8);
       s.speed += (fwd * maxV - s.speed) * k1;
       s.side += (side * maxV * 0.6 - s.side) * k1;
-      s.yawRate += (turn * 1.1 - s.yawRate) * Math.min(1, dt * 4);
+      s.yawRate += (turn * 1.1 * (s.auto ? 1 : Math.sqrt(s.sens)) - s.yawRate) * Math.min(1, dt * 4);
       s.yaw += s.yawRate * dt;
       let wantVs = climb * 120 * boost;
       if (targetAgl != null) wantVs = Math.max(-60, Math.min(60, (ground0 + targetAgl - s.alt) * 1.5));
@@ -830,24 +1127,42 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
       const pitch = s.gimbal + jy * 0.02;
       const yawC = s.yaw + jx * 0.02;
       const camAlt = s.phase === 'landed' ? ground + 2 : s.alt;
-      const eye = [s.x, camAlt * EX, s.z];
-      const dir = [-Math.sin(yawC) * Math.cos(pitch), Math.sin(pitch), -Math.cos(yawC) * Math.cos(pitch)];
-      const upv = Math.abs(pitch) > 1.5 ? [-Math.sin(yawC), 0, -Math.cos(yawC)] : [0, 1, 0];
+      let eye = [s.x, camAlt * EX, s.z];
+      let dir = [-Math.sin(yawC) * Math.cos(pitch), Math.sin(pitch), -Math.cos(yawC) * Math.cos(pitch)];
+      if (s.cam === 'chase') {
+        // third-person: behind and above the drone, looking at it
+        const fx = -Math.sin(s.yaw), fz = -Math.cos(s.yaw);
+        const dy = s.alt * EX + 3;
+        const ex = s.x - fx * 70, ez = s.z - fz * 70;
+        const ey = Math.max(dy + 26, groundAt(ex, ez) * EX + 12);
+        eye = [ex, ey, ez];
+        const tx = s.x + fx * 25, ty = dy, tz = s.z + fz * 25;
+        const l = Math.hypot(tx - ex, ty - ey, tz - ez);
+        dir = [(tx - ex) / l, (ty - ey) / l, (tz - ez) / l];
+      }
+      const upv = Math.abs(dir[1]) > 0.997 ? [-Math.sin(yawC), 0, -Math.cos(yawC)] : [0, 1, 0];
       const view = lookAt(eye, [eye[0] + dir[0], eye[1] + dir[1], eye[2] + dir[2]], upv);
+      s.ray = { eye, dir };
       const aspect = canvas.width / Math.max(1, canvas.height);
       const tH = Math.tan((HFOV * Math.PI) / 360) / s.zoom;
       const vfov = 2 * Math.atan(tH / aspect);
-      const near = Math.max(1.5, Math.min(20, (camAlt - ground) * 0.25));
+      const near = s.cam === 'chase' ? 4 : Math.max(1.5, Math.min(20, (camAlt - ground) * 0.25));
+      s.ray.tH = tH; s.ray.aspect = aspect;
       const proj = perspective(vfov, aspect, near, size * 2.5);
       const lensNow = s.lens === 'satellite' && !s.satReady ? 'relief' : s.lens;
       const sky = lensNow === 'mars' ? 'mars' : body === 'moon' && lensNow !== 'satellite' ? 'moon' : 'earth';
       if (wrap.dataset.sky !== sky) wrap.dataset.sky = sky;
+      if (wrap.dataset.cam !== s.cam) wrap.dataset.cam = s.cam;
       // fog = the colour of the CSS sky at the horizon, so far terrain melts into it
       const fog = sky === 'mars' ? [0.83, 0.62, 0.47] : sky === 'moon' ? [0.03, 0.04, 0.07] : [0.79, 0.86, 0.93];
-      if (s.lens === 'satellite' && s.satReady && camAlt - ground < 2500 && (!s.det || Math.hypot(s.x - s.det.cx, s.z - s.det.cz) > 1300)) void loadDetail(s.x, s.z);
+      const wantsSat = (s.lens === 'satellite' || s.lens === 'hazard') && s.satReady;
+      if (wantsSat && camAlt - ground < 2500 && (!s.det || Math.hypot(s.x - s.det.cx, s.z - s.det.cz) > 1300)) void loadPatch(1, s.x, s.z);
+      if (wantsSat && camAlt - ground < 700 && (!s.det2 || Math.hypot(s.x - s.det2.cx, s.z - s.det2.cz) > 300)) void loadPatch(2, s.x, s.z);
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-      gl.uniformMatrix4fv(uMvp, false, mul(proj, view));
+      bindTerrain();
+      const mvp = mul(proj, view);
+      gl.uniformMatrix4fv(uMvp, false, mvp);
       gl.uniform3f(uEye, eye[0], eye[1], eye[2]);
       gl.uniform1i(uLens, { relief: 0, slope: 1, mars: 2, satellite: 3, hazard: 4, cover: 5 }[lensNow]);
       gl.uniform3f(uFog, fog[0], fog[1], fog[2]);
@@ -858,6 +1173,36 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
         if (tt > 1) s.scan = null;
       } else gl.uniform1f(uScanT, -1);
       gl.drawElements(gl.TRIANGLES, idx.length, gl.UNSIGNED_SHORT, 0);
+
+      // buildings near the drone, and the drone itself in chase view
+      if (bOk) {
+        gl.useProgram(bprog);
+        gl.uniformMatrix4fv(BU('uMvp'), false, mvp);
+        gl.uniform3f(BU('uEye'), eye[0], eye[1], eye[2]);
+        gl.uniform3f(BU('uSun'), 0.55, 0.75, -0.35);
+        gl.uniform3f(BU('uFog'), fog[0], fog[1], fog[2]);
+        gl.uniform1f(BU('uFogFar'), size * 1.15);
+        gl.uniform1i(BU('uTex'), 0);
+        gl.uniform1f(BU('uUseTex'), (lensNow === 'satellite' || lensNow === 'hazard') && s.satReady ? 1 : 0);
+        const flat = lensNow === 'cover' ? [0.92, 0.18, 0.18] : lensNow === 'mars' ? [0.7, 0.42, 0.3] : lensNow === 'hazard' || lensNow === 'slope' ? [0.62, 0.62, 0.66] : [0.88, 0.84, 0.76];
+        gl.uniform3f(BU('uFlat'), flat[0], flat[1], flat[2]);
+        if (buildings && camAlt - ground < 3000 && (!bldAt || Math.hypot(s.x - bldAt[0], s.z - bldAt[1]) > 1500)) buildBld(s.x, s.z);
+        if (bldMesh && camAlt - ground < 3000) drawMesh(bldMesh, ID4);
+        if (droneMesh && s.cam === 'chase') {
+          const k = 5; // drawn ~5x its real size so it reads on screen
+          const c = Math.cos(s.yaw), sn = Math.sin(s.yaw);
+          const tilt = Math.max(-0.35, Math.min(0.35, -s.speed / 600));
+          const ct = Math.cos(tilt), st2 = Math.sin(tilt);
+          // model = T * Ry(yaw) * Rx(tilt) * S(k)
+          const m = new Float32Array([
+            c * k, 0, -sn * k, 0,
+            sn * st2 * k, ct * k, c * st2 * k, 0,
+            sn * ct * k, -st2 * k, c * ct * k, 0,
+            s.x, s.alt * EX + 3, s.z, 1,
+          ]);
+          drawMesh(droneMesh, m);
+        }
+      }
 
       // ---- photo: read the frame we just drew (same task, so no preserveDrawingBuffer needed) ----
       if (s.shoot) {
@@ -949,6 +1294,7 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
           speed: Math.hypot(s.speed, s.side), vspeed: s.vs, heading: hd, battery: s.battery, auto: s.auto, phase: s.phase,
           distHome: Math.hypot(s.x - s.home[0], s.z - s.home[1]), gimbal: (s.gimbal * 180) / Math.PI, flightSec: s.flightSec,
           wind, footprintM, zoom: s.zoom, dfStep: s.auto === 'dragonfly' ? s.dfStep : null, lzCount: s.df.n,
+          cam: s.cam, pad: s.pad, holdAgl: s.holdAgl, buildings: bldMesh && camAlt - ground < 3000 ? s.bld : 0,
         });
       }
     };
@@ -959,13 +1305,16 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
       wrap.removeEventListener('keydown', down);
       wrap.removeEventListener('keyup', up);
       canvas.removeEventListener('wheel', wheel);
+      canvas.removeEventListener('dblclick', dbl);
+      mini.removeEventListener('dblclick', miniDbl);
+      freeMesh(bldMesh);
       canvas.removeEventListener('pointerdown', pd);
       canvas.removeEventListener('pointermove', pm);
       canvas.removeEventListener('pointerup', pu);
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cell.id, heights]);
+  }, [cell.id, heights, buildings]);
 
   const stopAuto = () => { const s = st.current; if (s.auto) { s.auto = false; s.tasks = []; s.dfStep = null; } };
   return (

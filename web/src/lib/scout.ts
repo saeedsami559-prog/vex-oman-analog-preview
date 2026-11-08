@@ -309,7 +309,7 @@ export interface Decision {
  *  flood     (when JRC surface water is published) water seen on >= 3 % of the scanned ground: warn
  * Verdict: any fail -> NO-GO; otherwise any warn -> CONDITIONAL; all pass -> GO.
  */
-/** Share of scanned ground where JRC saw surface water at least once (1984-2021) that triggers a flood caution. */
+/** Share of scanned ground where JRC saw seasonal surface water (seen at least once but < 75 % of the time, i.e. wadis, not the sea), 1984-2021, that triggers a flood caution. */
 export const WATER_WARN = 0.03;
 
 export function decide(cell: ScoutCell, rank: number | undefined, totalRanked: number, safe: number, waterShare?: number | null): Decision {
@@ -366,4 +366,34 @@ export function toKml(name: string, path: Waypoint[], markers: Marker[]): string
     marks +
     `</Document></kml>`
   );
+}
+
+interface BuildingsIndex { source: string; total: number; with_height: number; cells: Record<string, { file: string; offset: number; count: number }> }
+let bIndex: Promise<BuildingsIndex | null> | null = null;
+const bFiles = new Map<string, Promise<ArrayBuffer>>();
+
+/**
+ * Building footprints of a cell (web/public/grid/bld_NN.bin, written by `python -m analog.grid_buildings` from
+ * Microsoft Global ML Building Footprints): 6 numbers per building - x, z (m from the cell centre, x east,
+ * z south), length, width (m), angle (deg), height (m, 0 = not estimated). Null if not published.
+ */
+export async function loadBuildings(cell: ScoutCell): Promise<Float32Array | null> {
+  if (!bIndex) bIndex = fetch(`${import.meta.env.BASE_URL}data/buildings.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  const idx = await bIndex;
+  const e = idx?.cells[cell.id];
+  if (!e || !e.count) return null;
+  if (!bFiles.has(e.file)) bFiles.set(e.file, fetch(`${import.meta.env.BASE_URL}grid/${e.file}`).then((r) => { if (!r.ok) throw new Error('bld'); return r.arrayBuffer(); }));
+  const buf = await bFiles.get(e.file)!;
+  const v = new DataView(buf, e.offset, e.count * 10);
+  const out = new Float32Array(e.count * 6);
+  for (let i = 0; i < e.count; i++) {
+    const o = i * 10;
+    out[i * 6] = v.getInt16(o, true);
+    out[i * 6 + 1] = v.getInt16(o + 2, true);
+    out[i * 6 + 2] = v.getUint16(o + 4, true) / 10;
+    out[i * 6 + 3] = v.getUint16(o + 6, true) / 10;
+    out[i * 6 + 4] = v.getUint8(o + 8);
+    out[i * 6 + 5] = v.getUint8(o + 9) / 2;
+  }
+  return out;
 }

@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MapContainer, Rectangle, TileLayer, Tooltip, CircleMarker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { findSite, useDataset } from '../lib/data';
 import {
-  decide, GRID_URL, HAZARD_DEG, loadCellLayers, loadHdHeightmap, loadHeightmap, ranksFor, SAFE_DEG, scoreOf, slopeClass, slopeField, toKml,
+  decide, GRID_URL, HAZARD_DEG, loadBuildings, loadCellLayers, loadHdHeightmap, loadHeightmap, ranksFor, SAFE_DEG, scoreOf, slopeClass, slopeField, toKml,
   useCellLayers, useScoutGrid, WORLDCOVER, type Body, type Decision, type ScoutCell,
 } from '../lib/scout';
 import { AI_HIGH, AI_LOW } from '../lib/scoutAi';
@@ -63,7 +63,8 @@ export default function Scout() {
   const [colorBy, setColorBy] = useState<'rules' | 'ai'>('rules');
   const [marsTarget, setMarsTarget] = useState<string | null>(null); // null = each cell's best Mars target
   const [sel, setSel] = useState<ScoutCell | null>(null);
-  const [hm, setHm] = useState<{ id: string; heights: Float32Array; slope: Float32Array; px: number; resM: number; draw: { heights: Float32Array; px: number; resM: number } | null; layers: { cover: Uint8Array; water: Uint8Array } | null } | null>(null);
+  const [hm, setHm] = useState<{ id: string; heights: Float32Array; slope: Float32Array; px: number; resM: number; draw: { heights: Float32Array; px: number; resM: number } | null; layers: { cover: Uint8Array; water: Uint8Array } | null; buildings: Float32Array | null } | null>(null);
+  const [sens, setSens] = useState<number>(() => { try { return Number(localStorage.getItem('vex-sens')) || 1; } catch { return 1; } });
   const cellLayers = useCellLayers();
   const [hmErr, setHmErr] = useState(false);
   const [lens, setLens] = useState<Lens>('satellite');
@@ -121,12 +122,17 @@ export default function Scout() {
     return flight.current;
   }, [body, wind]);
 
-  // start over Jebel Shams, our strongest Moon analog, so the first flight is over real mountains
+  // a shared link (#/scout?cell=...) opens that square; otherwise start over Jebel Shams, our strongest Moon analog
+  const [params, setParams] = useSearchParams();
   useEffect(() => {
     if (!grid || sel) return;
+    const asked = grid.cells.find((c) => c.id === params.get('cell'));
     const js = grid.sites.find((x) => x.id === 'jebel_shams')?.cell;
-    setSel(grid.cells.find((c) => c.id === js) ?? [...grid.cells].sort((a, b) => (a.moon_rank ?? 1e9) - (b.moon_rank ?? 1e9))[0] ?? null);
-  }, [grid, sel]);
+    setSel(asked ?? grid.cells.find((c) => c.id === js) ?? [...grid.cells].sort((a, b) => (a.moon_rank ?? 1e9) - (b.moon_rank ?? 1e9))[0] ?? null);
+  }, [grid, sel, params]);
+  useEffect(() => {
+    if (sel && params.get('cell') !== sel.id) setParams({ cell: sel.id }, { replace: true });
+  }, [sel, params, setParams]);
 
   useEffect(() => {
     if (!sel?.heightmap) return;
@@ -145,11 +151,13 @@ export default function Scout() {
       loadHeightmap(sel),
       extra?.hd ? loadHdHeightmap(sel, extra.hd.px).catch(() => null) : Promise.resolve(null),
       extra?.landcover_pct ? loadCellLayers(sel).catch(() => null) : Promise.resolve(null),
+      loadBuildings(sel).catch(() => null),
     ])
-      .then(([{ heights, px }, hd, lay]) => alive && setHm({
+      .then(([{ heights, px }, hd, lay, bld]) => alive && setHm({
         id: sel.id, heights, px, resM, slope: slopeField(heights, px, resM),
         draw: hd && extra?.hd ? { heights: hd, px: extra.hd.px, resM: extra.hd.res_m } : null,
         layers: lay,
+        buildings: bld,
       }))
       .catch(() => alive && setHmErr(true));
     return () => {
@@ -184,6 +192,7 @@ export default function Scout() {
       setAuto(false);
       setAlert(e.reason === 'battery' ? t('scout.rthBattery') : t('scout.rthUser'));
     } else if (e.type === 'lz') persist();
+    else if (e.type === 'scanRequest') doScan();
   };
 
   const doScan = () => {
@@ -385,6 +394,8 @@ export default function Scout() {
                   body={body}
                   wind={wind}
                   draw={hm.draw}
+                  buildings={hm.buildings}
+                  sens={sens}
                   layers={hm.layers}
                   onTelemetry={(x) => { setTel(x); if (!x.auto && auto) setAuto(false); }}
                   onEvent={onEvent}
@@ -413,6 +424,9 @@ export default function Scout() {
                     <span><b>{t('scout.gimbal')}</b> {Math.round(tel.gimbal)}°</span>
                     {tel.wind != null && <span><b>{t('scout.windShort')}</b> {num(tel.wind, 1)} m/s</span>}
                     {tel.zoom > 1.05 && <span><b>ZOOM</b> {num(tel.zoom, 1)}×</span>}
+                    {tel.holdAgl != null && <span><b>HOLD</b> {num(tel.holdAgl)} m</span>}
+                    {tel.buildings > 0 && <span><b>BLDG</b> {num(tel.buildings)}</span>}
+                    {tel.pad && <span><b>🎮</b></span>}
                     {tel.footprintM && <span><b>{t('scout.fpShort')}</b> {num(Math.round(tel.footprintM[0]))}×{num(Math.round(tel.footprintM[1]))} m</span>}
                     <span className="muted">{tel.lat.toFixed(4)}°N {tel.lon.toFixed(4)}°E · ×10</span>
                   </div>
@@ -474,6 +488,23 @@ export default function Scout() {
                 <button type="button" className="btn ghost" onClick={doMark} disabled={!hm}><Icon name="flag" />{t('scout.mark')}{marks ? ` (${num(marks)})` : ''}</button>
                 <button type="button" className="btn ghost" onClick={doExport} disabled={!hm}><Icon name="download" />{t('scout.export')}</button>
               </div>
+              <div className="action-row fly-tools">
+                <div className="seg mini-seg" role="group" aria-label={t('scout.camLabel')}>
+                  <button type="button" className={tel?.cam !== 'chase' ? 'active' : ''} onClick={() => { drone.current?.setCam('fpv'); focusView(); }}><Icon name="camera" size={15} />{t('scout.camFpv')}</button>
+                  <button type="button" className={tel?.cam === 'chase' ? 'active' : ''} onClick={() => { drone.current?.setCam('chase'); focusView(); }}><Icon name="takeoff" size={15} />{t('scout.camChase')}</button>
+                </div>
+                <div className="seg mini-seg" role="group" aria-label={t('scout.altLabel')}>
+                  {[50, 120, 300].map((m) => (
+                    <button key={m} type="button" className={tel?.holdAgl === m ? 'active' : ''} onClick={() => { drone.current?.setAltitude(m); focusView(); }} disabled={!hm}>{num(m)} m</button>
+                  ))}
+                </div>
+                <label className="sens">
+                  <span>{t('scout.sens')}</span>
+                  <input type="range" min={0.5} max={1.5} step={0.1} value={sens} onChange={(e) => { const v = Number(e.target.value); setSens(v); try { localStorage.setItem('vex-sens', String(v)); } catch { /* ignore */ } }} />
+                  <b>{num(sens, 1)}×</b>
+                </label>
+                <span className={`pad-state ${tel?.pad ? 'on' : ''}`}>🎮 {tel?.pad ? t('scout.padOn') : t('scout.padOff')}</span>
+              </div>
             </div>
             <div className="cockpit-notes">
               {lens === 'slope' && (
@@ -500,6 +531,7 @@ export default function Scout() {
               )}
               {satFail && <p className="small muted">{t('scout.satFail')}</p>}
               {auto === 'dragonfly' && <p className="small note">{t('scout.dfExplain')}</p>}
+              {hm?.buildings && (lens === 'satellite' || lens === 'relief') && <p className="small muted">{t('scout.bldNote', { n: num(hm.buildings.length / 6) })}</p>}
             </div>
 
             <div className="cockpit-panels">
@@ -544,6 +576,8 @@ export default function Scout() {
                 <summary>{t('scout.howTo')}</summary>
                 <p className="small">{t('scout.keys')}</p>
                 <p className="small">{t('scout.touch')}</p>
+                <p className="small">{t('scout.mouseHelp')}</p>
+                <p className="small">{t('scout.padHelp')}</p>
                 <p className="small">{t('scout.realism')}</p>
               </details>
               </div>

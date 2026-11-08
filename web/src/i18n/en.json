@@ -1017,7 +1017,18 @@
     "lc_water": "water",
     "lc_wetland": "wetland",
     "lc_mangrove": "mangroves",
-    "lc_moss": "moss"
+    "lc_moss": "moss",
+    "mode_goto": "GO TO",
+    "camLabel": "Camera",
+    "camFpv": "Drone camera",
+    "camChase": "Behind the drone",
+    "altLabel": "Altitude hold",
+    "sens": "Sensitivity",
+    "padOn": "controller connected",
+    "padOff": "plug in a game controller",
+    "bldNote": "{n} buildings in this square from Overture Maps (OpenStreetMap and Microsoft footprints found by AI in satellite images), drawn as blocks where they really stand; most have no recorded height, so a typical one- or two-storey height is used. Some villages are missing from the data.",
+    "mouseHelp": "Mouse: drag to turn and tilt the camera, wheel to zoom the camera, double-click the ground (or the mini-map) to fly there. C switches between the drone camera and the view from behind.",
+    "padHelp": "Game controller (Xbox / PlayStation): left stick climb and turn, right stick move and slide, A take off / land, B return home, X photo, Y scan, LB/RB tilt the camera, LT/RT zoom, Start changes the camera."
   },
   "log": {
     "kicker": "VEX Scout · mission log",
