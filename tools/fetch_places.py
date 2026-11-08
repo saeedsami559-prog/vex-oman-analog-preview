@@ -37,7 +37,7 @@ for line in z.read("OM.txt").decode("utf-8").splitlines():
     c = line.split("\t")
     if len(c) < 15 or c[6] != "P":
         continue
-    ar = next((n for n in c[3].split(",") if AR.search(n)), None)
+    ar = [n for n in c[3].split(",") if AR.search(n)] or None
     towns.append({"id": int(c[0]), "name_en": c[1], "name_ar": ar, "lat": float(c[4]), "lon": float(c[5]),
                   "code": c[7], "pop": int(c[14] or 0)})
 out["towns"] = towns
