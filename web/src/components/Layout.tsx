@@ -17,6 +17,7 @@ export function readTheme(): Theme {
 const NAV = [
   { to: '/', key: 'home', end: true },
   { to: '/explorer', key: 'explorer' },
+  { to: '/scout', key: 'scout' },
   { to: '/atlas', key: 'atlas' },
   { to: '/minerals', key: 'minerals' },
   { to: '/methodology', key: 'methodology' },

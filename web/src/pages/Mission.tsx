@@ -65,6 +65,10 @@ export default function Mission() {
       <p className="kicker">{t('mission.kicker')}</p>
       <h1>{t('mission.title')}</h1>
       <p className="lead">{t('mission.intro')}</p>
+      <Link to="/scout" className="panel scout-callout">
+        <strong>{t('mission.scoutTitle')} →</strong>
+        <span className="small muted">{t('mission.scoutText')}</span>
+      </Link>
       <p className="note small">{t('mission.disclaimer')}</p>
 
       <h2>{t('mission.goalsTitle')}</h2>
