@@ -159,7 +159,9 @@ def _pack(cells: list[dict[str, Any]], layers: dict[str, dict[str, Any]]) -> Non
                     rgb[..., 1] = lay["water"]
                 atlases[key].paste(Image.fromarray(rgb, "RGB"), (hm["col"] * px, hm["row"] * px))
             elif kind == "hd" and "hd" in lay:
-                atlases[key].paste(Image.fromarray(terrarium_encode(lay["hd"]), "RGB"), (hm["col"] * px, hm["row"] * px))
+                rgb = terrarium_encode(lay["hd"])
+                rgb[..., 2] = 0  # whole metres are plenty for drawing; keeps each atlas ~3 MB instead of ~8 MB
+                atlases[key].paste(Image.fromarray(rgb, "RGB"), (hm["col"] * px, hm["row"] * px))
     for key, img in atlases.items():
         img.save(ATLAS_DIR / key, "PNG", optimize=True)
 
