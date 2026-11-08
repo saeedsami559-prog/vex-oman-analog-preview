@@ -736,7 +736,10 @@
     "rank_moon": "Moon analogs",
     "moonScore": "Similarity to the lunar south pole",
     "moonRankNote": "Compared with the lunar south pole (Shackleton rim) on terrain only: slope, roughness and relief from NASADEM against LRO LOLA, on the same 463 m grid. NASA has no mineral or surface data in this pipeline for the Moon.",
-    "legendMeteorite": "Martian meteorites found in Oman (NASA compendium)"
+    "legendMeteorite": "Martian meteorites found in Oman (NASA compendium)",
+    "onMarsKicker": "Oman on Mars",
+    "onMarsTitle": "A piece of Oman is on Mars right now",
+    "onMarsText": "Martian meteorites have been found in Oman's deserts, among them Sayh al Uhaymir 008. NASA cut a slice of it for the calibration target of SHERLOC, a laser instrument on the Perseverance rover. Since February 2021 that slice has been back on Mars, in Jezero crater, helping the rover check its measurements of Martian rocks."
   },
   "env": {
     "title": "Field environment (NASA POWER)",

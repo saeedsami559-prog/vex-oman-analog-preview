@@ -210,8 +210,8 @@
       "reason_code": "needs_login",
       "reason_en": "NASA EMIT L2A reflectance (EMITL2ARFL v001) is only available with a NASA Earthdata Login, which is not configured on the processing machine.",
       "reason_ar": "بيانات NASA EMIT L2A reflectance (EMITL2ARFL v001) متاحة فقط بحساب NASA Earthdata، وهو غير مُعدّ على جهاز المعالجة.",
-      "needed": "Create a free NASA Earthdata Login and store it in ~/.netrc (machine urs.earthdata.nasa.gov) or in EARTHDATA_USERNAME / EARTHDATA_PASSWORD, or put a user token in .env.local as EARTHDATA_TOKEN, then re-run `python -m analog.compute`.",
-      "needed_ar": "إنشاء حساب NASA Earthdata مجاني وحفظه في ملف ‎~/.netrc‎ أو في متغيرات EARTHDATA_USERNAME و EARTHDATA_PASSWORD أو وضع رمز المستخدم في ‎.env.local‎ باسم EARTHDATA_TOKEN ثم إعادة تشغيل ‎python -m analog.compute‎."
+      "needed": "EMIT mineral maps are free but need a NASA Earthdata login, which this computing run did not have. With one, the same pipeline adds the mineral part of the score for this site.",
+      "needed_ar": "خرائط المعادن من EMIT مجانية لكنها تتطلب حساب NASA Earthdata، ولم يكن متاحاً في عملية الحساب هذه. مع الحساب يضيف البرنامج نفسه جزء المعادن إلى درجة هذا الموقع."
     },
     {
       "feature": "carbonate_index",
@@ -219,8 +219,8 @@
       "reason_code": "needs_login",
       "reason_en": "NASA EMIT L2A reflectance (EMITL2ARFL v001) is only available with a NASA Earthdata Login, which is not configured on the processing machine.",
       "reason_ar": "بيانات NASA EMIT L2A reflectance (EMITL2ARFL v001) متاحة فقط بحساب NASA Earthdata، وهو غير مُعدّ على جهاز المعالجة.",
-      "needed": "Create a free NASA Earthdata Login and store it in ~/.netrc (machine urs.earthdata.nasa.gov) or in EARTHDATA_USERNAME / EARTHDATA_PASSWORD, or put a user token in .env.local as EARTHDATA_TOKEN, then re-run `python -m analog.compute`.",
-      "needed_ar": "إنشاء حساب NASA Earthdata مجاني وحفظه في ملف ‎~/.netrc‎ أو في متغيرات EARTHDATA_USERNAME و EARTHDATA_PASSWORD أو وضع رمز المستخدم في ‎.env.local‎ باسم EARTHDATA_TOKEN ثم إعادة تشغيل ‎python -m analog.compute‎."
+      "needed": "EMIT mineral maps are free but need a NASA Earthdata login, which this computing run did not have. With one, the same pipeline adds the mineral part of the score for this site.",
+      "needed_ar": "خرائط المعادن من EMIT مجانية لكنها تتطلب حساب NASA Earthdata، ولم يكن متاحاً في عملية الحساب هذه. مع الحساب يضيف البرنامج نفسه جزء المعادن إلى درجة هذا الموقع."
     }
   ]
 }

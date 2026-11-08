@@ -1246,3 +1246,10 @@ html[data-theme='light'] .twin-label strong, html[data-theme='light'] .twin-labe
 .env-index .bar i, .bar.inline i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--accent)); border-radius: 4px; }
 .env-rank tr.is-oman th { color: var(--accent-2); }
 .env-rank .pill { margin-inline-start: 6px; }
+
+/* ---- Oman on Mars (SaU 008 on Perseverance) ---- */
+.oman-on-mars { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px; align-items: center; margin: 24px 0; }
+.oman-on-mars figure { margin: 0; }
+.oman-on-mars img { width: 100%; height: auto; border-radius: 10px; display: block; background: #05070e; }
+.oman-on-mars h2 { margin-top: 4px; }
+@media (max-width: 820px) { .oman-on-mars { grid-template-columns: 1fr; } }

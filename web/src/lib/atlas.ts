@@ -263,6 +263,14 @@ export const OMAN_TRACK: { when: Localized; what: Localized; source: { label: st
     source: { label: 'NASA NTRS: Exposure and terrestrial histories of Dhofar 019 Martian meteorite', url: 'https://ntrs.nasa.gov/citations/20020045902' },
   },
   {
+    when: { en: 'February 2021', ar: 'فبراير 2021' },
+    what: {
+      en: 'A piece of Oman went back to Mars: a slice of the Martian meteorite Sayh al Uhaymir 008 sits on the calibration target of SHERLOC, an instrument on NASA\'s Perseverance rover, which landed in Jezero crater.',
+      ar: 'قطعة من عُمان عادت إلى المريخ: شريحة من النيزك المريخي صيح العهيمر 008 مثبّتة على هدف معايرة جهاز SHERLOC في المسبار Perseverance التابع لناسا، الذي هبط في فوهة Jezero.',
+    },
+    source: { label: 'NASA/JPL Photojournal PIA26520: Perseverance and SHERLOC\'s calibration target', url: 'https://photojournal.jpl.nasa.gov/catalog/PIA26520' },
+  },
+  {
     when: { en: '2017 onward', ar: 'منذ 2017' },
     what: {
       en: "NASA's Rock Powered Life astrobiology team sampled serpentinizing fluids in the Samail Ophiolite with the Oman Drilling Project, as an analog for early Earth and Mars.",
@@ -299,7 +307,7 @@ export const OMAN_TRACK: { when: Localized; what: Localized; source: { label: st
 /** Martian meteorites found in Oman (find coordinates as published in the Meteoritical Bulletin). */
 export const OMAN_METEORITES: { id: string; name: Localized; lat: number; lon: number; source: { label: string; url: string } }[] = [
   {
-    id: 'sau005', name: { en: 'Sayh al Uhaymir 005 (Martian meteorite)', ar: 'صيح العهيمر 005 (نيزك مريخي)' }, lat: 20.9960, lon: 57.3258,
+    id: 'sau005', name: { en: 'Sayh al Uhaymir 005/008 (Martian meteorite)', ar: 'صيح العهيمر 005/008 (نيزك مريخي)' }, lat: 20.9960, lon: 57.3258,
     source: { label: 'NASA JSC Mars Meteorite Compendium', url: 'https://curator.jsc.nasa.gov/antmet/mmc/SaU005.pdf' },
   },
   {

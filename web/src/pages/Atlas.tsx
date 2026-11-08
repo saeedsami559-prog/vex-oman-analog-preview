@@ -7,6 +7,7 @@ import { ARTEMIS_REGIONS, ARTEMIS_SOURCES, BENCHMARKS, CATEGORIES, OMAN_CANDIDAT
 import { findSite, useDataset } from '../lib/data';
 import { meanMarsSimilarity } from '../lib/analysis';
 import { similarity } from '../lib/similarity';
+import { SITE_PHOTOS, photoLocal, photoUrl } from '../lib/photos';
 import { ENV_URL, envRanking, ltr, meanOver, monthNames, monthRange, periodYears, useEnvironment } from '../lib/environment';
 import ContinueExploring from '../components/common/ContinueExploring';
 import PageToc from '../components/common/PageToc';
@@ -410,6 +411,33 @@ export default function Atlas() {
           </article>
         ))}
       </div>
+
+      <section className="panel oman-on-mars">
+        <figure>
+          <img
+            src={photoLocal('sau008_on_mars')}
+            alt={loc(SITE_PHOTOS.sau008_on_mars.caption)}
+            loading="lazy"
+            onError={(e) => {
+              const img = e.currentTarget;
+              if (!img.dataset.fallback) {
+                img.dataset.fallback = '1';
+                img.src = photoUrl(SITE_PHOTOS.sau008_on_mars);
+              }
+            }}
+          />
+          <figcaption className="small muted">
+            {t('site.photoCredit')}: {SITE_PHOTOS.sau008_on_mars.credit} ·{' '}
+            <a href="https://photojournal.jpl.nasa.gov/catalog/PIA26520" target="_blank" rel="noreferrer">PIA26520</a>
+          </figcaption>
+        </figure>
+        <div>
+          <p className="kicker">{t('atlas.onMarsKicker')}</p>
+          <h2>{t('atlas.onMarsTitle')}</h2>
+          <p>{t('atlas.onMarsText')}</p>
+          <p className="small muted">{loc(SITE_PHOTOS.sau008_on_mars.caption)}</p>
+        </div>
+      </section>
 
       <div className="grid two atlas-bottom">
         <section className="panel">

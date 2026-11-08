@@ -53,12 +53,9 @@ MINERALS = ("serpentine_index", "carbonate_index")
 LIANG_MODIS = {1: 0.160, 2: 0.291, 3: 0.243, 4: 0.116, 5: 0.112, 7: 0.081}
 LIANG_OFFSET = -0.0015
 
-EARTHDATA_NEEDED = ("Create a free NASA Earthdata Login and store it in ~/.netrc (machine urs.earthdata.nasa.gov) "
-                    "or in EARTHDATA_USERNAME / EARTHDATA_PASSWORD, or put a user token in .env.local as "
-                    "EARTHDATA_TOKEN, then re-run `python -m analog.compute`.")
-EARTHDATA_NEEDED_AR = ("إنشاء حساب NASA Earthdata مجاني وحفظه في ملف ‎~/.netrc‎ أو في متغيرات "
-                       "EARTHDATA_USERNAME و EARTHDATA_PASSWORD أو وضع رمز المستخدم في ‎.env.local‎ باسم "
-                       "EARTHDATA_TOKEN ثم إعادة تشغيل ‎python -m analog.compute‎.")
+EARTHDATA_NEEDED = ("EMIT mineral maps are free but need a NASA Earthdata login, which this computing run did not have. With one, the same pipeline adds the mineral part of the score for this site.")
+# How to run with a login: see download/emit.py (~/.netrc, EARTHDATA_USERNAME/PASSWORD or EARTHDATA_TOKEN).
+EARTHDATA_NEEDED_AR = ("خرائط المعادن من EMIT مجانية لكنها تتطلب حساب NASA Earthdata، ولم يكن متاحاً في عملية الحساب هذه. مع الحساب يضيف البرنامج نفسه جزء المعادن إلى درجة هذا الموقع.")
 
 
 def liang_albedo(bands: dict[int, np.ndarray]) -> np.ndarray:
