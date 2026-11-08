@@ -431,9 +431,6 @@ export default function Scout() {
                     <span className={`hud-phase ${tel.phase}`}>{t(`scout.ph_${tel.phase}`)}{tel.auto ? ` · ${t(`scout.mode_${tel.auto}`)}` : ''}</span>
                     <span className="hud-hdg">{Math.round(tel.heading).toString().padStart(3, '0')}° {compass(tel.heading)}</span>
                     <span>⏱ {mmss(tel.flightSec)}</span>
-                    <span className={`hud-bat ${tel.battery < 20 ? 'warn' : ''}`}>
-                      <i style={{ width: `${Math.max(0, tel.battery)}%` }} /> {Math.round(tel.battery)}%
-                    </span>
                   </div>
                   <div className="hud hud-bottom" dir="ltr" aria-live="off">
                     <span><b>H</b> {num(Math.round(tel.agl))} m</span>
@@ -470,13 +467,7 @@ export default function Scout() {
                 />
               )}
               {alert && <div className="drone-alert">{alert}</div>}
-              {tel && tel.battery <= 0 && tel.phase === 'landed' && (
-                <div className="drone-alert">
-                  {t('scout.batteryEmpty')}{' '}
-                  <button type="button" className="btn small" onClick={() => drone.current?.recharge()}>{t('scout.recharge')}</button>
-                </div>
-              )}
-              {landed && hm && tel && tel.battery > 0 && !tel.auto && (
+              {landed && hm && tel && !tel.auto && (
                 <button type="button" className="btn primary takeoff-btn" onClick={() => { drone.current?.takeOff(); focusView(); }}>
                   {t('scout.takeOff')}
                 </button>

@@ -587,7 +587,7 @@
       ],
       [
         "Realistic drone and mission log",
-        "Take-off, landing, return-home at 20 % battery, NASA POWER monthly wind, an 82° gimbal camera with ground footprint, photos, a Jezero-style hazard map and NASA Dragonfly's leapfrog scouting; every flight is saved with a printable site report",
+        "Take-off, landing, return home, NASA POWER monthly wind, an 82° gimbal camera with ground footprint, photos, a Jezero-style hazard map and NASA Dragonfly's leapfrog scouting; every flight is saved with a printable site report",
         "done"
       ]
     ],
@@ -938,7 +938,7 @@
     "photoAlt": "Drone photo {n}, {agl} m above the ground",
     "savedToLog": "Saved to the mission log.",
     "openLog": "Open it",
-    "realism": "What is real: the terrain (NASADEM), the satellite image (Esri World Imagery), the monthly wind (NASA POWER, 10 m), the camera's 82° field of view and the ground footprint it covers, take-off, landing, automatic return at 20 % battery. What is simplified: time runs 10 times faster, heights are drawn 1.6 times taller, and the data are about 30–217 m per pixel, so the virtual drone flies higher than a real one would and sees the big picture; a real drone in the field sees the small details.",
+    "realism": "What is real: the terrain (NASADEM), the satellite image (Esri World Imagery), the monthly wind (NASA POWER, 10 m), the camera's 82° field of view and the ground footprint it covers and take-off and landing. The battery is not simulated, so you can fly as long as you like. What is simplified: time runs 10 times faster, heights are drawn 1.6 times taller, and the data are about 30–217 m per pixel, so the virtual drone flies higher than a real one would and sees the big picture; a real drone in the field sees the small details.",
     "m6": "AI second opinion: a k-nearest-neighbour model (k = {k}) learned from {n} Earth places that space agencies and analog programmes chose for this body (the Atlas benchmarks, plus AMADEE-18 in Dhofar for Mars). For every cell it measures how close slope, roughness, relief, aridity, dry air and day-night swing are to the 3 most similar places, as a percentage: {hi}% or more = like them, below {lo}% = unlike them. It explains itself: the features that are closest give 'why it fits', the furthest give 'why not'.",
     "m7": "The AI never saw our five Omani study sites; they are a hidden test (below). It is a second opinion, not a replacement: when it and the rules agree, confidence is high; when they disagree, the place is worth a field visit.",
     "m8": "Wind and the best months for fieldwork come from NASA POWER climatology (2001–2025) at each cell centre; POWER's native grid (0.5° × 0.625°) is coarser than the cells, so neighbouring cells can share values.",

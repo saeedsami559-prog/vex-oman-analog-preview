@@ -1254,7 +1254,7 @@ const DroneView = forwardRef<DroneHandle, Props>(function DroneView(
         s.flightSec += dt * TIME;
         s.maxAgl = Math.max(s.maxAgl, agl);
         // drain: hover + speed + wind (aerodynamic load grows with the square of the wind speed)
-        s.battery = Math.max(0, s.battery - dt * (0.12 + Math.abs(s.speed) / 1000) * (1 + (monthWind / 10) ** 2));
+        // no battery model: the drone flies as long as you like (the battery stays full)
         if (now - s.lastRec > 1000) {
           s.lastRec = now;
           const [la, lo] = toLatLon(cell, s.x, -s.z);

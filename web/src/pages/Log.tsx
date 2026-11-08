@@ -130,7 +130,6 @@ function FlightReport({ f, cell, date }: { f: FlightRecord; cell: ScoutCell | nu
         <div><span>{t('log.sTime')}</span><strong>{mmss(f.droneSeconds)}</strong></div>
         <div><span>{t('log.sDist')}</span><strong>{num(f.distanceKm, 1)} km</strong></div>
         <div><span>{t('log.sMaxAgl')}</span><strong>{num(f.maxAglM)} m</strong></div>
-        <div><span>{t('log.sBattery')}</span><strong>{num(f.batteryUsed)}%</strong></div>
         <div><span>{t('log.sWind')}</span><strong>{f.windMs != null ? `${num(f.windMs, 1)} m/s` : '–'}</strong></div>
         <div><span>{t('log.sPhotos')}</span><strong>{num(f.photos.length)}</strong></div>
         <div><span>{t('log.sLandings')}</span><strong>{num(f.landings)}</strong></div>
