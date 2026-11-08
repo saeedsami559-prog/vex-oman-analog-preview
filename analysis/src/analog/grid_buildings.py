@@ -71,7 +71,7 @@ def main() -> None:
     print("columns:", list(rows[0].keys()) if rows else None)
     locs = sorted({r.get("Location", "") for r in rows})
     print(len(locs), "locations; Gulf-like:", [l for l in locs if any(k in l.lower() for k in ("oman", "arab", "emirat", "yemen", "saudi", "qatar", "bahrain", "kuwait"))])
-    urls = [r["Url"] for r in rows if r.get("Location", "").strip().lower() == "oman"]
+    urls = [r["Url"] for r in rows if r.get("Location", "").strip().lower() in ("sultanateofoman", "oman")]
     print(len(urls), "Oman files")
     # index cells by (floor(lat/CELL), floor(lon/CELL)) for a fast lookup
     key = lambda la, lo: (math.floor(la / CELL_DEG), math.floor(lo / CELL_DEG))  # noqa: E731
