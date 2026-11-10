@@ -5,8 +5,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { findSite, useDataset } from '../lib/data';
 import {
-  decide, GRID_URL, HAZARD_DEG, loadBuildings, loadCellLayers, loadHdHeightmap, loadHeightmap, ranksFor, SAFE_DEG, scoreOf, slopeClass, slopeField, toKml,
-  useCellLayers, useScoutGrid, WORLDCOVER, type Body, type Decision, type ScoutCell,
+  decide, GRID_URL, HAZARD_DEG, loadBuildings, loadCellLayers, loadHdHeightmap, loadHeightmap, preScreen, preScreenCounts, ranksFor, SAFE_DEG, scoreOf, slopeClass, slopeField, toKml,
+  useCellLayers, useScoutGrid, WORLDCOVER, type Body, type Decision, type ScoutCell, type Verdict,
 } from '../lib/scout';
 import { AI_HIGH, AI_LOW, goCells } from '../lib/scoutAi';
 import { MAX_PHOTOS, pathKm, saveFlight, type FlightRecord, type Photo } from '../lib/missionLog';
@@ -34,6 +34,9 @@ function heat(v: number | null): string {
 }
 
 /** AI colour: purple ramp, low -> high. */
+/** Pre-screen verdict colours: green GO, amber CONDITIONAL, dim grey NO-GO. */
+const VERDICT_COL: Record<Verdict, string> = { go: '#3fb950', conditional: '#e3a32b', nogo: '#4b5563' };
+
 function aiHeat(p: number | null): string {
   if (p == null) return '#3a4258';
   const v = Math.max(0, Math.min(1, p / 100));
@@ -60,7 +63,7 @@ export default function Scout() {
   const { grid, failed } = useScoutGrid();
   const places = usePlaces();
   const [body, setBody] = useState<Body>('moon');
-  const [colorBy, setColorBy] = useState<'rules' | 'ai'>('rules');
+  const [colorBy, setColorBy] = useState<'rules' | 'ai' | 'verdict'>('rules');
   const [marsTarget, setMarsTarget] = useState<string | null>(null); // null = each cell's best Mars target
   const [sel, setSel] = useState<ScoutCell | null>(null);
   const [hm, setHm] = useState<{ id: string; heights: Float32Array; slope: Float32Array; px: number; resM: number; draw: { heights: Float32Array; px: number; resM: number } | null; layers: { cover: Uint8Array; water: Uint8Array } | null; buildings: Float32Array | null } | null>(null);
@@ -87,10 +90,33 @@ export default function Scout() {
   const ranks = useMemo(() => (grid ? ranksFor(grid.cells, body, tgt) : new Map<string, number>()), [grid, body, tgt]);
   const ranked = useMemo(() => (grid ? grid.cells.filter((c) => ranks.has(c.id)) : []), [grid, ranks]);
   const aiOn = colorBy === 'ai' && !!grid?.ai;
+  const verdictOn = colorBy === 'verdict';
+  /** Country-wide pre-screen for the current body: every cell, same rules as the drone scan. */
+  const verdicts = useMemo(() => {
+    const out = new Map<string, Verdict>();
+    if (!grid) return out;
+    for (const c of grid.cells) {
+      const d = preScreen(c, ranks.get(c.id), ranked.length, cellLayers?.cells[c.id]?.water_seasonal_pct ?? null);
+      if (d) out.set(c.id, d.verdict);
+    }
+    return out;
+  }, [grid, ranks, ranked.length, cellLayers]);
+  const counts = useMemo(() => preScreenCounts(verdicts.values()), [verdicts]);
+  /** Mars caveat: Scout is terrain only, so the mineral-rich Samail ophiolite ranks low here but high in the full analysis. */
+  const marsNote = useMemo(() => {
+    const cellId = grid?.sites.find((x) => x.id === 'samail_ophiolite')?.cell;
+    const rank = cellId ? ranks.get(cellId) : undefined;
+    const best = data.scores
+      .filter((x) => x.earth === 'samail_ophiolite' && x.overall != null && data.targets.find((tg) => tg.id === x.target)?.body === 'mars')
+      .sort((a, b) => (b.overall ?? 0) - (a.overall ?? 0))[0];
+    const target = best ? data.targets.find((tg) => tg.id === best.target) : undefined;
+    return rank && best && target ? { rank, pct: Math.round((best.overall ?? 0) * 100), target: loc(target.name) } : null;
+  }, [grid, ranks, data, loc]);
   const top = useMemo(() => {
+    if (verdictOn) return [...ranked].filter((c) => verdicts.get(c.id) === 'go').sort((a, b) => ranks.get(a.id)! - ranks.get(b.id)!).slice(0, 8);
     if (aiOn) return [...ranked].filter((c) => c.ai?.[body]).sort((a, b) => b.ai![body]!.p - a.ai![body]!.p).slice(0, 8);
     return [...ranked].sort((a, b) => ranks.get(a.id)! - ranks.get(b.id)!).slice(0, 8);
-  }, [ranked, ranks, aiOn, body]);
+  }, [ranked, ranks, aiOn, verdictOn, verdicts, body]);
   const score = (c: ScoutCell) => scoreOf(c, body, tgt);
   const moonRanks = useMemo(() => (grid ? ranksFor(grid.cells, 'moon') : new Map<string, number>()), [grid]);
   const jsCell = grid?.sites.find((x) => x.id === 'jebel_shams')?.cell ?? null;
@@ -278,6 +304,13 @@ export default function Scout() {
         {jsCell && moonRanks.get(jsCell) && (
           <p className="cross-check small">{t('scout.crossCheck', { rank: num(moonRanks.get(jsCell)!), n: num(moonRanks.size) })}</p>
         )}
+        <div className="pre-screen small">
+          <strong>{t('scout.preTitle', { n: num(verdicts.size) })}</strong>{' '}
+          {t('scout.preCounts', { go: num(counts.go), cond: num(counts.conditional), nogo: num(counts.nogo), body: t(`scout.body_${body}`) })}{' '}
+          {!verdictOn && (
+            <button type="button" className="btn small" onClick={() => setColorBy('verdict')}>{t('scout.preShow')}</button>
+          )}
+        </div>
         <p className="small"><Link to="/log" className="btn small ghost">{t('scout.toLog')}</Link></p>
       </header>
 
@@ -289,12 +322,13 @@ export default function Scout() {
             </button>
           ))}
         </div>
-        {grid.ai && (
-          <div className="seg" role="group" aria-label={t('scout.colorBy')}>
-            <button type="button" className={colorBy === 'rules' ? 'active' : ''} onClick={() => setColorBy('rules')}>{t('scout.colorRules')}</button>
+        <div className="seg" role="group" aria-label={t('scout.colorBy')}>
+          <button type="button" className={colorBy === 'rules' ? 'active' : ''} onClick={() => setColorBy('rules')}>{t('scout.colorRules')}</button>
+          <button type="button" className={colorBy === 'verdict' ? 'active' : ''} onClick={() => setColorBy('verdict')}>{t('scout.colorVerdict')}</button>
+          {grid.ai && (
             <button type="button" className={colorBy === 'ai' ? 'active ai' : ''} onClick={() => setColorBy('ai')}><span className="ai-badge tiny">AI</span> {t('scout.colorAi')}</button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {body === 'mars' && colorBy === 'rules' && (
@@ -309,26 +343,36 @@ export default function Scout() {
         </label>
       )}
 
+      {body === 'mars' && marsNote && (
+        <p className="note small mars-terrain-note">
+          {t('scout.marsTerrainNote', { rank: num(marsNote.rank), n: num(ranked.length), pct: num(marsNote.pct), target: marsNote.target })}{' '}
+          <Link to="/site/samail_ophiolite">{t('scout.marsTerrainLink')}</Link>
+        </p>
+      )}
+
       <section className="scout-grid">
         <div className="panel scout-map">
-          <h2>{aiOn ? t('scout.mapTitleAi', { body: t(`scout.body_${body}`) }) : t('scout.mapTitle', { body: t(`scout.body_${body}`) })}</h2>
+          <h2>{verdictOn ? t('scout.mapTitleVerdict', { body: t(`scout.body_${body}`) }) : aiOn ? t('scout.mapTitleAi', { body: t(`scout.body_${body}`) }) : t('scout.mapTitle', { body: t(`scout.body_${body}`) })}</h2>
           <MapContainer center={[20.6, 56.5]} zoom={6} minZoom={5} maxZoom={13} scrollWheelZoom wheelPxPerZoomLevel={90} className="scout-leaflet">
             <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" attribution="Esri, Maxar, Earthstar Geographics" />
             {grid.cells.map((c) => {
               const v = score(c);
               const p = c.ai?.[body]?.p ?? null;
-              const col = aiOn ? aiHeat(p) : heat(v);
+              const vd = verdicts.get(c.id) ?? null;
+              const col = verdictOn ? (vd ? VERDICT_COL[vd] : VERDICT_COL.nogo) : aiOn ? aiHeat(p) : heat(v);
               const h = grid.method.cell_deg / 2;
               return (
                 <Rectangle
                   key={`${c.id}-${body}-${tgt ?? ''}-${colorBy}`}
                   bounds={[[c.lat - h, c.lon - h], [c.lat + h, c.lon + h]]}
-                  pathOptions={{ color: sel?.id === c.id ? '#ffffff' : col, weight: sel?.id === c.id ? 2.5 : 0.4, fillColor: col, fillOpacity: 0.55 }}
+                  pathOptions={{ color: sel?.id === c.id ? '#ffffff' : col, weight: sel?.id === c.id ? 2.5 : 0.4, fillColor: col, fillOpacity: verdictOn && vd === 'nogo' ? 0.25 : 0.55 }}
                   eventHandlers={{ click: () => pick(c) }}
                 >
                   <Tooltip direction="top">
                     {places && <><b>{placeOf(c.lat, c.lon)}</b><br /></>}
-                    {aiOn
+                    {verdictOn
+                      ? t('scout.verdictTip', { verdict: vd ? t(`scout.vShort_${vd}`) : '–', rank: num(ranks.get(c.id) ?? 0), n: num(ranked.length) })
+                      : aiOn
                       ? t('scout.cellTipAi', { p: p == null ? '–' : num(p), rank: num(c.ai?.[body]?.rank ?? 0), n: num(ranked.length) })
                       : t('scout.cellTip', { score: v == null ? '–' : num(v * 100), rank: num(ranks.get(c.id) ?? 0), n: num(ranked.length) })}
                   </Tooltip>
@@ -349,16 +393,26 @@ export default function Scout() {
               );
             })}
           </MapContainer>
-          <div className={`heat-legend ${aiOn ? 'ai' : ''}`} aria-hidden="true">
-            <span>{aiOn ? t('scout.aiLow') : t('scout.low')}</span>
-            <i />
-            <span>{aiOn ? t('scout.aiHigh') : t('scout.high')}</span>
-            <span className="muted small"> · ○ {t('scout.legendSites')}</span>
-          </div>
+          {verdictOn ? (
+            <div className="heat-legend verdict-legend" aria-hidden="true">
+              {(['go', 'conditional', 'nogo'] as Verdict[]).map((v) => (
+                <span key={v}><i className="sw" style={{ background: VERDICT_COL[v] }} /> {t(`scout.vShort_${v}`)} ({num(counts[v])})</span>
+              ))}
+              <span className="muted small"> · ○ {t('scout.legendSites')}</span>
+            </div>
+          ) : (
+            <div className={`heat-legend ${aiOn ? 'ai' : ''}`} aria-hidden="true">
+              <span>{aiOn ? t('scout.aiLow') : t('scout.low')}</span>
+              <i />
+              <span>{aiOn ? t('scout.aiHigh') : t('scout.high')}</span>
+              <span className="muted small"> · ○ {t('scout.legendSites')}</span>
+            </div>
+          )}
+          {verdictOn && <p className="muted small">{t('scout.preNote')}</p>}
         </div>
 
         <div className="panel scout-top">
-          <h2>{aiOn ? t('scout.topTitleAi', { body: t(`scout.body_${body}`) }) : t('scout.topTitle', { body: t(`scout.body_${body}`) })}</h2>
+          <h2>{verdictOn ? t('scout.topTitleVerdict', { body: t(`scout.body_${body}`), n: num(counts.go) }) : aiOn ? t('scout.topTitleAi', { body: t(`scout.body_${body}`) }) : t('scout.topTitle', { body: t(`scout.body_${body}`) })}</h2>
           <ol>
             {top.map((c) => {
               const s = grid.sites.find((x) => x.cell === c.id);
@@ -372,13 +426,13 @@ export default function Scout() {
                       <small className="nowrap" dir="ltr">{num(c.lat, 2)}° N, {num(c.lon, 2)}° E</small>
                     </span>
                     {site && <span className="pill soft small">{loc(site.name)}</span>}
-                    <strong>{aiOn ? num(c.ai![body]!.p) : num((score(c) ?? 0) * 100)}%</strong>
+                    <strong>{verdictOn ? `#${num(ranks.get(c.id) ?? 0)}` : `${aiOn ? num(c.ai![body]!.p) : num((score(c) ?? 0) * 100)}%`}</strong>
                   </button>
                 </li>
               );
             })}
           </ol>
-          <p className="muted small">{aiOn ? t('scout.topNoteAi') : t('scout.topNote')}</p>
+          <p className="muted small">{verdictOn ? t('scout.topNoteVerdict') : aiOn ? t('scout.topNoteAi') : t('scout.topNote')}</p>
         </div>
       </section>
 
@@ -464,7 +518,7 @@ export default function Scout() {
                   places={places}
                   cells={grid.cells}
                   cellDeg={grid.method.cell_deg}
-                  colorOf={(c) => (aiOn ? aiHeat(c.ai?.[body]?.p ?? null) : heat(score(c)))}
+                  colorOf={(c) => (verdictOn ? VERDICT_COL[verdicts.get(c.id) ?? 'nogo'] : aiOn ? aiHeat(c.ai?.[body]?.p ?? null) : heat(score(c)))}
                   sel={sel}
                   drone={tel ? { lat: tel.lat, lon: tel.lon, heading: tel.heading } : null}
                   hereLabel={tel ? placeOf(tel.lat, tel.lon, true) : placeOf(sel.lat, sel.lon)}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decide, decodeTerrarium, ranksFor, safeShare, scoreOf, slopeClass, slopeField, toKml, toLatLon, type ScoutCell } from './scout';
+import { decide, decodeTerrarium, preScreen, preScreenCounts, ranksFor, safeShare, scoreOf, slopeClass, slopeField, toKml, toLatLon, type ScoutCell } from './scout';
 
 const cell = (over: Partial<ScoutCell> = {}): ScoutCell => ({
   id: 'c', lat: 23, lon: 58, land_frac: 1, slope_deg: 5, roughness_m: 10, relief_m: 200,
@@ -64,5 +64,21 @@ describe('geo and export', () => {
     expect(k).toContain('<name>A &amp; B</name>');
     expect(k).toContain('2.000000,1.000000,100 2.100000,1.100000,120');
     expect(k).toContain('&lt;x&gt;');
+  });
+});
+
+describe('country-wide pre-screen', () => {
+  it('uses the whole-cell safe share with the same rules as a scan', () => {
+    expect(preScreen(cell({ safe_pct: 60 }), 3, 100)?.verdict).toBe('go');
+    expect(preScreen(cell({ safe_pct: 60 }), 3, 100)?.verdict).toBe(decide(cell(), 3, 100, 0.6).verdict);
+    expect(preScreen(cell({ safe_pct: 5 }), 3, 100)?.verdict).toBe('nogo');
+  });
+  it('turns seasonal water (percent) into a flood caution', () => {
+    expect(preScreen(cell({ safe_pct: 60 }), 3, 100, 2)?.verdict).toBe('go');
+    expect(preScreen(cell({ safe_pct: 60 }), 3, 100, 4)?.verdict).toBe('conditional');
+  });
+  it('skips cells without a safe share and counts the rest', () => {
+    expect(preScreen(cell({ safe_pct: null }), 3, 100)).toBeNull();
+    expect(preScreenCounts(['go', 'go', 'nogo', null, 'conditional'])).toEqual({ go: 2, conditional: 1, nogo: 1 });
   });
 });
