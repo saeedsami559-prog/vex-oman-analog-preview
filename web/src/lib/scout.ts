@@ -331,6 +331,23 @@ export function decide(cell: ScoutCell, rank: number | undefined, totalRanked: n
   return { verdict, criteria };
 }
 
+/**
+ * Country-wide pre-screen: the same decide() rules, applied to every cell from data Scout already holds,
+ * before anyone flies. Safety uses the whole-cell safe share (safe_pct) instead of a 2 km scan around one
+ * point, and flood uses the cell's seasonal-water share (JRC, %), so a scan on site can still change a verdict.
+ */
+export function preScreen(cell: ScoutCell, rank: number | undefined, totalRanked: number, waterSeasonalPct?: number | null): Decision | null {
+  if (cell.safe_pct == null) return null;
+  return decide(cell, rank, totalRanked, cell.safe_pct / 100, waterSeasonalPct == null ? null : waterSeasonalPct / 100);
+}
+
+/** Count pre-screen verdicts over a set of cells. Cells without a safe share are left out. */
+export function preScreenCounts(verdicts: Iterable<Verdict | null>): Record<Verdict, number> {
+  const out: Record<Verdict, number> = { go: 0, conditional: 0, nogo: 0 };
+  for (const v of verdicts) if (v) out[v] += 1;
+  return out;
+}
+
 /** Local metres (x east, y north, origin at the cell centre) to latitude/longitude, small-area approximation. */
 export function toLatLon(cell: { lat: number; lon: number }, xM: number, yM: number): [number, number] {
   const lat = cell.lat + yM / 111_320;
