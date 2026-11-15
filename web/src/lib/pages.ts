@@ -22,7 +22,7 @@ export const PAGES: PageInfo[] = [
   { id: 'sources', to: '/sources', job: { en: 'Every dataset and product ID, which values are missing and why, plus JSON and CSV downloads.', ar: 'كل مجموعة بيانات ومعرّف منتج، والقيم الناقصة وسببها، مع تنزيل JSON و CSV.' } },
   { id: 'mission', to: '/mission', job: { en: 'A nine-day field-campaign concept that tests the scores on the ground in the best season.', ar: 'تصوّر لحملة ميدانية من تسعة أيام تختبر الدرجات على الأرض في أنسب موسم.' } },
   { id: 'about', to: '/about', job: { en: 'The challenge and how each part is answered, Team VEX, use of AI, and how to cite the project.', ar: 'التحدي وكيف أجبنا عن كل جزء منه، وفريق VEX، واستخدام الذكاء الاصطناعي، وكيفية الاستشهاد بالمشروع.' } },
-  { id: 'present', to: '/present', job: { en: 'The project in seven slides, ready for judges (arrow keys to move, P to print).', ar: 'المشروع في سبع شرائح جاهزة للحكّام (الأسهم للتنقل، P للطباعة).' } },
+  { id: 'present', to: '/present', job: { en: 'The pitch deck: seven slides you can page through here or download as a PowerPoint file.', ar: 'العرض التقديمي: سبع شرائح تتصفحها هنا أو تنزّلها كملف PowerPoint.' } },
 ];
 
 /** Where each page sends the reader next. Keys are page ids, plus 'site' for site pages. */

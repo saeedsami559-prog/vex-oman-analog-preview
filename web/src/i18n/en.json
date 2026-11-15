@@ -678,6 +678,7 @@
     ]
   },
   "present": {
+    "download": "Download PowerPoint",
     "exit": "Exit",
     "prev": "Previous",
     "next": "Next",
