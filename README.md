@@ -136,6 +136,15 @@ oman-analog-explorer/
 
 ---
 
+## Use of AI
+
+- **In the product:** the "Why this place?" panel is our own explainable k-nearest-neighbour model (k = 3, six NASA-derived features). It is not a generative model; its inputs, nearest neighbours and validation are shown on the site.
+- **In development:** parts of the code (Python pipeline, React/TypeScript website, WebGL drone view), interface text and documentation were written with the help of Claude (Anthropic). Commits made with AI assistance are marked `Co-Authored-By: Claude` in the Git history. The team chose the idea, the data sources and the design, and reviewed and tested the output.
+- **Data:** no number on the site is AI-generated. Every value is computed from the cited NASA and partner datasets.
+- The website contains no AI-generated images, video or audio.
+
+---
+
 ## بالعربية — البدء السريع
 
 1. **التحليل:** داخل مجلد `analysis` أنشئ بيئة Python وثبّت المتطلبات، ثم شغّل `python -m analog.export` لإنتاج `data/processed/sites.json` ونسخه إلى الواجهة، ثم `pytest`.
